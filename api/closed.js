@@ -3,6 +3,13 @@ export default function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
+  res.setHeader('Content-Security-Policy', "default-src 'none'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'none'; style-src 'unsafe-inline'; img-src 'none'; connect-src 'none'; font-src 'none'");
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
   res.status(503).send(`<!doctype html>
 <html lang="ja">
 <head>
