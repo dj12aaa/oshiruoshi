@@ -1,0 +1,34 @@
+name: Verify Private Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  verify-private:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm production is unavailable
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE='https://oshiruoshi.vercel.app'
+          CODE=''
+          echo 'Waiting for Vercel production to switch to private mode...'
+          for i in $(seq 1 30); do
+            CODE=$(curl -sS -o /tmp/body --max-time 10 -w '%{http_code}' "$BASE/" || true)
+            echo "attempt=$i status=$CODE"
+            if [ "$CODE" = '503' ] && grep -Fq '現在、一般公開を停止しています。' /tmp/body; then
+              echo 'Production is closed.'
+              break
+            fi
+            sleep 5
+          done
+          test "$CODE" = '503'
+          grep -Fq '現在、一般公開を停止しています。' /tmp/body
+          API_CODE=$(curl -sS -o /tmp/api --max-time 10 -w '%{http_code}' "$BASE/api/search?q=test" || true)
+          test "$API_CODE" = '503'
+          HEADERS=$(curl -sSI --max-time 10 "$BASE/" || true)
+          printf '%s' "$HEADERS" | grep -Fiq 'x-robots-tag: noindex'
+          echo 'Verified: OSHIRU is not publicly usable.'
