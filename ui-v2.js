@@ -98,11 +98,38 @@
     highlightBest(table);
   }
 
+  function markAffiliateCards(){
+    document.querySelectorAll('.product-card').forEach(card => {
+      const link=card.querySelector('.card-actions a[href]');
+      if(!link) return;
+      let affiliate=false;
+      try{ affiliate=new URL(link.href,location.href).hostname==='hb.afl.rakuten.co.jp'; }catch{}
+      const row=card.querySelector('.tag-row');
+      const existing=card.querySelector('.affiliate-tag');
+      if(affiliate && row && !existing){
+        const tag=document.createElement('span');
+        tag.className='tag affiliate-tag';
+        tag.textContent='PR';
+        tag.title='アフィリエイトリンクを含みます';
+        row.appendChild(tag);
+      }else if(!affiliate && existing){
+        existing.remove();
+      }
+    });
+  }
+
   const modalContent = document.getElementById('modalContent');
   if(modalContent){
     new MutationObserver(() => window.setTimeout(enhanceCompare,0))
       .observe(modalContent,{childList:true,subtree:true});
   }
+
+  const productGrid=document.getElementById('productGrid');
+  if(productGrid){
+    new MutationObserver(() => window.setTimeout(markAffiliateCards,0))
+      .observe(productGrid,{childList:true,subtree:true});
+  }
+  markAffiliateCards();
 
   document.getElementById('openCompare')?.addEventListener('click', () => window.setTimeout(enhanceCompare,0));
 })();
