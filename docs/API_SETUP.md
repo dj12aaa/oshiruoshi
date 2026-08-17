@@ -2,30 +2,45 @@
 
 APIキー/Client IDの発行は、利用者本人のログイン・規約同意・場合によっては申請や支払いが必要なため、完全自動化しない。発行後のOSHIRUへの接続、テスト、秘密情報管理、再デプロイは自動化対象とする。
 
-## 1. Yahoo!ショッピング 商品検索API — 優先度: 高
+## 1. Yahoo!ショッピング 商品検索API — 実装済み / 優先度: 高
 
 用途:
 - 新品・店舗商品の検索
 - 商品名
 - 価格
-- 在庫関連情報
+- 在庫情報
 - 商品URL
-- APIが許可する画像URL
+- APIが返す商品画像URL
+- ストア名
+- 新品/中古区分
+- 送料条件
 
-OSHIRU側はすでに `YAHOO_CLIENT_ID` を読むアダプターを持つ。
+OSHIRU側は `YAHOO_CLIENT_ID` を読み、Yahoo!ショッピング商品検索API v3へサーバー側から接続する。Client Secretは商品検索API v3では使用しない。
 
-ユーザー作業:
-1. Yahoo! JAPAN IDでYahoo!デベロッパーネットワークへログイン
-2. アプリケーション登録を行う
-3. OSHIRUを登録しClient IDを発行
-4. 利用ルール/クレジット表示を確認
-5. Client IDをコピーする
+現在の実装:
+- `query` に検索語を渡す
+- `results=30`
+- `image_size=300`
+- `in_stock=true`
+- YahooレスポンスをOSHIRUの商品カード形式へ正規化
+- 送料無料だけ送料0円として確定し、条件付き送料無料/不明は0円扱いしない
+- 60秒の短期キャッシュ
+- 同一実行環境でYahooへの連続リクエスト間隔を約1秒以上に制御
+- 外部APIを5秒でタイムアウト
+- 最大レスポンスサイズを制限
+- Yahoo障害時もOSHIRU全体の検索を止めず、他の検索結果を表示
+- Client IDをブラウザへ返さない
 
-接続時:
-- Vercel Environment Variablesへ `YAHOO_CLIENT_ID` を登録
-- Preview環境からテスト
-- 商品名/価格/URL/画像のマッピングを検証
-- エラー/レート制限時は検索結果全体を止めず、その取得元だけスキップ
+必要なVercel設定:
+- Environment Variable名: `YAHOO_CLIENT_ID`
+- 値: Yahoo!デベロッパーネットワークで発行したClient ID
+- Client Secretは登録不要
+
+設定後の確認:
+1. `/api/status` で `yahooShopping: true`
+2. `/api/live-search?q=五条悟%20アクスタ` を実行
+3. `items` に `source: "Yahoo!ショッピング"` が含まれることを確認
+4. 画面の横断検索結果へYahoo!ショッピング商品が追加されることを確認
 
 ## 2. 楽天市場 商品検索API — 優先度: 高
 
@@ -130,7 +145,6 @@ X APIは従量課金前提のため、無料MVPの標準取得元にはしない
 したがって「サイトそのもの」はAPIなしでも作れるが、「最新の横断商品データサービス」にするほど公式/許諾済みAPIやデータ契約の重要性が上がる。
 
 ## API取得後にこちらで自動化できるもの
-- 環境変数名の設定方針
 - API adapter実装
 - データ正規化
 - タイムアウト
@@ -142,4 +156,4 @@ X APIは従量課金前提のため、無料MVPの標準取得元にはしない
 - Previewデプロイ検証
 - 本番リリース判定
 
-秘密鍵をGitHubへコミットしない。
+秘密鍵をGitHubへコミットしない。Client IDも可能な限りVercel Environment Variablesで管理する。
