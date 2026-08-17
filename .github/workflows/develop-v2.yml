@@ -1,0 +1,44 @@
+name: OSHIRU develop-v2 checks
+
+on:
+  push:
+    branches: [develop-v2]
+  pull_request:
+    branches: [develop-v2]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: JavaScript syntax
+        run: |
+          node --check app.js
+          node --check ui-v2.js
+          node --check api/_core.mjs
+          node --check api/search.js
+          node --check api/live-search.js
+          node --check api/suggest.js
+          node --check api/vision-search.js
+      - name: UI contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq 'id="introCutin"' index.html
+          grep -Fq 'ui-v2.css' index.html
+          grep -Fq 'ui-v2.js' index.html
+          grep -Fq 'id="openSettings" hidden' index.html
+          grep -Fq '画像から探す' index.html
+          grep -Fq 'id="openCompare"' index.html
+          if grep -Fq '>接続状況<' index.html; then exit 1; fi
+          if grep -Fq '>通販API<' index.html; then exit 1; fi
+          grep -Fq 'data-compare-filter="price"' ui-v2.js
+          grep -Fq 'data-compare-filter="time"' ui-v2.js
+      - name: Development SEO safety
+        run: grep -Fq '<meta name="robots" content="noindex,nofollow">' index.html
+      - name: Existing tests
+        run: |
+          if [ -d tests ]; then npm test; else echo 'No legacy tests directory on baseline branch'; fi
