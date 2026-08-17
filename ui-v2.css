@@ -1,0 +1,93 @@
+/* OSHIRU UI refinement layer — intentionally small and dependency-free. */
+:root{
+  --text:#070b12;
+  --muted:#263244;
+  --line:#bcc7d4;
+  --soft:#eef2f6;
+  --accent:#d91f48;
+  --accent-dark:#b9183b;
+}
+body{font-size:17px;color:var(--text)}
+.header-inner{height:72px}
+.header-nav a{font-size:15px;color:#111827}
+.favorite-head{font-size:15px}
+.hero-copy p{font-size:17px;color:#1f2937;line-height:1.75}
+.search-box input{font-size:18px}
+.search-actions .soft-button,.search-actions .query-chip{font-size:13.5px}
+.beta-label{font-size:10px;font-weight:900;vertical-align:super;margin-left:2px;color:var(--accent)}
+.source-strip>div{font-size:14.5px;color:#111827}
+.source-strip .strip-note{font-size:13px;color:#263244;line-height:1.5}
+.beta-bar{font-size:13.5px;color:#202b3a;background:#f9fafb}
+.filter-label,.source-filters label,.checks label,.range-label{font-size:14.5px;color:#111827}
+.filter-head button{font-size:13px;color:#263244}
+select{font-size:14.5px;color:#111827}
+.watch-card p{font-size:12px;color:#e5e7eb}
+.result-top h2{font-size:27px}
+.result-meta{font-size:14.5px;color:#263244}
+.stat span{font-size:12.5px;color:#263244}
+.stat b{font-size:19px}
+.product-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.product-card{border-color:#c6d0dc}
+.card-body{padding:15px}
+.tag{font-size:11px}
+.product-title{font-size:16.5px;line-height:1.48;height:50px}
+.meta-line{font-size:12.5px;color:#263244}
+.main-price{font-size:27px}
+.ship{font-size:12.5px;color:#263244}
+.cost-row{font-size:12.5px;color:#263244;padding:10px 11px}
+.verified{font-size:11.5px;color:#334155}
+.card-actions a,.card-actions button{font-size:13.5px}
+.provider-notice{display:none!important}
+
+/* Lightweight cut-in: no video, images, frameworks or network requests. */
+.intro-cutin{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:#fff;opacity:1;visibility:visible;transition:opacity .28s ease,visibility .28s ease}
+.intro-cutin.is-leaving{opacity:0;visibility:hidden;pointer-events:none}
+.intro-lockup{text-align:center;padding:24px;min-width:min(86vw,520px)}
+.intro-wordmark{font-weight:950;font-size:clamp(48px,9vw,90px);letter-spacing:-.055em;line-height:1;color:#080c13;opacity:0;transform:translateY(9px) scale(.985);animation:oshiruWord .42s cubic-bezier(.2,.8,.2,1) .05s forwards}
+.intro-tagline{margin-top:9px;font-size:clamp(15px,2.4vw,21px);font-weight:800;letter-spacing:.05em;color:#283344;opacity:0;transform:translateY(7px);animation:oshiruTag .34s ease .25s forwards}
+.intro-line{height:3px;width:0;margin:22px auto 0;border-radius:999px;background:var(--accent);animation:oshiruLine .42s cubic-bezier(.2,.8,.2,1) .35s forwards}
+@keyframes oshiruWord{to{opacity:1;transform:none}}
+@keyframes oshiruTag{to{opacity:1;transform:none}}
+@keyframes oshiruLine{to{width:78px}}
+
+/* Comparison view */
+.compare-filterbar{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:14px 0 8px;padding:10px;background:#f4f6f8;border:1px solid #d6dde6;border-radius:12px}
+.compare-filterbar .compare-label{font-size:12.5px;font-weight:800;color:#334155;margin-right:2px}
+.compare-tab{border:1px solid #c6d0dc;background:#fff;color:#172033;border-radius:999px;padding:7px 11px;font-size:12.5px;font-weight:800}
+.compare-tab.active{background:#17181c;color:#fff;border-color:#17181c}
+.compare-table{font-size:13px;border:1px solid #dbe1e8;border-radius:12px;overflow:hidden}
+.compare-table th,.compare-table td{padding:12px 11px;vertical-align:top;line-height:1.55}
+.compare-table th:first-child{position:sticky;left:0;background:#f7f8fa;z-index:2;min-width:92px;color:#111827}
+.compare-table td.best-value{background:#fff4f6;color:#8f1733;font-weight:900;box-shadow:inset 0 0 0 1px #f0b5c2}
+.compare-table tr.compare-row-hidden{display:none}
+.compare-tip{font-size:12px;color:#334155;margin:0 0 10px;line-height:1.6}
+
+/* Small UX polish */
+.search-button,.card-actions a,.primary-small{transition:transform .12s ease,background .12s ease,box-shadow .12s ease}
+.search-button:active,.card-actions a:active,.primary-small:active{transform:translateY(1px)}
+:focus-visible{outline:3px solid rgba(217,31,72,.32);outline-offset:2px}
+
+@media(max-width:1120px){
+  .product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .source-strip .strip-note{margin-left:0;width:100%}
+  .source-strip{flex-wrap:wrap}
+}
+@media(max-width:760px){
+  body{font-size:16px}
+  .header-inner{height:62px;padding:0 16px;gap:12px}
+  .header-nav{display:none}
+  .favorite-head span{display:none}
+  .search-hero{padding-top:28px}
+  .hero-copy p{font-size:15.5px}
+  .search-box input{font-size:16px}
+  .product-grid{grid-template-columns:1fr;gap:12px}
+  .product-title{font-size:16px;height:auto;min-height:48px}
+  .main-price{font-size:26px}
+  .compare-table{min-width:650px}
+  .modal-card{padding:18px 14px;overflow:auto}
+  .modal-card:has(.compare-table){overflow-x:auto}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  .intro-cutin{display:none!important}
+}
