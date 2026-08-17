@@ -6,6 +6,9 @@ const aliases={アクスタ:['アクスタ','アクリルスタンド','アク�
 const yahooCache=new Map();
 let yahooLastRequestAt=0;
 let yahooGate=Promise.resolve();
+const rakutenCache=new Map();
+let rakutenLastRequestAt=0;
+let rakutenGate=Promise.resolve();
 
 export function setCommon(res){
   res.setHeader('Cache-Control','no-store');
@@ -108,13 +111,69 @@ async function yahooShopping(q){
   const task=yahooGate.then(run,run);yahooGate=task.catch(()=>{});return task;
 }
 
-async function rakuten(q){
-  if(!process.env.RAKUTEN_APP_ID||!process.env.RAKUTEN_ACCESS_KEY||!q)return[];
-  const p=new URLSearchParams({applicationId:process.env.RAKUTEN_APP_ID,accessKey:process.env.RAKUTEN_ACCESS_KEY,keyword:q,hits:'16',format:'json'});
+function firstRakutenImage(h){
+  const v=h?.mediumImageUrls?.[0];
+  return typeof v==='string'?v:(v?.imageUrl||null);
+}
+export function mapRakutenItem(row,i=0,now=new Date().toISOString()){
+  const h=row?.Item||row||{};
+  const image=firstRakutenImage(h);
+  const available=Number(h?.availability)!==0;
+  const postage=Number(h?.postageFlag);
+  return{
+    id:`rakuten-${h?.itemCode||i}`,
+    source:'楽天市場',
+    title:[h?.catchcopy,h?.itemName].filter(Boolean).join(' ').trim()||'商品名不明',
+    price:Number.isFinite(Number(h?.itemPrice))?Number(h.itemPrice):null,
+    shipping:postage===0?0:null,
+    shippingLabel:postage===0?'送料込み/送料無料':'送料は商品ページで確認',
+    fee:0,
+    status:available?'販売中':'在庫なし',
+    condition:'新品',
+    url:h?.affiliateUrl||h?.itemUrl||'#',
+    canonicalUrl:h?.itemUrl||null,
+    image,
+    type:'通販',
+    shop:h?.shopName||'',
+    itemCode:h?.itemCode||'',
+    reviewCount:Number.isFinite(Number(h?.reviewCount))?Number(h.reviewCount):null,
+    reviewAverage:Number.isFinite(Number(h?.reviewAverage))?Number(h.reviewAverage):null,
+    affiliate:Boolean(h?.affiliateUrl),
+    verifiedAt:now,
+    origin:'official-api',
+    real:true,
+    imageVerified:Boolean(image)
+  };
+}
+
+async function rakutenRequest(q){
+  const appId=process.env.RAKUTEN_APP_ID;
+  const accessKey=process.env.RAKUTEN_ACCESS_KEY;
+  if(!appId||!accessKey||!q)return[];
+  const p=new URLSearchParams({applicationId:appId,accessKey,keyword:q,hits:'30',format:'json',formatVersion:'2',availability:'1'});
+  if(process.env.RAKUTEN_AFFILIATE_ID)p.set('affiliateId',process.env.RAKUTEN_AFFILIATE_ID);
   const ep=process.env.RAKUTEN_ICHIBA_ENDPOINT||'https://openapi.rakuten.co.jp/ichibams/api/IchibaItem/Search/20260701';
   const d=await fetchJson(`${ep}?${p}`);
-  return(d.Items||d.items||[]).map((row,i)=>{const h=row.Item||row;return{id:`rakuten-${h.itemCode||i}`,source:'楽天市場',title:h.itemName,price:h.itemPrice,shipping:null,fee:0,status:'販売中',condition:'新品',url:h.itemUrl||h.affiliateUrl,image:h.mediumImageUrls?.[0]?.imageUrl||h.mediumImageUrls?.[0]||null,type:'通販',shop:h.shopName||'',verifiedAt:new Date().toISOString(),origin:'official-api',real:true,imageVerified:Boolean(h.mediumImageUrls?.length)}});
+  const now=new Date().toISOString();
+  const rows=d.Items||d.items||[];
+  return rows.map((row,i)=>mapRakutenItem(row,i,now)).filter(x=>x.url&&x.url!=='#');
 }
+
+async function rakuten(q){
+  const query=cleanQuery(q);if(!process.env.RAKUTEN_APP_ID||!process.env.RAKUTEN_ACCESS_KEY||!query)return[];
+  const key=query.toLowerCase();const cached=rakutenCache.get(key);const now=Date.now();
+  if(cached&&now-cached.at<60_000)return cached.items;
+  const run=async()=>{
+    const wait=Math.max(0,1050-(Date.now()-rakutenLastRequestAt));
+    if(wait)await new Promise(r=>setTimeout(r,wait));
+    rakutenLastRequestAt=Date.now();
+    const items=await rakutenRequest(query);rakutenCache.set(key,{at:Date.now(),items});
+    if(rakutenCache.size>80){const first=rakutenCache.keys().next().value;rakutenCache.delete(first)}
+    return items;
+  };
+  const task=rakutenGate.then(run,run);rakutenGate=task.catch(()=>{});return task;
+}
+
 async function xSearch(q){
   if(!process.env.X_BEARER_TOKEN||!q)return[];
   const xq=`(${q}) (交換 OR 譲 OR 求 OR 買取) -is:retweet lang:ja`;
@@ -159,4 +218,4 @@ export async function vision(imageData){
   const r=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{'content-type':'application/json','authorization':`Bearer ${process.env.OPENAI_API_KEY}`},body:JSON.stringify({model,input:[{role:'user',content:[{type:'input_text',text:'この推し活グッズ画像から検索に使える短い日本語検索語を推定してください。推測は避け、JSONだけで {"query":"...","confidence":0,"notes":[]} を返してください。'},{type:'input_image',image_url:imageData}]}]})});
   if(!r.ok)throw new Error(`vision_${r.status}`);const d=await r.json();const text=(d.output||[]).flatMap(x=>x.content||[]).map(x=>x.text||'').join('').replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'');return JSON.parse(text);
 }
-export function status(){return{snapshot:verified.length,publicAdapters,vision:Boolean(process.env.OPENAI_API_KEY),yahooShopping:Boolean(process.env.YAHOO_CLIENT_ID),rakuten:Boolean(process.env.RAKUTEN_APP_ID&&process.env.RAKUTEN_ACCESS_KEY),x:Boolean(process.env.X_BEARER_TOKEN),anilist:true,jikan:true,contact:Boolean(process.env.PUBLIC_CONTACT_EMAIL)}}
+export function status(){return{snapshot:verified.length,publicAdapters,vision:Boolean(process.env.OPENAI_API_KEY),yahooShopping:Boolean(process.env.YAHOO_CLIENT_ID),rakuten:Boolean(process.env.RAKUTEN_APP_ID&&process.env.RAKUTEN_ACCESS_KEY),rakutenAffiliate:Boolean(process.env.RAKUTEN_AFFILIATE_ID),x:Boolean(process.env.X_BEARER_TOKEN),anilist:true,jikan:true,contact:Boolean(process.env.PUBLIC_CONTACT_EMAIL)}}
