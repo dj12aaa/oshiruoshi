@@ -42,33 +42,52 @@ OSHIRU側は `YAHOO_CLIENT_ID` を読み、Yahoo!ショッピング商品検索A
 3. `items` に `source: "Yahoo!ショッピング"` が含まれることを確認
 4. 画面の横断検索結果へYahoo!ショッピング商品が追加されることを確認
 
-## 2. 楽天市場 商品検索API — 優先度: 高
+## 2. 楽天市場 商品検索API — 実装済み / 優先度: 高
 
 用途:
-- 楽天市場の新品・店舗商品
-- 商品名
+- 楽天市場の新品・店舗商品の検索
+- 商品名/キャッチコピー
 - 価格
+- 在庫
+- 送料込み判定
 - 商品URL
-- 店舗情報
-- 利用条件上表示できる画像
+- 店舗名
+- 商品画像
+- レビュー件数/平均
+- Affiliate ID設定時のアフィリエイトURL
 
-ユーザー作業:
-1. 楽天アカウントでRakuten Web Serviceへログイン
-2. 新しいアプリケーションを登録
-3. Application name: OSHIRU
-4. Application URL: 公開/PreviewのOSHIRU URL
-5. Allowed websites: OSHIRUドメイン
-6. Purpose: 推し活グッズの商品検索・価格比較
-7. Expected QPS: 初期βでは低い値から開始
-8. App ID / Access Keyを取得
-9. 必要なブランド/クレジット表示ルールを確認
+現在の実装:
+- Rakuten Ichiba Item Search API `20260701` を使用
+- `applicationId` と `accessKey` をサーバー側から送信
+- `affiliateId` は設定されている場合のみ送信
+- `hits=30`
+- `format=json`
+- `formatVersion=2`
+- `availability=1`
+- API結果をOSHIRUの商品カード形式へ正規化
+- `affiliateUrl` が返る場合は商品リンクとして優先
+- `itemUrl` は正規URLとして保持
+- `postageFlag=0` の場合のみ送料0円として扱う
+- 60秒の短期キャッシュ
+- 同一実行環境で楽天への連続リクエスト間隔を約1秒以上に制御
+- 外部APIを5秒でタイムアウト
+- 最大レスポンスサイズを制限
+- 楽天API障害時も他の販売元の検索結果を表示
+- Application ID / Access Key / Affiliate IDをブラウザへ返さない
+- Rakuten Web Serviceの必須クレジットを画面フッターへ表示
 
-接続時:
+必要なVercel設定:
 - `RAKUTEN_APP_ID`
 - `RAKUTEN_ACCESS_KEY`
+- `RAKUTEN_AFFILIATE_ID`（アフィリエイトURLを利用する場合）
 - `RAKUTEN_ICHIBA_ENDPOINT=https://openapi.rakuten.co.jp/ichibams/api/IchibaItem/Search/20260701`
 
-をVercel Environment Variablesへ登録する。
+設定後の確認:
+1. `/api/status` で `rakuten: true`
+2. Affiliate IDも設定した場合は `rakutenAffiliate: true`
+3. `/api/live-search?q=五条悟%20アクスタ` を実行
+4. `items` に `source: "楽天市場"` が含まれることを確認
+5. Affiliate ID設定時は楽天商品リンクがアフィリエイトURLになっていることを確認
 
 ## 3. AniList — 優先度: 中
 
