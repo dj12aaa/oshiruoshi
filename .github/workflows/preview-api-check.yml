@@ -84,14 +84,19 @@ jobs:
           const status=parse('/tmp/status.json');
           const live=parse('/tmp/live-summary.json');
           const headers=read('/tmp/status-headers.txt','');
+          const rawBody=read('/tmp/status.json','');
           const type=(headers.match(/^content-type:\s*([^\r\n]+)/im)||[])[1]||null;
-          const body=read('/tmp/status.json','').replace(/\s+/g,' ').slice(0,240);
+          const title=(rawBody.match(/<title[^>]*>([^<]+)<\/title>/i)||[])[1]||null;
+          const text=rawBody.replace(/<script[\s\S]*?<\/script>/gi,' ').replace(/<style[\s\S]*?<\/style>/gi,' ').replace(/<[^>]+>/g,' ').replace(/&nbsp;/g,' ').replace(/\s+/g,' ').trim();
+          const protection=/authentication required|log in|sign in|deployment protection|vercel authentication/i.test(text);
           const result={
             checkedAt:new Date().toISOString(),
             previewUrl:process.env.BASE||'https://oshiruoshi-git-develop-v2-djamuy12-2759s-projects.vercel.app',
             statusHttp:Number(read('/tmp/status-code.txt','0')),
             statusContentType:type,
-            statusBodyStart:status?null:body,
+            statusPageTitle:status?null:title,
+            statusLooksProtected:status?false:protection,
+            statusTextStart:status?null:text.slice(0,300),
             statusFlags:status?{yahooShopping:status.yahooShopping,rakuten:status.rakuten,snapshot:status.snapshot}:null,
             liveHttp:Number(read('/tmp/live-code.txt','0')),
             live,
