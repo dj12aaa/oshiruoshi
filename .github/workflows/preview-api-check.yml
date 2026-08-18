@@ -25,19 +25,15 @@ jobs:
           set -euo pipefail
           BASE="https://oshiruoshi-git-develop-v2-djamuy12-2759s-projects.vercel.app"
           echo "BASE=$BASE" >> "$GITHUB_ENV"
-          echo "Checking Vercel branch preview..."
           ok=0
           for i in $(seq 1 30); do
-            code=$(curl -L -sS -o /tmp/status.json -w '%{http_code}' "$BASE/api/status" || true)
+            code=$(curl -L -sS -D /tmp/status-headers.txt -o /tmp/status.json -w '%{http_code}' "$BASE/api/status" || true)
             echo "attempt=$i status=$code"
             echo "$code" > /tmp/status-code.txt
             if [ "$code" = "200" ]; then ok=1; break; fi
             sleep 5
           done
-          if [ "$ok" != "1" ]; then
-            echo "Preview did not return HTTP 200"
-            exit 1
-          fi
+          if [ "$ok" != "1" ]; then exit 1; fi
 
       - name: Confirm Yahoo and Rakuten environment flags
         id: envcheck
@@ -57,7 +53,6 @@ jobs:
         run: |
           set -euo pipefail
           code=$(curl -L -sS -o /tmp/live.json -w '%{http_code}' --get --data-urlencode 'q=五条悟 アクスタ' "$BASE/api/live-search")
-          echo "live-search status=$code"
           echo "$code" > /tmp/live-code.txt
           test "$code" = "200"
           node - <<'NODE'
@@ -84,14 +79,19 @@ jobs:
           mkdir -p verification
           node - <<'NODE'
           const fs=require('fs');
-          const read=(p,fallback=null)=>{try{return fs.readFileSync(p,'utf8').trim()}catch{return fallback}};
+          const read=(p,fallback='')=>{try{return fs.readFileSync(p,'utf8').trim()}catch{return fallback}};
           const parse=(p)=>{try{return JSON.parse(fs.readFileSync(p,'utf8'))}catch{return null}};
           const status=parse('/tmp/status.json');
           const live=parse('/tmp/live-summary.json');
+          const headers=read('/tmp/status-headers.txt','');
+          const type=(headers.match(/^content-type:\s*([^\r\n]+)/im)||[])[1]||null;
+          const body=read('/tmp/status.json','').replace(/\s+/g,' ').slice(0,240);
           const result={
             checkedAt:new Date().toISOString(),
             previewUrl:process.env.BASE||'https://oshiruoshi-git-develop-v2-djamuy12-2759s-projects.vercel.app',
             statusHttp:Number(read('/tmp/status-code.txt','0')),
+            statusContentType:type,
+            statusBodyStart:status?null:body,
             statusFlags:status?{yahooShopping:status.yahooShopping,rakuten:status.rakuten,snapshot:status.snapshot}:null,
             liveHttp:Number(read('/tmp/live-code.txt','0')),
             live,
