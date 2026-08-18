@@ -3,35 +3,44 @@ name: Verify develop-v2 Preview APIs
 on:
   push:
     branches: [develop-v2]
+    paths-ignore:
+      - 'verification/**'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   verify-preview:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: develop-v2
+
       - name: Wait for Vercel branch preview
+        id: preview
         shell: bash
         run: |
           set -euo pipefail
           BASE="https://oshiruoshi-git-develop-v2-djamuy12-2759s-projects.vercel.app"
+          echo "BASE=$BASE" >> "$GITHUB_ENV"
           echo "Checking Vercel branch preview..."
           ok=0
           for i in $(seq 1 30); do
             code=$(curl -L -sS -o /tmp/status.json -w '%{http_code}' "$BASE/api/status" || true)
             echo "attempt=$i status=$code"
+            echo "$code" > /tmp/status-code.txt
             if [ "$code" = "200" ]; then ok=1; break; fi
             sleep 5
           done
           if [ "$ok" != "1" ]; then
             echo "Preview did not return HTTP 200"
-            cat /tmp/status.json 2>/dev/null || true
             exit 1
           fi
 
       - name: Confirm Yahoo and Rakuten environment flags
+        id: envcheck
         shell: bash
         run: |
           node - <<'NODE'
@@ -43,12 +52,13 @@ jobs:
           NODE
 
       - name: Run live product search
+        id: livesearch
         shell: bash
         run: |
           set -euo pipefail
-          BASE="https://oshiruoshi-git-develop-v2-djamuy12-2759s-projects.vercel.app"
           code=$(curl -L -sS -o /tmp/live.json -w '%{http_code}' --get --data-urlencode 'q=五条悟 アクスタ' "$BASE/api/live-search")
           echo "live-search status=$code"
+          echo "$code" > /tmp/live-code.txt
           test "$code" = "200"
           node - <<'NODE'
           const fs=require('fs');
@@ -60,8 +70,39 @@ jobs:
             totalItems:Array.isArray(d.items)?d.items.length:0,
             sources:[...new Set((d.items||[]).map(x=>x.source))]
           };
+          fs.writeFileSync('/tmp/live-summary.json',JSON.stringify(summary,null,2));
           console.log(JSON.stringify(summary,null,2));
           if(!providers.yahooShopping?.ok) throw new Error('Yahoo Shopping live search failed');
           if(!providers.rakuten?.ok) throw new Error('Rakuten live search failed');
           if((providers.yahooShopping.count||0)+(providers.rakuten.count||0)===0) throw new Error('Both APIs returned zero products for the test query');
           NODE
+
+      - name: Save verification result to branch
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p verification
+          node - <<'NODE'
+          const fs=require('fs');
+          const read=(p,fallback=null)=>{try{return fs.readFileSync(p,'utf8').trim()}catch{return fallback}};
+          const parse=(p)=>{try{return JSON.parse(fs.readFileSync(p,'utf8'))}catch{return null}};
+          const status=parse('/tmp/status.json');
+          const live=parse('/tmp/live-summary.json');
+          const result={
+            checkedAt:new Date().toISOString(),
+            previewUrl:process.env.BASE||'https://oshiruoshi-git-develop-v2-djamuy12-2759s-projects.vercel.app',
+            statusHttp:Number(read('/tmp/status-code.txt','0')),
+            statusFlags:status?{yahooShopping:status.yahooShopping,rakuten:status.rakuten,snapshot:status.snapshot}:null,
+            liveHttp:Number(read('/tmp/live-code.txt','0')),
+            live,
+            success:Boolean(status?.yahooShopping===true && status?.rakuten===true && live?.yahooShopping?.ok && live?.rakuten?.ok && ((live?.yahooShopping?.count||0)+(live?.rakuten?.count||0)>0))
+          };
+          fs.writeFileSync('verification/preview-api-status.json',JSON.stringify(result,null,2)+'\n');
+          console.log(JSON.stringify(result,null,2));
+          NODE
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add verification/preview-api-status.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Record Preview API verification result"
+          git push origin HEAD:develop-v2
