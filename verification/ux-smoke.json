@@ -1,8 +1,8 @@
 {
-  "checkedAt": "2026-08-18T13:36:36.593Z",
+  "checkedAt": "2026-08-18T13:44:44.511Z",
   "navigationLoaded": true,
   "performanceLoaded": true,
-  "affiliateLoaded": false,
+  "affiliateLoaded": true,
   "contact": true,
   "assets": {
     "navigation-v4.js": true,
@@ -92,5 +92,5 @@
       "ranked": true
     }
   ],
-  "ok": false
+  "ok": true
 }
