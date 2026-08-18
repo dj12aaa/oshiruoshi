@@ -6,8 +6,14 @@ function siteBase(req){
   return host?`https://${host}`:'';
 }
 function escXml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;')}
+function isIndexable(){
+  const configured=String(process.env.PUBLIC_SITE_INDEXABLE||'').trim().toLowerCase();
+  if(configured==='true')return true;
+  if(configured==='false')return false;
+  return process.env.VERCEL_ENV==='production';
+}
 export default function handler(req,res){
-  const indexable=String(process.env.PUBLIC_SITE_INDEXABLE||'false').toLowerCase()==='true';
+  const indexable=isIndexable();
   res.setHeader('Content-Type','application/xml; charset=utf-8');
   res.setHeader('Cache-Control','public, max-age=0, s-maxage=300');
   if(!indexable){
