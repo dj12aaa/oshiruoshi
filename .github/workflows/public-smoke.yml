@@ -12,25 +12,50 @@ permissions:
 jobs:
   smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 6
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
+      - name: JavaScript syntax
+        run: |
+          node --check ui-v2.js
+          node --check api/image-proxy.js
+          node --check api/live-search.js
+          node --check api/_core.mjs
       - name: Check production
         shell: bash
         run: |
           set +e
           BASE="https://oshiruoshi.vercel.app"
           mkdir -p /tmp/oshiru
-          for i in $(seq 1 30); do
+          for i in $(seq 1 36); do
             code=$(curl -L -sS -o /tmp/oshiru/home.html -w '%{http_code}' "$BASE/" || true)
             echo "$code" > /tmp/oshiru/home-code
             if [ "$code" = "200" ] && grep -q 'OSHIRU' /tmp/oshiru/home.html; then break; fi
             sleep 5
           done
+          sleep 8
           curl -L -sS -o /tmp/oshiru/robots.txt -w '%{http_code}' "$BASE/robots.txt" > /tmp/oshiru/robots-code || true
           curl -L -sS -o /tmp/oshiru/sitemap.xml -w '%{http_code}' "$BASE/sitemap.xml" > /tmp/oshiru/sitemap-code || true
           curl -L -sS -o /tmp/oshiru/status.json -w '%{http_code}' "$BASE/api/status" > /tmp/oshiru/status-code || true
-          curl -L -sS -o /tmp/oshiru/live.json -w '%{http_code}' --get --data-urlencode 'q=五条悟 アクスタ' "$BASE/api/live-search" > /tmp/oshiru/live-code || true
+          curl -L -sS -o /tmp/oshiru/google.html -w '%{http_code}' "$BASE/google919171d19d350f0c.html" > /tmp/oshiru/google-code || true
+
+          QUERIES=('五条悟 アクスタ' '初音ミク アクスタ' 'ちいかわ モモンガ')
+          for n in 0 1 2; do
+            curl -L -sS -o "/tmp/oshiru/q${n}.json" -w '%{http_code}' --get --data-urlencode "q=${QUERIES[$n]}" "$BASE/api/live-search" > "/tmp/oshiru/q${n}-code" || true
+          done
+
+          PROXY_URL=$(node - <<'NODE'
+          const fs=require('fs');
+          let d={};try{d=JSON.parse(fs.readFileSync('/tmp/oshiru/q0.json','utf8'))}catch{}
+          const y=(d.items||[]).find(x=>x.source==='Yahoo!ショッピング'&&/^https:\/\//.test(x.image||''));
+          if(y)process.stdout.write('https://oshiruoshi.vercel.app/api/image-proxy?source=yahoo&url='+encodeURIComponent(y.image));
+          NODE
+          )
+          if [ -n "$PROXY_URL" ]; then
+            curl -L -sS -o /tmp/oshiru/yahoo-image.bin -w '%{http_code}|%{content_type}' "$PROXY_URL" > /tmp/oshiru/yahoo-image-result || true
+          else
+            echo '0|' > /tmp/oshiru/yahoo-image-result
+          fi
       - name: Save smoke result
         if: always()
         shell: bash
@@ -44,8 +69,23 @@ jobs:
           const robots=read('/tmp/oshiru/robots.txt');
           const sitemap=read('/tmp/oshiru/sitemap.xml');
           const status=json('/tmp/oshiru/status.json');
-          const live=json('/tmp/oshiru/live.json');
-          const p=live?.providers||{};
+          const google=read('/tmp/oshiru/google.html');
+          const queryNames=['五条悟 アクスタ','初音ミク アクスタ','ちいかわ モモンガ'];
+          const searches=queryNames.map((query,n)=>{
+            const live=json(`/tmp/oshiru/q${n}.json`);
+            const p=live?.providers||{};
+            const items=Array.isArray(live?.items)?live.items:[];
+            return{
+              query,
+              http:Number(read(`/tmp/oshiru/q${n}-code`,'0')),
+              totalItems:items.length,
+              yahooShopping:p.yahooShopping?{ok:p.yahooShopping.ok,count:p.yahooShopping.count,error:p.yahooShopping.error||null}:null,
+              rakuten:p.rakuten?{ok:p.rakuten.ok,count:p.rakuten.count,error:p.rakuten.error||null}:null,
+              sources:[...new Set(items.map(x=>x.source))],
+              withImage:items.filter(x=>/^https:\/\//.test(x.image||'')).length
+            };
+          });
+          const [imageHttpRaw,imageType='']=read('/tmp/oshiru/yahoo-image-result','0|').split('|');
           const result={
             checkedAt:new Date().toISOString(),
             url:'https://oshiruoshi.vercel.app/',
@@ -57,17 +97,16 @@ jobs:
             robotsText:robots.slice(0,300),
             sitemapHttp:Number(read('/tmp/oshiru/sitemap-code','0')),
             sitemapHasHome:sitemap.includes('https://oshiruoshi.vercel.app/'),
+            googleVerification:{
+              http:Number(read('/tmp/oshiru/google-code','0')),
+              exact:google==='google-site-verification: google919171d19d350f0c.html'
+            },
             statusHttp:Number(read('/tmp/oshiru/status-code','0')),
             status:status?{yahooShopping:status.yahooShopping,rakuten:status.rakuten,rakutenAffiliate:status.rakutenAffiliate,vision:status.vision}:null,
-            liveHttp:Number(read('/tmp/oshiru/live-code','0')),
-            live:{
-              yahooShopping:p.yahooShopping?{ok:p.yahooShopping.ok,count:p.yahooShopping.count,error:p.yahooShopping.error||null}:null,
-              rakuten:p.rakuten?{ok:p.rakuten.ok,count:p.rakuten.count,error:p.rakuten.error||null}:null,
-              totalItems:Array.isArray(live?.items)?live.items.length:0,
-              sources:[...new Set((live?.items||[]).map(x=>x.source))]
-            }
+            searches,
+            officialImageProxy:{yahooHttp:Number(imageHttpRaw||0),yahooContentType:imageType||null,yahooImageOk:Number(imageHttpRaw)===200&&String(imageType).startsWith('image/')}
           };
-          result.publicReady=result.homeHttp===200&&result.homeHasOshiru&&result.homeIndexable&&result.robotsHttp===200&&result.robotsAllowsRoot&&result.sitemapHttp===200;
+          result.publicReady=result.homeHttp===200&&result.homeHasOshiru&&result.homeIndexable&&result.robotsHttp===200&&result.robotsAllowsRoot&&result.sitemapHttp===200&&result.googleVerification.http===200&&result.googleVerification.exact;
           fs.writeFileSync('verification/public-smoke.json',JSON.stringify(result,null,2)+'\n');
           console.log(JSON.stringify(result,null,2));
           NODE
