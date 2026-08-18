@@ -1,6 +1,42 @@
 (() => {
   'use strict';
 
+  // Desktop stability guard: Chromium/Edge can become unresponsive when many
+  // product cards, sticky bars, backdrop blurs and forced GPU layers are
+  // composited at the same time. Keep the mobile presentation unchanged.
+  if(window.matchMedia?.('(min-width:901px)').matches){
+    const desktopStability=document.createElement('style');
+    desktopStability.id='oshiru-desktop-stability-v1';
+    desktopStability.textContent=`
+      @media(min-width:901px){
+        .site-header,.utility-dock,.source-access-panel,.source-pill,.heart,
+        .compare-filterbar,.compare-table tr:first-child th{
+          backdrop-filter:none!important;
+          -webkit-backdrop-filter:none!important;
+        }
+        .site-header{background:#fff!important}
+        .utility-dock{background:#f7f8fa!important}
+        .source-access-panel{background:#fff!important}
+        .source-pill,.heart{background:#fff!important}
+        .market-img{
+          transform:none!important;
+          will-change:auto!important;
+          transition:opacity .15s ease!important;
+        }
+        .product-card{
+          box-shadow:0 5px 18px rgba(15,23,42,.065)!important;
+          transition:border-color .12s ease,box-shadow .12s ease!important;
+        }
+        .product-card:hover{
+          transform:none!important;
+          box-shadow:0 7px 22px rgba(15,23,42,.085)!important;
+        }
+        .product-card:hover .market-img{transform:none!important}
+      }
+    `;
+    document.head.appendChild(desktopStability);
+  }
+
   const frame=document.getElementById('rakutenAffiliateFrame');
   const input=document.getElementById('q');
   const affiliateSection=document.querySelector('.affiliate-widget-section');
