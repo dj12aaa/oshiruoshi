@@ -1,13 +1,16 @@
 {
-  "checkedAt": "2026-08-18T13:05:05.130Z",
+  "checkedAt": "2026-08-18T13:06:17.240Z",
   "navigationLoaded": true,
   "performanceLoaded": true,
+  "affiliateLoaded": false,
   "contact": true,
   "assets": {
     "navigation-v4.js": true,
     "navigation-v4.css": true,
     "performance-v3.js": true,
-    "design-v3.css": true
+    "design-v3.css": true,
+    "affiliate-widget.js": true,
+    "rakuten-widget-config.js": true
   },
   "searches": [
     {
@@ -89,5 +92,5 @@
       "ranked": true
     }
   ],
-  "ok": true
+  "ok": false
 }
