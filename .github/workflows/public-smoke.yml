@@ -21,6 +21,7 @@ jobs:
           node --check api/image-proxy.js
           node --check api/live-search.js
           node --check api/_core.mjs
+          node --check api/public-config.js
       - name: Check production
         shell: bash
         run: |
@@ -37,6 +38,8 @@ jobs:
           curl -L -sS -o /tmp/oshiru/robots.txt -w '%{http_code}' "$BASE/robots.txt" > /tmp/oshiru/robots-code || true
           curl -L -sS -o /tmp/oshiru/sitemap.xml -w '%{http_code}' "$BASE/sitemap.xml" > /tmp/oshiru/sitemap-code || true
           curl -L -sS -o /tmp/oshiru/status.json -w '%{http_code}' "$BASE/api/status" > /tmp/oshiru/status-code || true
+          curl -L -sS -o /tmp/oshiru/config.json -w '%{http_code}' "$BASE/api/public-config" > /tmp/oshiru/config-code || true
+          curl -L -sS -o /tmp/oshiru/ui.js -w '%{http_code}' "$BASE/ui-v2.js" > /tmp/oshiru/ui-code || true
           curl -L -sS -o /tmp/oshiru/google.html -w '%{http_code}' "$BASE/google919171d19d350f0c.html" > /tmp/oshiru/google-code || true
 
           QUERIES=('五条悟 アクスタ' '初音ミク アクスタ' 'ちいかわ モモンガ')
@@ -54,16 +57,8 @@ jobs:
           NODE
           YAHOO_PROXY=$(sed -n '1p' /tmp/oshiru/proxy-urls)
           RAKUTEN_PROXY=$(sed -n '2p' /tmp/oshiru/proxy-urls)
-          if [ -n "$YAHOO_PROXY" ]; then
-            curl -L -sS -o /tmp/oshiru/yahoo-image.bin -w '%{http_code}|%{content_type}' "$YAHOO_PROXY" > /tmp/oshiru/yahoo-image-result || true
-          else
-            echo '0|' > /tmp/oshiru/yahoo-image-result
-          fi
-          if [ -n "$RAKUTEN_PROXY" ]; then
-            curl -L -sS -o /tmp/oshiru/rakuten-image.bin -w '%{http_code}|%{content_type}' "$RAKUTEN_PROXY" > /tmp/oshiru/rakuten-image-result || true
-          else
-            echo '0|' > /tmp/oshiru/rakuten-image-result
-          fi
+          if [ -n "$YAHOO_PROXY" ]; then curl -L -sS -o /tmp/oshiru/yahoo-image.bin -w '%{http_code}|%{content_type}' "$YAHOO_PROXY" > /tmp/oshiru/yahoo-image-result || true; else echo '0|' > /tmp/oshiru/yahoo-image-result; fi
+          if [ -n "$RAKUTEN_PROXY" ]; then curl -L -sS -o /tmp/oshiru/rakuten-image.bin -w '%{http_code}|%{content_type}' "$RAKUTEN_PROXY" > /tmp/oshiru/rakuten-image-result || true; else echo '0|' > /tmp/oshiru/rakuten-image-result; fi
       - name: Save smoke result
         if: always()
         shell: bash
@@ -73,49 +68,17 @@ jobs:
           const fs=require('fs');
           const read=(p,d='')=>{try{return fs.readFileSync(p,'utf8').trim()}catch{return d}};
           const json=(p)=>{try{return JSON.parse(fs.readFileSync(p,'utf8'))}catch{return null}};
-          const home=read('/tmp/oshiru/home.html');
-          const robots=read('/tmp/oshiru/robots.txt');
-          const sitemap=read('/tmp/oshiru/sitemap.xml');
-          const status=json('/tmp/oshiru/status.json');
-          const google=read('/tmp/oshiru/google.html');
+          const home=read('/tmp/oshiru/home.html'),ui=read('/tmp/oshiru/ui.js'),robots=read('/tmp/oshiru/robots.txt'),sitemap=read('/tmp/oshiru/sitemap.xml');
+          const status=json('/tmp/oshiru/status.json'),config=json('/tmp/oshiru/config.json'),google=read('/tmp/oshiru/google.html');
+          const retail=['メルカリ','Yahoo!フリマ','Yahoo!オークション','Yahoo!ショッピング','楽天市場'];
           const queryNames=['五条悟 アクスタ','初音ミク アクスタ','ちいかわ モモンガ'];
-          const searches=queryNames.map((query,n)=>{
-            const live=json(`/tmp/oshiru/q${n}.json`);
-            const p=live?.providers||{};
-            const items=Array.isArray(live?.items)?live.items:[];
-            return{
-              query,
-              http:Number(read(`/tmp/oshiru/q${n}-code`,'0')),
-              totalItems:items.length,
-              yahooShopping:p.yahooShopping?{ok:p.yahooShopping.ok,count:p.yahooShopping.count,error:p.yahooShopping.error||null}:null,
-              rakuten:p.rakuten?{ok:p.rakuten.ok,count:p.rakuten.count,error:p.rakuten.error||null}:null,
-              sources:[...new Set(items.map(x=>x.source))],
-              withImage:items.filter(x=>/^https:\/\//.test(x.image||'')).length
-            };
-          });
-          const parseImageResult=(path)=>{const [httpRaw,type='']=read(path,'0|').split('|');return{http:Number(httpRaw||0),contentType:type||null,ok:Number(httpRaw)===200&&String(type).startsWith('image/')}};
-          const yahooImage=parseImageResult('/tmp/oshiru/yahoo-image-result');
-          const rakutenImage=parseImageResult('/tmp/oshiru/rakuten-image-result');
-          const result={
-            checkedAt:new Date().toISOString(),
-            url:'https://oshiruoshi.vercel.app/',
-            homeHttp:Number(read('/tmp/oshiru/home-code','0')),
-            homeHasOshiru:home.includes('OSHIRU'),
-            homeIndexable:/<meta[^>]+name=["']robots["'][^>]+content=["']index,follow["']/i.test(home),
-            robotsHttp:Number(read('/tmp/oshiru/robots-code','0')),
-            robotsAllowsRoot:/Allow:\s*\//.test(robots)&&!/Disallow:\s*\/\s*$/m.test(robots),
-            robotsText:robots.slice(0,300),
-            sitemapHttp:Number(read('/tmp/oshiru/sitemap-code','0')),
-            sitemapHasHome:sitemap.includes('https://oshiruoshi.vercel.app/'),
-            googleVerification:{http:Number(read('/tmp/oshiru/google-code','0')),exact:google==='google-site-verification: google919171d19d350f0c.html'},
-            statusHttp:Number(read('/tmp/oshiru/status-code','0')),
-            status:status?{yahooShopping:status.yahooShopping,rakuten:status.rakuten,rakutenAffiliate:status.rakutenAffiliate,vision:status.vision}:null,
-            searches,
-            officialImageProxy:{yahoo:yahooImage,rakuten:rakutenImage}
-          };
-          result.publicReady=result.homeHttp===200&&result.homeHasOshiru&&result.homeIndexable&&result.robotsHttp===200&&result.robotsAllowsRoot&&result.sitemapHttp===200&&result.googleVerification.http===200&&result.googleVerification.exact&&yahooImage.ok&&rakutenImage.ok;
-          fs.writeFileSync('verification/public-smoke.json',JSON.stringify(result,null,2)+'\n');
-          console.log(JSON.stringify(result,null,2));
+          const searches=queryNames.map((query,n)=>{const live=json(`/tmp/oshiru/q${n}.json`),p=live?.providers||{},items=Array.isArray(live?.items)?live.items:[];return{query,http:Number(read(`/tmp/oshiru/q${n}-code`,'0')),totalItems:items.length,yahooShopping:p.yahooShopping?{ok:p.yahooShopping.ok,count:p.yahooShopping.count,error:p.yahooShopping.error||null}:null,rakuten:p.rakuten?{ok:p.rakuten.ok,count:p.rakuten.count,error:p.rakuten.error||null}:null,sources:[...new Set(items.map(x=>x.source))],withImage:items.filter(x=>/^https:\/\//.test(x.image||'')).length}});
+          const parseImageResult=path=>{const [h,t='']=read(path,'0|').split('|');return{http:Number(h||0),contentType:t||null,ok:Number(h)===200&&String(t).startsWith('image/')}};
+          const yahooImage=parseImageResult('/tmp/oshiru/yahoo-image-result'),rakutenImage=parseImageResult('/tmp/oshiru/rakuten-image-result');
+          const fixedMarkets=retail.every(s=>home.includes(`value="${s}"`)&&ui.includes(s));
+          const result={checkedAt:new Date().toISOString(),url:'https://oshiruoshi.vercel.app/',homeHttp:Number(read('/tmp/oshiru/home-code','0')),homeHasOshiru:home.includes('OSHIRU'),homeIndexable:/<meta[^>]+name=["']robots["'][^>]+content=["']index,follow["']/i.test(home),fixedMarketplaceFilters:{ok:fixedMarkets,sources:retail},contact:{http:Number(read('/tmp/oshiru/config-code','0')),email:config?.contactEmail||null,ok:config?.contactEmail==='a.o.work777@gmail.com'},uiHttp:Number(read('/tmp/oshiru/ui-code','0')),robotsHttp:Number(read('/tmp/oshiru/robots-code','0')),robotsAllowsRoot:/Allow:\s*\//.test(robots)&&!/Disallow:\s*\/\s*$/m.test(robots),robotsText:robots.slice(0,300),sitemapHttp:Number(read('/tmp/oshiru/sitemap-code','0')),sitemapHasHome:sitemap.includes('https://oshiruoshi.vercel.app/'),googleVerification:{http:Number(read('/tmp/oshiru/google-code','0')),exact:google==='google-site-verification: google919171d19d350f0c.html'},statusHttp:Number(read('/tmp/oshiru/status-code','0')),status:status?{yahooShopping:status.yahooShopping,rakuten:status.rakuten,rakutenAffiliate:status.rakutenAffiliate,vision:status.vision}:null,searches,officialImageProxy:{yahoo:yahooImage,rakuten:rakutenImage}};
+          result.publicReady=result.homeHttp===200&&result.homeHasOshiru&&result.homeIndexable&&fixedMarkets&&result.contact.ok&&result.robotsHttp===200&&result.robotsAllowsRoot&&result.sitemapHttp===200&&result.googleVerification.http===200&&result.googleVerification.exact&&yahooImage.ok&&rakutenImage.ok;
+          fs.writeFileSync('verification/public-smoke.json',JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result,null,2));
           NODE
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
