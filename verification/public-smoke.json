@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-08-18T11:12:02.490Z",
+  "checkedAt": "2026-08-18T11:22:35.553Z",
   "url": "https://oshiruoshi.vercel.app/",
   "homeHttp": 200,
   "homeHasOshiru": true,
@@ -11,17 +11,27 @@
   "sitemapHasHome": true,
   "statusHttp": 200,
   "status": {
-    "yahooShopping": false,
-    "rakuten": false,
-    "rakutenAffiliate": false,
+    "yahooShopping": true,
+    "rakuten": true,
+    "rakutenAffiliate": true,
     "vision": false
   },
   "liveHttp": 200,
   "live": {
-    "yahooShopping": null,
-    "rakuten": null,
-    "totalItems": 0,
-    "sources": []
+    "yahooShopping": {
+      "ok": true,
+      "count": 19,
+      "error": null
+    },
+    "rakuten": {
+      "ok": false,
+      "count": 0,
+      "error": "upstream_403"
+    },
+    "totalItems": 19,
+    "sources": [
+      "Yahoo!ショッピング"
+    ]
   },
   "publicReady": true
 }
