@@ -1,0 +1,64 @@
+name: OSHIRU search quality
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'verification/**'
+
+permissions:
+  contents: write
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wait for production
+        shell: bash
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsSL https://oshiruoshi.vercel.app/performance-v3.js >/dev/null && curl -fsSL https://oshiruoshi.vercel.app/design-v3.css >/dev/null; then break; fi
+            sleep 5
+          done
+      - name: Search representative fandom categories
+        shell: bash
+        run: |
+          mkdir -p /tmp/oshiru-quality
+          QUERIES=('星街すいせい アクスタ' '五条悟 缶バッジ' 'アイドルマスター アクスタ' '初音ミク ぬい' 'ブルーロック アクスタ')
+          for n in 0 1 2 3 4; do
+            curl -fsSL --get --data-urlencode "q=${QUERIES[$n]}" https://oshiruoshi.vercel.app/api/live-search > "/tmp/oshiru-quality/q${n}.json"
+            sleep 2
+          done
+      - name: Record quality result
+        shell: bash
+        run: |
+          mkdir -p verification
+          node - <<'NODE'
+          const fs=require('fs');
+          const queries=['星街すいせい アクスタ','五条悟 缶バッジ','アイドルマスター アクスタ','初音ミク ぬい','ブルーロック アクスタ'];
+          const results=queries.map((query,n)=>{
+            const d=JSON.parse(fs.readFileSync(`/tmp/oshiru-quality/q${n}.json`,'utf8'));
+            const items=Array.isArray(d.items)?d.items:[];
+            const top=items.slice(0,10);
+            const tokens=query.split(/\s+/).filter(Boolean);
+            const related=top.filter(x=>tokens.some(t=>String(x.title||'').toLowerCase().includes(t.toLowerCase()))).length;
+            return{query,providerQuery:d.providerQuery||'',count:items.length,topRelated:related,topTypes:[...new Set(top.map(x=>x.type))],topSources:[...new Set(top.map(x=>x.source))],topScores:top.slice(0,3).map(x=>x._score),rakutenHealthy:d.affiliate?.rakutenHealthy===true};
+          });
+          const ok=results.every(x=>x.count>0&&x.topRelated>=4&&x.topScores.every(Number.isFinite));
+          const out={checkedAt:new Date().toISOString(),ok,results};
+          fs.writeFileSync('verification/search-quality.json',JSON.stringify(out,null,2)+'\n');
+          console.log(JSON.stringify(out,null,2));
+          if(!ok)process.exitCode=1;
+          NODE
+      - name: Save result
+        if: always()
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add verification/search-quality.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Record search quality result'
+          git push origin HEAD:main
