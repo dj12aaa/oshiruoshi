@@ -1,9 +1,25 @@
 {
-  "checkedAt": "2026-08-18T11:56:35.198Z",
+  "checkedAt": "2026-08-18T11:57:22.434Z",
   "url": "https://oshiruoshi.vercel.app/",
   "homeHttp": 200,
   "homeHasOshiru": true,
   "homeIndexable": true,
+  "fixedMarketplaceFilters": {
+    "ok": true,
+    "sources": [
+      "メルカリ",
+      "Yahoo!フリマ",
+      "Yahoo!オークション",
+      "Yahoo!ショッピング",
+      "楽天市場"
+    ]
+  },
+  "contact": {
+    "http": 200,
+    "email": "a.o.work777@gmail.com",
+    "ok": true
+  },
+  "uiHttp": 200,
   "robotsHttp": 200,
   "robotsAllowsRoot": true,
   "robotsText": "User-agent: *\nAllow: /\nDisallow: /api/",
