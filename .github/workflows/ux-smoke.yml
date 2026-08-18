@@ -1,0 +1,47 @@
+name: OSHIRU UX smoke
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'verification/**'
+
+jobs:
+  ux-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: JavaScript syntax
+        run: |
+          node --check enhancements.js
+          node --check ui-v2.js
+          node --check app.js
+          node --check api/live-search.js
+      - name: Wait for production and verify UX
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://oshiruoshi.vercel.app"
+          for i in $(seq 1 36); do
+            HOME=$(curl -fsSL "$BASE/" || true)
+            if echo "$HOME" | grep -q '/enhancements.js' && echo "$HOME" | grep -q '/enhancements.css'; then break; fi
+            sleep 5
+          done
+          HOME=$(curl -fsSL "$BASE/")
+          CONTACT=$(curl -fsSL "$BASE/contact.html")
+          echo "$HOME" | grep -q '/enhancements.js'
+          echo "$HOME" | grep -q '/enhancements.css'
+          echo "$CONTACT" | grep -q 'a.o.work777@gmail.com'
+          if echo "$CONTACT" | grep -q 'お問い合わせ窓口の設定を確認しています'; then exit 1; fi
+          curl -fsSL --get --data-urlencode 'q=初音ミク アクスタ' "$BASE/api/live-search" > /tmp/search.json
+          node - <<'NODE'
+          const fs=require('fs');
+          const d=JSON.parse(fs.readFileSync('/tmp/search.json','utf8'));
+          const items=Array.isArray(d.items)?d.items:[];
+          if(!items.length)throw new Error('no search items');
+          if(!items.every(x=>Number.isFinite(x._score)))throw new Error('missing relevance score');
+          for(let i=1;i<items.length;i++)if(items[i]._score>items[i-1]._score)throw new Error('results not ranked');
+          if(!items.some(x=>x.type&&x.type!=='通販'))throw new Error('goods type detection missing');
+          console.log(JSON.stringify({items:items.length,first:items[0]?.title,firstScore:items[0]?._score,types:[...new Set(items.map(x=>x.type))]},null,2));
+          NODE
