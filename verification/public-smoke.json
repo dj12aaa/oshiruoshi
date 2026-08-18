@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-08-18T11:38:38.152Z",
+  "checkedAt": "2026-08-18T11:41:01.297Z",
   "url": "https://oshiruoshi.vercel.app/",
   "homeHttp": 200,
   "homeHasOshiru": true,
@@ -24,12 +24,13 @@
       "error": null
     },
     "rakuten": {
-      "ok": false,
-      "count": 0,
-      "error": "upstream_403"
+      "ok": true,
+      "count": 30,
+      "error": null
     },
-    "totalItems": 19,
+    "totalItems": 34,
     "sources": [
+      "楽天市場",
       "Yahoo!ショッピング"
     ]
   },
