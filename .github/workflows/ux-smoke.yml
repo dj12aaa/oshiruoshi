@@ -30,8 +30,8 @@ jobs:
           grep -q 'dock-toggle' navigation-v4.js
           grep -q 'mobile-dock-open' navigation-v4.css
           grep -q '比較に追加' affiliate-widget.js
-          grep -q 'rakuten-pict-ad-shell' affiliate-widget.js
-          grep -q 'nofollow sponsored noopener' affiliate-widget.js
+          grep -q 'refreshAffiliateFrame' affiliate-widget.js
+          grep -q 'IntersectionObserver' affiliate-widget.js
           grep -q 'rakutenAffiliateFrame' index.html
           grep -q 'PR' index.html
       - name: Wait for production and verify UX
@@ -74,7 +74,7 @@ jobs:
             checkedAt:new Date().toISOString(),
             navigationLoaded:home.includes('/navigation-v4.js')&&home.includes('/navigation-v4.css'),
             performanceLoaded:home.includes('/performance-v3.js'),
-            affiliateLoaded:home.includes('/affiliate-widget.js')&&affiliateJs.includes('rakuten-pict-ad-shell'),
+            affiliateLoaded:home.includes('/affiliate-widget.js')&&affiliateJs.includes('refreshAffiliateFrame')&&affiliateJs.includes('IntersectionObserver'),
             contact:contact.includes('a.o.work777@gmail.com')&&!contact.includes('お問い合わせ窓口の設定を確認しています'),
             assets,
             searches
