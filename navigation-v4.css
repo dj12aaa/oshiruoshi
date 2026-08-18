@@ -5,6 +5,7 @@
 .dock-actions{display:flex;align-items:center;justify-content:center;gap:8px}
 .dock-item{position:relative;display:flex;align-items:center;justify-content:center;gap:8px;border:1px solid rgba(15,23,42,.08);background:rgba(255,255,255,.86);color:#263244;text-decoration:none;font-weight:850;transition:.16s;white-space:nowrap}
 .dock-item:hover{background:#fff;color:#0f172a;border-color:rgba(15,23,42,.14);box-shadow:0 8px 20px rgba(15,23,42,.06)}
+.dock-item:focus-visible,.dock-home:focus-visible{outline:3px solid rgba(217,31,72,.28);outline-offset:2px}
 .dock-item.has-items{color:#a91839}
 .dock-count{display:grid;place-items:center;min-width:18px;height:18px;border-radius:999px;padding:0 5px;background:#17181c;color:#fff;font-size:9.5px;line-height:1}
 .dock-count[hidden]{display:none}
