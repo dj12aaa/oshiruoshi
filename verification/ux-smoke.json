@@ -1,1 +1,96 @@
-{"ok":false,"error":"smoke did not produce a result"}
+{
+  "checkedAt": "2026-08-18T15:08:08.844Z",
+  "navigationLoaded": true,
+  "performanceLoaded": true,
+  "affiliateLoaded": true,
+  "contact": true,
+  "assets": {
+    "navigation-v4.js": true,
+    "navigation-v4.css": true,
+    "performance-v3.js": true,
+    "design-v3.css": true,
+    "affiliate-widget.js": true,
+    "rakuten-widget-config.js": true
+  },
+  "searches": [
+    {
+      "query": "星街すいせい アクスタ",
+      "http": 200,
+      "count": 31,
+      "topRelated": 10,
+      "topTypes": [
+        "アクスタ"
+      ],
+      "topSources": [
+        "楽天市場",
+        "Yahoo!ショッピング"
+      ],
+      "firstTitle": "【中古美品】 ホロライブ hololive 5th fes. Capture the Moment アクリルスタンド 星街すいせい アクスタ グッズ 053-260729-io-26-fuzh 万代Net店",
+      "firstScore": 643,
+      "ranked": true
+    },
+    {
+      "query": "五条悟 特典 カード",
+      "http": 200,
+      "count": 60,
+      "topRelated": 10,
+      "topTypes": [
+        "カード"
+      ],
+      "topSources": [
+        "Yahoo!ショッピング",
+        "楽天市場"
+      ],
+      "firstTitle": "中古キャラカード 五条悟 特典カード 「呪術廻戦 第2期×TOWER RECORDS CAFE 第1弾 懐玉・玉",
+      "firstScore": 531,
+      "ranked": true
+    },
+    {
+      "query": "初音ミク ぬい",
+      "http": 200,
+      "count": 60,
+      "topRelated": 10,
+      "topTypes": [
+        "ぬい"
+      ],
+      "topSources": [
+        "楽天市場",
+        "Yahoo!ショッピング"
+      ],
+      "firstTitle": "キャラクター・ボーカル・シリーズ01 初音ミク ぬいぐるみ MIKU EXPO 10th Anniversary Ver.[グッドスマイルカンパニー]【送料無料】《発売済・在庫品》",
+      "firstScore": 630.2,
+      "ranked": true
+    },
+    {
+      "query": "ブルーロック コラボ カード",
+      "http": 200,
+      "count": 60,
+      "topRelated": 10,
+      "topTypes": [
+        "カード"
+      ],
+      "topSources": [
+        "楽天市場"
+      ],
+      "firstTitle": "Jリーグオフィシャルトレーディングカード U02 馬狼 照英 浦和 (ブルーロックコラボカード/ユニフォームナンバーカード) EPOCH 2025-26 X-tra TIME",
+      "firstScore": 619,
+      "ranked": true
+    },
+    {
+      "query": "アイドルマスター アクスタ",
+      "http": 200,
+      "count": 60,
+      "topRelated": 10,
+      "topTypes": [
+        "アクスタ"
+      ],
+      "topSources": [
+        "Yahoo!ショッピング"
+      ],
+      "firstTitle": "学園アイドルマスター フォトスタイルアクスタ 12個入りBOX (食玩)[エフトイズ]《発売済・在庫品》",
+      "firstScore": 379,
+      "ranked": true
+    }
+  ],
+  "ok": true
+}
