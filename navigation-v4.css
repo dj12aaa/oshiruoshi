@@ -11,6 +11,7 @@
 .dock-notice{position:fixed;z-index:115;opacity:0;pointer-events:none;transition:.18s;background:#17181c;color:#fff;border-radius:11px;padding:9px 12px;font-size:12px;font-weight:750;box-shadow:0 16px 44px rgba(0,0,0,.2)}
 .dock-notice.show{opacity:1}
 .filter-panel.filter-pulse{box-shadow:0 0 0 4px rgba(217,31,72,.09),0 18px 40px rgba(15,23,42,.08)!important}
+.mobile-compare{display:none}
 
 @media(min-width:901px){
   body.dock-ready .site-header .header-nav{display:none}
@@ -49,7 +50,7 @@
   #modalContent:has(.mobile-compare)>.compare-table,
   #modalContent:has(.mobile-compare)>.compare-filterbar,
   #modalContent:has(.mobile-compare)>.compare-tip{display:none!important}
-  .modal-card:has(.mobile-compare){width:calc(100vw - 72px)!important;max-width:none!important;margin-left:58px;padding:18px 12px 22px!important;max-height:calc(100dvh - 20px)!important;border-radius:20px!important}
+  .modal-card:has(.mobile-compare){width:calc(100vw - 24px)!important;max-width:none!important;margin-left:0!important;padding:18px 12px 22px!important;max-height:calc(100dvh - 20px)!important;border-radius:20px!important}
   .mobile-compare{display:block}
   .mobile-compare-head{padding:2px 34px 13px 3px;border-bottom:1px solid #e7eaf0}
   .mobile-compare-head>div{display:flex;align-items:baseline;gap:8px}.mobile-compare-head span{font-size:11px;font-weight:900;color:#d91f48;letter-spacing:.08em}.mobile-compare-head b{font-size:20px}.mobile-compare-head p{font-size:11.5px;line-height:1.55;color:#64748b;margin:5px 0 0}
@@ -70,7 +71,7 @@
   .utility-dock{width:54px;padding-left:3px;padding-right:3px}.dock-item{width:46px}.dock-home{width:36px;height:36px}
   .filter-panel.mobile-open{left:61px!important}
   body.filter-open::after{left:54px}
-  .modal-card:has(.mobile-compare){width:calc(100vw - 64px)!important;margin-left:54px!important;padding-left:10px!important;padding-right:10px!important}
+  .modal-card:has(.mobile-compare){width:calc(100vw - 18px)!important;margin-left:0!important;padding-left:10px!important;padding-right:10px!important}
   .compare-tray{left:calc(50% + 27px)!important;width:calc(100% - 70px)!important}
   .mobile-compare-field{grid-template-columns:70px minmax(0,1fr)}
 }
