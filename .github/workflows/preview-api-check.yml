@@ -1,0 +1,67 @@
+name: Verify develop-v2 Preview APIs
+
+on:
+  push:
+    branches: [develop-v2]
+
+permissions:
+  contents: read
+
+jobs:
+  verify-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Wait for Vercel branch preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://oshiruoshi-git-develop-v2-djamuy12-2759s-projects.vercel.app"
+          echo "Checking Vercel branch preview..."
+          ok=0
+          for i in $(seq 1 30); do
+            code=$(curl -L -sS -o /tmp/status.json -w '%{http_code}' "$BASE/api/status" || true)
+            echo "attempt=$i status=$code"
+            if [ "$code" = "200" ]; then ok=1; break; fi
+            sleep 5
+          done
+          if [ "$ok" != "1" ]; then
+            echo "Preview did not return HTTP 200"
+            cat /tmp/status.json 2>/dev/null || true
+            exit 1
+          fi
+
+      - name: Confirm Yahoo and Rakuten environment flags
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const d=JSON.parse(fs.readFileSync('/tmp/status.json','utf8'));
+          console.log(JSON.stringify({yahooShopping:d.yahooShopping,rakuten:d.rakuten,snapshot:d.snapshot},null,2));
+          if(d.yahooShopping!==true) throw new Error('Yahoo Shopping env is not active in Preview');
+          if(d.rakuten!==true) throw new Error('Rakuten env is not active in Preview');
+          NODE
+
+      - name: Run live product search
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://oshiruoshi-git-develop-v2-djamuy12-2759s-projects.vercel.app"
+          code=$(curl -L -sS -o /tmp/live.json -w '%{http_code}' --get --data-urlencode 'q=五条悟 アクスタ' "$BASE/api/live-search")
+          echo "live-search status=$code"
+          test "$code" = "200"
+          node - <<'NODE'
+          const fs=require('fs');
+          const d=JSON.parse(fs.readFileSync('/tmp/live.json','utf8'));
+          const providers=d.providers||{};
+          const summary={
+            yahooShopping: providers.yahooShopping ? {ok:providers.yahooShopping.ok,count:providers.yahooShopping.count,error:providers.yahooShopping.error||null}:null,
+            rakuten: providers.rakuten ? {ok:providers.rakuten.ok,count:providers.rakuten.count,error:providers.rakuten.error||null}:null,
+            totalItems:Array.isArray(d.items)?d.items.length:0,
+            sources:[...new Set((d.items||[]).map(x=>x.source))]
+          };
+          console.log(JSON.stringify(summary,null,2));
+          if(!providers.yahooShopping?.ok) throw new Error('Yahoo Shopping live search failed');
+          if(!providers.rakuten?.ok) throw new Error('Rakuten live search failed');
+          if((providers.yahooShopping.count||0)+(providers.rakuten.count||0)===0) throw new Error('Both APIs returned zero products for the test query');
+          NODE
