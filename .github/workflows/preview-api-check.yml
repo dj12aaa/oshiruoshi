@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   verify-preview:
@@ -18,16 +19,29 @@ jobs:
         with:
           ref: develop-v2
 
+      - name: Get GitHub OIDC token for Vercel trusted access
+        id: oidc
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const token = await core.getIDToken();
+            core.setSecret(token);
+            core.setOutput('token', token);
+
       - name: Wait for Vercel branch preview
         id: preview
         shell: bash
+        env:
+          VERCEL_OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
         run: |
           set -euo pipefail
           BASE="https://oshiruoshi-git-develop-v2-djamuy12-2759s-projects.vercel.app"
           echo "BASE=$BASE" >> "$GITHUB_ENV"
           ok=0
           for i in $(seq 1 30); do
-            code=$(curl -L -sS -D /tmp/status-headers.txt -o /tmp/status.json -w '%{http_code}' "$BASE/api/status" || true)
+            code=$(curl -L -sS -D /tmp/status-headers.txt -o /tmp/status.json -w '%{http_code}' \
+              -H "x-vercel-trusted-oidc-idp-token: $VERCEL_OIDC_TOKEN" \
+              "$BASE/api/status" || true)
             echo "attempt=$i status=$code"
             echo "$code" > /tmp/status-code.txt
             if [ "$code" = "200" ]; then ok=1; break; fi
@@ -50,9 +64,13 @@ jobs:
       - name: Run live product search
         id: livesearch
         shell: bash
+        env:
+          VERCEL_OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
         run: |
           set -euo pipefail
-          code=$(curl -L -sS -o /tmp/live.json -w '%{http_code}' --get --data-urlencode 'q=五条悟 アクスタ' "$BASE/api/live-search")
+          code=$(curl -L -sS -o /tmp/live.json -w '%{http_code}' \
+            -H "x-vercel-trusted-oidc-idp-token: $VERCEL_OIDC_TOKEN" \
+            --get --data-urlencode 'q=五条悟 アクスタ' "$BASE/api/live-search")
           echo "$code" > /tmp/live-code.txt
           test "$code" = "200"
           node - <<'NODE'
