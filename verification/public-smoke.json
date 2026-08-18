@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-08-18T12:10:07.025Z",
+  "checkedAt": "2026-08-18T12:10:53.463Z",
   "url": "https://oshiruoshi.vercel.app/",
   "homeHttp": 200,
   "homeHasOshiru": true,
@@ -60,22 +60,21 @@
     {
       "query": "初音ミク アクスタ",
       "http": 200,
-      "totalItems": 45,
+      "totalItems": 30,
       "yahooShopping": {
         "ok": true,
         "count": 30,
         "error": null
       },
       "rakuten": {
-        "ok": true,
-        "count": 30,
-        "error": null
+        "ok": false,
+        "count": 0,
+        "error": "upstream_429_Rate_limit_is_exceeded._Try_again_in_1_seconds."
       },
       "sources": [
-        "Yahoo!ショッピング",
-        "楽天市場"
+        "Yahoo!ショッピング"
       ],
-      "withImage": 45
+      "withImage": 30
     },
     {
       "query": "ちいかわ モモンガ",
