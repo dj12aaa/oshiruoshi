@@ -3,8 +3,13 @@ name: OSHIRU develop-v2 checks
 on:
   push:
     branches: [develop-v2]
+    paths-ignore:
+      - 'verification/**'
   pull_request:
     branches: [develop-v2]
+
+permissions:
+  contents: write
 
 jobs:
   test:
@@ -72,3 +77,27 @@ jobs:
       - name: Existing tests
         run: |
           if [ -d tests ]; then npm test; else echo 'No legacy tests directory on baseline branch'; fi
+      - name: Record success
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          mkdir -p verification
+          cat > verification/prelaunch-static-check.json <<EOF
+          {
+            "commit": "${GITHUB_SHA}",
+            "checkedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "javascriptSyntax": true,
+            "uiContract": true,
+            "seoSafety": true,
+            "securityBaseline": true,
+            "legalSurface": true,
+            "tests": true,
+            "success": true
+          }
+          EOF
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add verification/prelaunch-static-check.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Record successful prelaunch static verification"
+          git push origin HEAD:develop-v2
