@@ -10,24 +10,34 @@
   function dismissIntro(immediate=false){
     if(!intro) return;
     if(immediate){ intro.remove(); return; }
+    if(intro.classList.contains('is-leaving')) return;
     intro.classList.add('is-leaving');
-    window.setTimeout(() => intro.remove(), 320);
+    window.setTimeout(() => intro.remove(), 720);
   }
 
   if(intro){
     const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    const seen = storage.get('oshiru-intro-v2') === '1';
+    const seen = storage.get('oshiru-intro-v3') === '1';
     if(reduced || seen){
       dismissIntro(true);
     }else{
-      storage.set('oshiru-intro-v2','1');
-      const release = () => window.setTimeout(() => dismissIntro(false), 760);
+      storage.set('oshiru-intro-v3','1');
+      const release = () => window.setTimeout(() => dismissIntro(false), 880);
       if(document.readyState === 'complete') release();
       else window.addEventListener('load', release, {once:true});
-      window.setTimeout(() => dismissIntro(false), 1450);
+      window.setTimeout(() => dismissIntro(false), 1750);
       intro.addEventListener('click', () => dismissIntro(false), {once:true});
       window.addEventListener('keydown', e => { if(e.key === 'Escape') dismissIntro(false); }, {once:true});
     }
+  }
+
+  /* Only expose the image-search control when the server-side vision API is configured. */
+  const imageSearchButton=document.getElementById('imageSearchBtn');
+  if(imageSearchButton){
+    fetch('/api/status',{headers:{accept:'application/json'}})
+      .then(r => r.ok ? r.json() : null)
+      .then(s => { if(s?.vision === true) imageSearchButton.hidden=false; })
+      .catch(() => {});
   }
 
   const categoryFor = label => {
