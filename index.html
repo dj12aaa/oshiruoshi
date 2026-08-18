@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="/styles.css">
   <link rel="stylesheet" href="/ui-v2.css">
   <link rel="stylesheet" href="/enhancements.css">
+  <link rel="stylesheet" href="/design-v3.css">
   <link rel="manifest" href="/manifest.webmanifest">
 </head>
 <body>
@@ -82,7 +83,7 @@
     <aside class="filter-panel">
       <div class="filter-head"><h2>絞り込み</h2><button id="resetBtn">リセット</button></div>
       <div class="filter-group"><label class="filter-label">販売サイト</label><div id="sourceFilters" class="source-filters"><label><input class="source-check" type="checkbox" value="メルカリ" checked><span class="source-dot mercari"></span><span>メルカリ</span><span class="source-mode">サイト内検索</span></label><label><input class="source-check" type="checkbox" value="Yahoo!フリマ" checked><span class="source-dot yflea"></span><span>Yahoo!フリマ</span><span class="source-mode">サイト内検索</span></label><label><input class="source-check" type="checkbox" value="Yahoo!オークション" checked><span class="source-dot yauc"></span><span>Yahoo!オークション</span><span class="source-mode">サイト内検索</span></label><label><input class="source-check" type="checkbox" value="Yahoo!ショッピング" checked><span class="source-dot shop"></span><span>Yahoo!ショッピング</span><span class="source-mode api">公式API</span></label><label><input class="source-check" type="checkbox" value="楽天市場" checked><span class="source-dot shop"></span><span>楽天市場</span><span class="source-mode api">公式API</span></label></div></div>
-      <div class="filter-group"><label class="filter-label" for="typeFilter">グッズ種別</label><select id="typeFilter"><option value="">すべて</option><option>アクスタ</option><option>缶バッジ</option><option>ぬい</option><option>フィギュア</option><option>カード</option><option>通販</option><option>交換投稿</option></select></div>
+      <div class="filter-group"><label class="filter-label" for="typeFilter">グッズ種別</label><select id="typeFilter"><option value="">すべて</option><option>アクスタ</option><option>アクキー</option><option>缶バッジ</option><option>ぬい</option><option>フィギュア</option><option>カード</option><option>ステッカー</option><option>クリアファイル</option><option>キーホルダー</option><option>タオル</option><option>ペンライト</option><option>通販</option><option>交換投稿</option></select></div>
       <div class="filter-group"><label class="filter-label" for="collabFilter">コラボ・シリーズ</label><select id="collabFilter"><option value="">すべて</option></select></div>
       <div class="filter-group"><div class="range-label"><span>実質支払額</span><b id="maxPriceLabel">¥15,000以下</b></div><input id="maxPrice" type="range" min="500" max="30000" value="15000" step="500"></div>
       <div class="filter-group checks"><label><input id="liveOnly" type="checkbox" checked> 購入・取引可能候補のみ</label><label><input id="imageOnly" type="checkbox"> 画像ありのみ</label><label><input id="includeEnded" type="checkbox"> 終了済みも表示</label></div>
@@ -92,8 +93,8 @@
 
     <section class="result-area">
       <div class="result-top">
-        <div><div class="result-title-row"><h2 id="resultTitle">横断検索結果</h2><span id="queryBadge" class="query-badge"></span></div><p id="resultMeta" class="result-meta">検索しています…</p></div>
-        <div class="result-controls"><button id="mobileFilterBtn" class="mobile-filter">絞り込み</button><select id="sort"><option value="relevance">おすすめ順</option><option value="price">実質価格が安い順</option><option value="source">販売サイト順</option><option value="new">確認日時が新しい順</option></select></div>
+        <div><div class="result-title-row"><h2 id="resultTitle">横断検索結果</h2><span id="queryBadge" class="query-badge"></span></div><p id="resultMeta" class="result-meta">おすすめ順は、検索語との一致度と新着性を加味します。</p></div>
+        <div class="result-controls"><button id="mobileFilterBtn" class="mobile-filter">絞り込み</button><select id="sort"><option value="relevance">おすすめ（関連度＋新着）</option><option value="price">実質価格が安い順</option><option value="source">販売サイト順</option></select></div>
       </div>
       <div id="stats" class="stats-row"></div>
       <div id="providerNotice" class="provider-notice hidden" aria-hidden="true"></div>
@@ -124,6 +125,7 @@
 <div id="compareTray" class="compare-tray hidden"><div><b><span id="compareCount">0</span>件を比較</b><small>最大4件</small></div><div><button id="clearCompare">クリア</button><button id="openCompare" class="primary-small">比較表を開く</button></div></div>
 <div id="modal" class="modal hidden" role="dialog" aria-modal="true"><div class="modal-card"><button id="modalClose" class="modal-close" aria-label="閉じる">×</button><div id="modalContent"></div></div></div>
 <div id="toast" class="toast"></div>
+<script src="/performance-v3.js"></script>
 <script src="/app.js"></script>
 <script src="/ui-v2.js"></script>
 <script src="/enhancements.js"></script>
