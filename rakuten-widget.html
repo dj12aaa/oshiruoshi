@@ -4,19 +4,35 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
-  <title>楽天市場おすすめ商品</title>
+  <title>楽天市場おすすめ商品（PR）</title>
   <style>
+    :root{color-scheme:light}
+    *{box-sizing:border-box}
     html,body{margin:0;padding:0;background:transparent;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif}
-    body{display:grid;place-items:center;min-height:160px}
-    .rakuten-match-target{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
-    @media(max-width:520px){body{min-height:48px}}
+    body{min-height:160px;display:grid;place-items:center;padding:8px}
+    .ad{width:100%;min-height:138px;display:grid;place-items:center;border-radius:14px;background:#fff;text-decoration:none;color:#111827;overflow:hidden;position:relative}
+    .ad img{display:block;max-width:100%;max-height:144px;width:auto;height:auto;border:0;margin:0;object-fit:contain}
+    .fallback{display:none;width:100%;min-height:116px;padding:18px;text-align:center;place-items:center;background:linear-gradient(135deg,#fff,#f6f7f9);border:1px solid #e5e7eb;border-radius:13px}
+    .fallback b{display:block;font-size:14px;margin-bottom:5px}.fallback span{display:block;font-size:11px;color:#64748b}.fallback strong{display:inline-block;margin-top:11px;padding:9px 13px;border-radius:999px;background:#111827;color:#fff;font-size:11px}
+    .ad.failed img{display:none}.ad.failed .fallback{display:grid}
+    @media(max-width:520px){body{min-height:64px;padding:4px}.ad{min-height:56px;border-radius:10px}.ad img{max-height:56px}.fallback{min-height:56px;padding:8px}.fallback b{font-size:11px;margin:0}.fallback span{display:none}.fallback strong{margin-top:6px;padding:6px 9px;font-size:9.5px}}
   </style>
 </head>
 <body>
-  <!-- rakuten_ad_target_begin -->
-  <span id="rakutenAdTarget" class="rakuten-match-target">推し活 グッズ</span>
-  <!-- rakuten_ad_target_end -->
-  <script src="/rakuten-widget-config.js"></script>
-  <script src="https://xml.affiliate.rakuten.co.jp/widget/js/rakuten_widget.js?20230106"></script>
+  <a id="rakutenPictAd" class="ad" href="https://hb.afl.rakuten.co.jp/hsc/56a9a834.c6453a62.56a9a835.92ad2e3e/?link_type=pict&ut=eyJwYWdlIjoic2hvcCIsInR5cGUiOiJwaWN0IiwiY29sIjoxLCJjYXQiOiI0NCIsImJhbiI6Mjc5NDg1OCwiYW1wIjpmYWxzZX0%3D" target="_blank" rel="nofollow sponsored noopener">
+    <img id="rakutenPictImage" src="https://hbb.afl.rakuten.co.jp/hsb/56a9a834.c6453a62.56a9a835.92ad2e3e/?me_id=1&me_adv_id=2794858&t=pict" alt="楽天市場のおすすめ商品（PR）" loading="eager" decoding="async">
+    <span class="fallback" aria-hidden="true"><span><b>楽天市場のおすすめ商品</b><span>広告画像を読み込めないため、楽天市場へのPRリンクを表示しています。</span><strong>楽天市場で見る ↗</strong></span></span>
+  </a>
+  <script>
+    (()=>{
+      const ad=document.getElementById('rakutenPictAd');
+      const img=document.getElementById('rakutenPictImage');
+      if(!ad||!img)return;
+      const fail=()=>{ad.classList.add('failed');ad.querySelector('.fallback')?.setAttribute('aria-hidden','false')};
+      img.addEventListener('error',fail,{once:true});
+      img.addEventListener('load',()=>{if(img.naturalWidth<20||img.naturalHeight<10)fail()},{once:true});
+      setTimeout(()=>{if(!img.complete||img.naturalWidth===0)fail()},6000);
+    })();
+  </script>
 </body>
 </html>
