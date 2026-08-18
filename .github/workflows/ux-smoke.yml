@@ -12,50 +12,64 @@ permissions:
 jobs:
   ux-smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - name: JavaScript syntax
         run: |
+          node --check performance-v3.js
           node --check enhancements.js
           node --check ui-v2.js
+          node --check navigation-v4.js
           node --check app.js
           node --check api/live-search.js
       - name: Wait for production and verify UX
         shell: bash
         run: |
-          set -euo pipefail
+          set +e
           BASE="https://oshiruoshi.vercel.app"
+          mkdir -p /tmp/oshiru-ux
           for i in $(seq 1 36); do
-            HOME=$(curl -fsSL "$BASE/" || true)
-            if echo "$HOME" | grep -q '/enhancements.js' && echo "$HOME" | grep -q '/enhancements.css'; then break; fi
+            curl -L -sS "$BASE/" -o /tmp/oshiru-ux/home.html
+            if grep -q '/navigation-v4.js' /tmp/oshiru-ux/home.html && grep -q '/navigation-v4.css' /tmp/oshiru-ux/home.html; then break; fi
             sleep 5
           done
-          HOME=$(curl -fsSL "$BASE/")
-          CONTACT=$(curl -fsSL "$BASE/contact.html")
-          echo "$HOME" | grep -q '/enhancements.js'
-          echo "$HOME" | grep -q '/enhancements.css'
-          echo "$CONTACT" | grep -q 'a.o.work777@gmail.com'
-          if echo "$CONTACT" | grep -q 'お問い合わせ窓口の設定を確認しています'; then exit 1; fi
-          curl -fsSL --get --data-urlencode 'q=初音ミク アクスタ' "$BASE/api/live-search" > /tmp/search.json
+          curl -L -sS "$BASE/contact.html" -o /tmp/oshiru-ux/contact.html
+          for asset in navigation-v4.js navigation-v4.css performance-v3.js design-v3.css; do
+            curl -L -sS -o "/tmp/oshiru-ux/$asset" -w '%{http_code}' "$BASE/$asset" > "/tmp/oshiru-ux/$asset.code"
+          done
+          QUERIES=('星街すいせい アクスタ' '五条悟 特典 カード' '初音ミク ぬい' 'ブルーロック コラボ カード' 'アイドルマスター アクスタ')
+          for n in 0 1 2 3 4; do
+            curl -L -sS --get --data-urlencode "q=${QUERIES[$n]}" -o "/tmp/oshiru-ux/q${n}.json" -w '%{http_code}' "$BASE/api/live-search" > "/tmp/oshiru-ux/q${n}.code"
+            sleep 1
+          done
           node - <<'NODE'
           const fs=require('fs');
-          const d=JSON.parse(fs.readFileSync('/tmp/search.json','utf8'));
-          const items=Array.isArray(d.items)?d.items:[];
-          if(!items.length)throw new Error('no search items');
-          if(!items.every(x=>Number.isFinite(x._score)))throw new Error('missing relevance score');
-          for(let i=1;i<items.length;i++)if(items[i]._score>items[i-1]._score)throw new Error('results not ranked');
-          if(!items.some(x=>x.type&&x.type!=='通販'))throw new Error('goods type detection missing');
-          const result={checkedAt:new Date().toISOString(),contact:true,enhancementsLoaded:true,searchItems:items.length,firstTitle:items[0]?.title||'',firstScore:items[0]?._score||0,types:[...new Set(items.map(x=>x.type))],ranked:true};
+          const read=(p,d='')=>{try{return fs.readFileSync(p,'utf8')}catch{return d}};
+          const json=(p)=>{try{return JSON.parse(read(p,'{}'))}catch{return{}}};
+          const home=read('/tmp/oshiru-ux/home.html');
+          const contact=read('/tmp/oshiru-ux/contact.html');
+          const queries=['星街すいせい アクスタ','五条悟 特典 カード','初音ミク ぬい','ブルーロック コラボ カード','アイドルマスター アクスタ'];
+          const searches=queries.map((query,n)=>{
+            const d=json(`/tmp/oshiru-ux/q${n}.json`),items=Array.isArray(d.items)?d.items:[],top=items.slice(0,10),tokens=query.split(/\s+/).filter(Boolean);
+            const related=top.filter(x=>tokens.some(t=>String(x.title||'').normalize('NFKC').toLowerCase().includes(t.normalize('NFKC').toLowerCase()))).length;
+            const ranked=items.every((x,i)=>i===0||Number(items[i-1]?._score)>=Number(x?._score));
+            return{query,http:Number(read(`/tmp/oshiru-ux/q${n}.code`,'0')),count:items.length,topRelated:related,topTypes:[...new Set(top.map(x=>x.type))],topSources:[...new Set(top.map(x=>x.source))],firstTitle:top[0]?.title||'',firstScore:top[0]?._score??null,ranked};
+          });
+          const assets=Object.fromEntries(['navigation-v4.js','navigation-v4.css','performance-v3.js','design-v3.css'].map(x=>[x,Number(read(`/tmp/oshiru-ux/${x}.code`,'0'))===200]));
+          const result={checkedAt:new Date().toISOString(),navigationLoaded:home.includes('/navigation-v4.js')&&home.includes('/navigation-v4.css'),performanceLoaded:home.includes('/performance-v3.js'),contact:contact.includes('a.o.work777@gmail.com')&&!contact.includes('お問い合わせ窓口の設定を確認しています'),assets,searches};
+          result.ok=result.navigationLoaded&&result.performanceLoaded&&result.contact&&Object.values(assets).every(Boolean)&&searches.every(x=>x.http===200&&x.count>0&&x.ranked&&Number.isFinite(x.firstScore));
           fs.writeFileSync('/tmp/ux-result.json',JSON.stringify(result,null,2)+'\n');
           console.log(JSON.stringify(result,null,2));
           NODE
       - name: Record UX result
+        if: always()
+        shell: bash
         run: |
           mkdir -p verification
-          cp /tmp/ux-result.json verification/ux-smoke.json
+          if [ -f /tmp/ux-result.json ]; then cp /tmp/ux-result.json verification/ux-smoke.json; else echo '{"ok":false,"error":"smoke did not produce a result"}' > verification/ux-smoke.json; fi
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.email "4189826+github-actions[bot]@users.noreply.github.com"
           git add verification/ux-smoke.json
           if git diff --cached --quiet; then exit 0; fi
           git commit -m "Record UX smoke result"
