@@ -1,0 +1,27 @@
+{
+  "checkedAt": "2026-08-18T11:12:02.490Z",
+  "url": "https://oshiruoshi.vercel.app/",
+  "homeHttp": 200,
+  "homeHasOshiru": true,
+  "homeIndexable": true,
+  "robotsHttp": 200,
+  "robotsAllowsRoot": true,
+  "robotsText": "User-agent: *\nAllow: /\nDisallow: /api/",
+  "sitemapHttp": 200,
+  "sitemapHasHome": true,
+  "statusHttp": 200,
+  "status": {
+    "yahooShopping": false,
+    "rakuten": false,
+    "rakutenAffiliate": false,
+    "vision": false
+  },
+  "liveHttp": 200,
+  "live": {
+    "yahooShopping": null,
+    "rakuten": null,
+    "totalItems": 0,
+    "sources": []
+  },
+  "publicReady": true
+}
