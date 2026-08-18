@@ -1,6 +1,10 @@
 (() => {
   'use strict';
   const compact=window.matchMedia?.('(max-width:520px)').matches===true;
+  const params=new URLSearchParams(location.search);
+  const query=(params.get('q')||'').trim().slice(0,80);
+  const target=document.getElementById('rakutenAdTarget');
+  if(target)target.textContent=query||'アニメ VTuber 漫画 映画 ゲーム アイドル コラボ 特典 推し活 グッズ アクスタ 缶バッジ ぬい カード';
   window.rakuten_design='slide';
   window.rakuten_affiliateId='56a9a4c8.29b89c61.56a9a4c9.ae05c2f1';
   window.rakuten_items='ctsmatch';
