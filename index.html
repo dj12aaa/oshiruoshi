@@ -75,12 +75,12 @@
     <div class="strip-note">表示価格・在庫は取得時点の情報です。購入前に販売元で再確認してください。</div>
   </section>
 
-  <div class="beta-bar" data-nosnippet><b>公開β：</b>OSHIRUは各販売サイトの公式サービスではありません。Yahoo!ショッピングと楽天市場は公式APIを利用し、その他の取得元も利用条件を確認した範囲で表示します。</div>
+  <div class="beta-bar" data-nosnippet><b>公開β：</b>OSHIRUは各販売サイトの公式サービスではありません。Yahoo!ショッピングと楽天市場は公式APIを利用し、その他の販売サイトは確認済み出品と同一検索語への直接導線を提供します。</div>
 
   <section class="workspace" id="results">
     <aside class="filter-panel">
       <div class="filter-head"><h2>絞り込み</h2><button id="resetBtn">リセット</button></div>
-      <div class="filter-group"><label class="filter-label">販売サイト</label><div id="sourceFilters" class="source-filters"></div></div>
+      <div class="filter-group"><label class="filter-label">販売サイト</label><div id="sourceFilters" class="source-filters"><label><input class="source-check" type="checkbox" value="メルカリ" checked><span class="source-dot mercari"></span><span>メルカリ</span><span class="source-mode">サイト内検索</span></label><label><input class="source-check" type="checkbox" value="Yahoo!フリマ" checked><span class="source-dot yflea"></span><span>Yahoo!フリマ</span><span class="source-mode">サイト内検索</span></label><label><input class="source-check" type="checkbox" value="Yahoo!オークション" checked><span class="source-dot yauc"></span><span>Yahoo!オークション</span><span class="source-mode">サイト内検索</span></label><label><input class="source-check" type="checkbox" value="Yahoo!ショッピング" checked><span class="source-dot shop"></span><span>Yahoo!ショッピング</span><span class="source-mode api">公式API</span></label><label><input class="source-check" type="checkbox" value="楽天市場" checked><span class="source-dot shop"></span><span>楽天市場</span><span class="source-mode api">公式API</span></label></div></div>
       <div class="filter-group"><label class="filter-label" for="typeFilter">グッズ種別</label><select id="typeFilter"><option value="">すべて</option><option>アクスタ</option><option>缶バッジ</option><option>ぬい</option><option>フィギュア</option><option>カード</option><option>通販</option><option>交換投稿</option></select></div>
       <div class="filter-group"><label class="filter-label" for="collabFilter">コラボ・シリーズ</label><select id="collabFilter"><option value="">すべて</option></select></div>
       <div class="filter-group"><div class="range-label"><span>実質支払額</span><b id="maxPriceLabel">¥15,000以下</b></div><input id="maxPrice" type="range" min="500" max="30000" value="15000" step="500"></div>
