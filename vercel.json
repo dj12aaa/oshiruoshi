@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": false,
   "git": {
-    "deploymentEnabled": false
+    "deploymentEnabled": true
   },
   "rewrites": [
     {"source": "/robots.txt","destination": "/api/robots"},
@@ -16,8 +16,7 @@
       {"key": "Referrer-Policy","value": "strict-origin-when-cross-origin"},
       {"key": "Permissions-Policy","value": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()"},
       {"key": "X-Frame-Options","value": "DENY"},
-      {"key": "Cross-Origin-Opener-Policy","value": "same-origin"},
-      {"key": "X-Robots-Tag","value": "noindex, nofollow, noarchive, nosnippet"}
+      {"key": "Cross-Origin-Opener-Policy","value": "same-origin"}
     ]},
     {"source": "/(.*).html","headers": [{"key":"Cache-Control","value":"public, max-age=0, must-revalidate"}]},
     {"source": "/(.*).(css|js|png|svg|webmanifest)","headers": [{"key":"Cache-Control","value":"public, max-age=3600, s-maxage=3600"}]}
