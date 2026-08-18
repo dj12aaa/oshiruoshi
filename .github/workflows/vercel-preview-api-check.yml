@@ -1,0 +1,116 @@
+name: Verify Vercel Preview APIs
+
+on:
+  deployment_status:
+
+permissions:
+  contents: read
+  issues: write
+  id-token: write
+
+jobs:
+  verify:
+    if: github.event.deployment_status.state == 'success' && github.event.deployment.ref == 'develop-v2'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Get GitHub OIDC token
+        id: oidc
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const token = await core.getIDToken();
+            core.setSecret(token);
+            core.setOutput('token', token);
+
+      - name: Verify protected Vercel Preview APIs
+        id: check
+        shell: bash
+        env:
+          VERCEL_OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
+          ENVIRONMENT_URL: ${{ github.event.deployment_status.environment_url }}
+          TARGET_URL: ${{ github.event.deployment_status.target_url }}
+        run: |
+          set +e
+          BASE="$ENVIRONMENT_URL"
+          if [[ "$BASE" != *".vercel.app"* ]]; then BASE="$TARGET_URL"; fi
+          if [[ "$BASE" != *".vercel.app"* ]]; then BASE="https://oshiruoshi-git-develop-v2-djamuy12-2759s-projects.vercel.app"; fi
+          BASE="${BASE%/}"
+          echo "base=$BASE" >> "$GITHUB_OUTPUT"
+
+          status_code=$(curl -L -sS -o /tmp/status.json -w '%{http_code}' \
+            -H "x-vercel-trusted-oidc-idp-token: $VERCEL_OIDC_TOKEN" \
+            "$BASE/api/status")
+          echo "status_code=$status_code" >> "$GITHUB_OUTPUT"
+
+          node - <<'NODE' > /tmp/result.json
+          const fs=require('fs');
+          const result={statusParsed:false,yahooShopping:false,rakuten:false,liveHttp:0,yahoo:null,rakutenProvider:null,totalItems:0,sources:[],success:false};
+          try{
+            const d=JSON.parse(fs.readFileSync('/tmp/status.json','utf8'));
+            result.statusParsed=true;
+            result.yahooShopping=d.yahooShopping===true;
+            result.rakuten=d.rakuten===true;
+          }catch{}
+          fs.writeFileSync('/tmp/result.json',JSON.stringify(result,null,2));
+          NODE
+
+          parsed=$(node -e "const d=require('/tmp/result.json');process.stdout.write(String(d.statusParsed))")
+          yahoo=$(node -e "const d=require('/tmp/result.json');process.stdout.write(String(d.yahooShopping))")
+          rakuten=$(node -e "const d=require('/tmp/result.json');process.stdout.write(String(d.rakuten))")
+
+          live_code=0
+          if [ "$status_code" = "200" ] && [ "$parsed" = "true" ] && [ "$yahoo" = "true" ] && [ "$rakuten" = "true" ]; then
+            live_code=$(curl -L -sS -o /tmp/live.json -w '%{http_code}' \
+              -H "x-vercel-trusted-oidc-idp-token: $VERCEL_OIDC_TOKEN" \
+              --get --data-urlencode 'q=五条悟 アクスタ' "$BASE/api/live-search")
+          fi
+          echo "live_code=$live_code" >> "$GITHUB_OUTPUT"
+
+          node - <<'NODE'
+          const fs=require('fs');
+          const result=JSON.parse(fs.readFileSync('/tmp/result.json','utf8'));
+          result.liveHttp=Number(process.env.LIVE_CODE||0);
+          try{
+            const d=JSON.parse(fs.readFileSync('/tmp/live.json','utf8'));
+            const p=d.providers||{};
+            result.yahoo=p.yahooShopping?{ok:Boolean(p.yahooShopping.ok),count:Number(p.yahooShopping.count||0),error:p.yahooShopping.error||null}:null;
+            result.rakutenProvider=p.rakuten?{ok:Boolean(p.rakuten.ok),count:Number(p.rakuten.count||0),error:p.rakuten.error||null}:null;
+            result.totalItems=Array.isArray(d.items)?d.items.length:0;
+            result.sources=[...new Set((d.items||[]).map(x=>x.source))];
+            result.success=result.yahooShopping && result.rakuten && result.yahoo?.ok===true && result.rakutenProvider?.ok===true && ((result.yahoo?.count||0)+(result.rakutenProvider?.count||0)>0);
+          }catch{}
+          fs.writeFileSync('/tmp/result.json',JSON.stringify(result,null,2));
+          NODE
+        env:
+          LIVE_CODE: ${{ steps.check.outputs.live_code }}
+
+      - name: Comment verification result
+        if: always()
+        uses: actions/github-script@v7
+        env:
+          BASE: ${{ steps.check.outputs.base }}
+          STATUS_CODE: ${{ steps.check.outputs.status_code }}
+          LIVE_CODE: ${{ steps.check.outputs.live_code }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs=require('fs');
+            let r={success:false,error:'result unavailable'};
+            try{r=JSON.parse(fs.readFileSync('/tmp/result.json','utf8'))}catch{}
+            const body=[
+              '## Vercel Preview API verification',
+              '',
+              `- Preview: ${process.env.BASE||'unknown'}`,
+              `- /api/status HTTP: ${process.env.STATUS_CODE||'0'}`,
+              `- JSON parsed: ${r.statusParsed}`,
+              `- Yahoo env active: ${r.yahooShopping}`,
+              `- Rakuten env active: ${r.rakuten}`,
+              `- /api/live-search HTTP: ${process.env.LIVE_CODE||'0'}`,
+              `- Yahoo provider: ${JSON.stringify(r.yahoo)}`,
+              `- Rakuten provider: ${JSON.stringify(r.rakutenProvider)}`,
+              `- Total items: ${r.totalItems||0}`,
+              `- Sources: ${(r.sources||[]).join(', ')||'none'}`,
+              `- SUCCESS: ${r.success===true}`
+            ].join('\n');
+            await github.rest.issues.createComment({owner:context.repo.owner,repo:context.repo.repo,issue_number:1,body});
