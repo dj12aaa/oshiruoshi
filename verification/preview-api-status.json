@@ -1,9 +1,11 @@
 {
-  "checkedAt": "2026-08-18T10:37:36.330Z",
+  "checkedAt": "2026-08-18T10:38:31.844Z",
   "previewUrl": "https://oshiruoshi-git-develop-v2-djamuy12-2759s-projects.vercel.app",
   "statusHttp": 200,
   "statusContentType": "text/plain",
-  "statusBodyStart": "<!DOCTYPE html><html data-dpl-id=\"dpl_H5mqNXCteMXjDgsocZgyHXPV5L38\" class=\"geist_mono_fe992356-module__VEU71W__className geistsans_d5a4f12f-module__KlH-sG__className geist_mono_fe992356-module__VEU71W__variable geistsans_d5a4f12f-module__Kl",
+  "statusPageTitle": "Login – Vercel",
+  "statusLooksProtected": true,
+  "statusTextStart": "Skip to content Terms Privacy Policy Login – Vercel Sign Up Log in to Vercel Log in to Vercel Continue with Email Continue with Google Continue with GitHub Continue with ChatGPT Continue with SAML SSO Continue with Passkey Show other options Don&#x27;t have an account? Sign Up",
   "statusFlags": null,
   "liveHttp": 0,
   "live": null,
