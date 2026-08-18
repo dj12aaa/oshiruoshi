@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-08-18T12:36:53.239Z",
+  "checkedAt": "2026-08-18T12:44:28.925Z",
   "navigationLoaded": true,
   "performanceLoaded": true,
   "contact": true,
@@ -45,16 +45,17 @@
     {
       "query": "初音ミク ぬい",
       "http": 200,
-      "count": 30,
+      "count": 60,
       "topRelated": 10,
       "topTypes": [
         "ぬい"
       ],
       "topSources": [
+        "楽天市場",
         "Yahoo!ショッピング"
       ],
-      "firstTitle": "シネマコレクション cinemacollection 初音ミク ぬいぐるみ ピアプロキャラクターズ ぬいコロン アイアップ",
-      "firstScore": 605,
+      "firstTitle": "キャラクター・ボーカル・シリーズ01 初音ミク ぬいぐるみ MIKU EXPO 10th Anniversary Ver.[グッドスマイルカンパニー]【送料無料】《発売済・在庫品》",
+      "firstScore": 630.2,
       "ranked": true
     },
     {
