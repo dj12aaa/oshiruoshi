@@ -1,0 +1,72 @@
+name: Rakuten affiliate health
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'verification/**'
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wait for production
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsSL --get --data-urlencode 'q=初音ミク アクスタ' https://oshiruoshi.vercel.app/api/live-search -o /tmp/live.json; then break; fi
+            sleep 5
+          done
+      - name: Check first Rakuten affiliate redirect without exposing URL
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const d=JSON.parse(fs.readFileSync('/tmp/live.json','utf8'));
+          const r=(d.items||[]).find(x=>x.source==='楽天市場');
+          if(!r){fs.writeFileSync('/tmp/aff-meta.json',JSON.stringify({found:false}));process.exit(0)}
+          fs.writeFileSync('/tmp/aff-url',r.affiliateUrl||'');
+          fs.writeFileSync('/tmp/direct-url',r.directUrl||r.canonicalUrl||'');
+          fs.writeFileSync('/tmp/aff-meta.json',JSON.stringify({found:true,hasAffiliate:Boolean(r.affiliateUrl),hasDirect:Boolean(r.directUrl||r.canonicalUrl)}));
+          NODE
+          AFF=$(cat /tmp/aff-url)
+          DIRECT=$(cat /tmp/direct-url)
+          if [ -n "$AFF" ]; then
+            curl -L -sS --max-time 12 -o /tmp/aff-body -w '%{http_code}|%{url_effective}' "$AFF" > /tmp/aff-result || true
+          else
+            echo '0|' > /tmp/aff-result
+            : > /tmp/aff-body
+          fi
+          if [ -n "$DIRECT" ]; then
+            curl -L -sS --max-time 12 -o /tmp/direct-body -w '%{http_code}|%{url_effective}' "$DIRECT" > /tmp/direct-result || true
+          else
+            echo '0|' > /tmp/direct-result
+          fi
+      - name: Record health result
+        shell: bash
+        run: |
+          mkdir -p verification
+          node - <<'NODE'
+          const fs=require('fs');
+          const meta=JSON.parse(fs.readFileSync('/tmp/aff-meta.json','utf8'));
+          const read=p=>{try{return fs.readFileSync(p,'utf8')}catch{return''}};
+          const parse=s=>{const i=s.indexOf('|');return{http:Number((i<0?s:s.slice(0,i))||0),url:i<0?'':s.slice(i+1).trim()}};
+          const aff=parse(read('/tmp/aff-result'));
+          const direct=parse(read('/tmp/direct-result'));
+          const host=u=>{try{return new URL(u).hostname}catch{return''}};
+          const body=read('/tmp/aff-body');
+          const errorPage=/大変申し訳ございませんが、次のページへ進めません|エラー/.test(body);
+          const result={checkedAt:new Date().toISOString(),found:meta.found,hasAffiliate:meta.hasAffiliate,hasDirect:meta.hasDirect,affiliate:{http:aff.http,finalHost:host(aff.url),errorPage,ok:aff.http>=200&&aff.http<400&&!errorPage},direct:{http:direct.http,finalHost:host(direct.url),ok:direct.http>=200&&direct.http<400}};
+          fs.writeFileSync('verification/affiliate-health.json',JSON.stringify(result,null,2)+'\n');
+          console.log(JSON.stringify(result,null,2));
+          NODE
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add verification/affiliate-health.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Record Rakuten affiliate health'
+          git push origin HEAD:main
