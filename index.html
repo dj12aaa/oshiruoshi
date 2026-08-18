@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="/enhancements.css">
   <link rel="stylesheet" href="/design-v3.css">
   <link rel="stylesheet" href="/navigation-v4.css">
+  <link rel="stylesheet" href="/affiliate-widget.css">
   <link rel="manifest" href="/manifest.webmanifest">
 </head>
 <body>
@@ -117,6 +118,23 @@
       <div class="guide-links"><a href="/about.html">サービスについて</a><a href="/privacy.html">プライバシーポリシー</a><a href="/disclaimer.html">免責・広告表示</a></div>
     </div>
   </section>
+
+  <section class="affiliate-widget-section" aria-labelledby="rakutenAffiliateTitle" data-nosnippet>
+    <div class="affiliate-widget-card">
+      <div class="affiliate-widget-copy">
+        <div class="affiliate-widget-eyebrow"><b>PR</b><span>楽天アフィリエイト</span></div>
+        <h2 id="rakutenAffiliateTitle">楽天市場のおすすめもチェック</h2>
+        <p>検索中のキーワードや楽天市場の利用状況等に応じて、楽天側が商品候補を表示するモーションウィジェットです。表示商品は検索結果ランキングとは別枠の広告です。</p>
+        <div class="affiliate-widget-meta"><span>広告</span><a href="/disclaimer.html">広告表示について</a><a href="/privacy.html">外部送信・Cookieについて</a></div>
+      </div>
+      <div>
+        <div class="affiliate-widget-frame-wrap">
+          <iframe id="rakutenAffiliateFrame" class="affiliate-widget-frame" title="楽天市場 おすすめ商品（PR）" src="/rakuten-widget.html" loading="lazy" sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        </div>
+        <div class="affiliate-widget-fallback">広告が表示されない場合は、ブラウザの広告ブロック設定等により読み込みが制限されている可能性があります。</div>
+      </div>
+    </div>
+  </section>
 </main>
 
 <footer class="site-footer"><div class="footer-inner"><div><div class="footer-brand">OSHIRU</div><div class="footer-note">推し活グッズの検索・比較を補助する非公式サービスです。表示内容は販売元で最終確認してください。</div><!-- Rakuten Web Services Attribution Snippet FROM HERE -->
@@ -131,5 +149,6 @@
 <script src="/ui-v2.js"></script>
 <script src="/enhancements.js"></script>
 <script src="/navigation-v4.js"></script>
+<script src="/affiliate-widget.js"></script>
 </body>
 </html>
