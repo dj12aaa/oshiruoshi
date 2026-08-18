@@ -1,1 +1,56 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#ffffff"><title>お問い合わせ | OSHIRU</title><meta name="description" content="OSHIRUへの不具合、権利関係、削除依頼、プライバシーに関する連絡先。"><meta name="robots" content="index,follow"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/styles.css"><link rel="manifest" href="/manifest.webmanifest"></head><body><div class="legal-brand"><a href="/"><span class="brand-mark">O</span><span>OSHIRU</span></a></div><main class="legal-wrap"><article class="legal-card"><h1>お問い合わせ</h1><div class="legal-meta">制定日：2026年8月10日 ／ 最終更新：2026年8月18日</div><p>不具合、掲載情報、権利関係、削除依頼、プライバシーに関するご連絡を受け付けています。</p><div id="contactState" class="contact-state">お問い合わせ窓口を読み込んでいます…</div><p>メールには、対象の商品・ページURL、問題の内容、必要であればスクリーンショットを添えてください。</p><h2>権利侵害・削除依頼について</h2><p>対象ページまたは商品URL、問題となる内容、権利者または代理人であることを確認できる情報を添えてご連絡ください。必要な範囲で確認し、表示停止等を検討します。</p><h2>ご注意</h2><p>OSHIRUは販売元ではないため、注文、支払い、配送、返品等の取引に関する問い合わせは各販売サイトへお願いします。</p></article></main><footer class="site-footer"><div class="footer-inner"><div><div class="footer-brand">OSHIRU</div><div class="footer-note">公開β版。各販売サイトの公式サービスではありません。</div></div><nav class="footer-links"><a href="/">検索</a><a href="/about.html">概要</a><a href="/terms.html">利用規約</a><a href="/privacy.html">プライバシー</a><a href="/disclaimer.html">免責</a><a href="/contact.html">お問い合わせ</a></nav></div></footer><script>(async()=>{const box=document.getElementById('contactState');try{const r=await fetch('/api/public-config',{headers:{accept:'application/json'}});const d=await r.json();const email=d.contactEmail||'a.o.work777@gmail.com';box.innerHTML='';const label=document.createElement('div');label.textContent='お問い合わせ先';label.style.fontWeight='800';label.style.marginBottom='8px';const a=document.createElement('a');a.href='mailto:'+email+'?subject='+encodeURIComponent('OSHIRU お問い合わせ');a.textContent=email;a.style.fontWeight='900';a.style.fontSize='1.05rem';const br=document.createElement('br');const send=document.createElement('a');send.href=a.href;send.textContent='メールを作成する →';send.style.display='inline-block';send.style.marginTop='10px';send.style.fontWeight='800';box.append(label,a,br,send);}catch{box.innerHTML='<b>お問い合わせ先</b><br><a href="mailto:a.o.work777@gmail.com?subject=OSHIRU%20%E3%81%8A%E5%95%8F%E3%81%84%E5%90%88%E3%82%8F%E3%81%9B">a.o.work777@gmail.com</a>';}})();</script></body></html>
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <title>お問い合わせ | OSHIRU</title>
+  <meta name="description" content="OSHIRUへの不具合、掲載情報、権利関係、削除依頼、プライバシーに関するお問い合わせ窓口です。">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://oshiruoshi.vercel.app/contact.html">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <style>
+    .contact-hero{max-width:760px;margin:18px 0 26px}.contact-hero p{font-size:15px;line-height:1.85;color:#334155}
+    .contact-main{border:1px solid #dbe2ea;border-radius:20px;padding:24px;background:#f8fafc;margin:22px 0}
+    .contact-main small{display:block;font-size:12px;color:#64748b;margin-bottom:8px;font-weight:700}
+    .contact-email{font-size:clamp(20px,4vw,30px);font-weight:900;letter-spacing:-.02em;word-break:break-all;color:#111827;text-decoration:none}
+    .contact-email:hover{text-decoration:underline;text-underline-offset:4px}
+    .contact-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:20px}
+    .contact-action{display:block;border:1px solid #d7dee7;border-radius:14px;background:#fff;padding:15px 16px;text-decoration:none;transition:.15s}
+    .contact-action:hover{border-color:#b8c2cf;transform:translateY(-1px);box-shadow:0 8px 22px rgba(15,23,42,.06)}
+    .contact-action b{display:block;font-size:14px;margin-bottom:4px}.contact-action span{font-size:12px;color:#64748b;line-height:1.55}
+    .contact-note{font-size:12.5px;line-height:1.75;color:#475569;margin:14px 0 0}
+    @media(max-width:620px){.contact-main{padding:19px 16px;border-radius:17px}.contact-actions{grid-template-columns:1fr}.contact-email{font-size:21px}}
+  </style>
+</head>
+<body>
+  <div class="legal-brand"><a href="/"><span class="brand-mark">O</span><span>OSHIRU</span></a></div>
+  <main class="legal-wrap">
+    <article class="legal-card">
+      <h1>お問い合わせ</h1>
+      <div class="legal-meta">公開β版 ／ 最終更新：2026年8月18日</div>
+      <div class="contact-hero">
+        <p>OSHIRUの不具合、掲載情報、権利関係、削除依頼、プライバシーその他のお問い合わせを受け付けています。下記メールアドレスへ直接ご連絡ください。</p>
+      </div>
+
+      <section class="contact-main" aria-labelledby="contactMailTitle">
+        <small id="contactMailTitle">お問い合わせ先</small>
+        <a class="contact-email" href="mailto:a.o.work777@gmail.com?subject=OSHIRU%E3%81%8A%E5%95%8F%E3%81%84%E5%90%88%E3%82%8F%E3%81%9B">a.o.work777@gmail.com</a>
+        <div class="contact-actions">
+          <a class="contact-action" href="mailto:a.o.work777@gmail.com?subject=OSHIRU%20%E4%B8%8D%E5%85%B7%E5%90%88%E3%81%AE%E3%81%94%E9%80%A3%E7%B5%A1"><b>不具合を報告</b><span>検索・画像・表示崩れ・リンク等</span></a>
+          <a class="contact-action" href="mailto:a.o.work777@gmail.com?subject=OSHIRU%20%E6%8E%B2%E8%BC%89%E6%83%85%E5%A0%B1%E3%83%BB%E5%89%8A%E9%99%A4%E4%BE%9D%E9%A0%BC"><b>掲載・削除について</b><span>対象URLと問題箇所を記載してください</span></a>
+          <a class="contact-action" href="mailto:a.o.work777@gmail.com?subject=OSHIRU%20%E6%A8%A9%E5%88%A9%E9%96%A2%E4%BF%82%E3%81%AE%E3%81%94%E9%80%A3%E7%B5%A1"><b>権利関係について</b><span>著作権・商標・画像等に関するご連絡</span></a>
+          <a class="contact-action" href="mailto:a.o.work777@gmail.com?subject=OSHIRU%20%E3%81%9D%E3%81%AE%E4%BB%96%E3%81%AE%E3%81%8A%E5%95%8F%E3%81%84%E5%90%88%E3%82%8F%E3%81%9B"><b>その他</b><span>サービスへのご意見・ご要望等</span></a>
+        </div>
+        <p class="contact-note">メールアプリが起動しない場合は、上記アドレスをコピーしてご利用ください。注文・支払い・配送・返品など販売取引に関するお問い合わせは、各販売サイトへ直接ご連絡ください。</p>
+      </section>
+
+      <h2>権利侵害・削除依頼について</h2>
+      <p>対象ページまたは商品URL、問題となる内容、権利者または代理人であることを確認できる情報を添えてご連絡ください。必要な範囲で確認し、表示停止等を検討します。</p>
+    </article>
+  </main>
+  <footer class="site-footer"><div class="footer-inner"><div><div class="footer-brand">OSHIRU</div><div class="footer-note">公開β版。各販売サイトの公式サービスではありません。</div></div><nav class="footer-links"><a href="/">検索</a><a href="/about.html">概要</a><a href="/terms.html">利用規約</a><a href="/privacy.html">プライバシー</a><a href="/disclaimer.html">免責</a><a href="/contact.html">お問い合わせ</a></nav></div></footer>
+</body>
+</html>
