@@ -20,6 +20,7 @@
       {"key": "Cross-Origin-Opener-Policy","value": "same-origin"}
     ]},
     {"source": "/(.*).html","headers": [{"key":"Cache-Control","value":"public, max-age=0, must-revalidate"}]},
-    {"source": "/(.*).(css|js|png|svg|webmanifest)","headers": [{"key":"Cache-Control","value":"public, max-age=3600, s-maxage=3600"}]}
+    {"source": "/(.*).(css|js)","headers": [{"key":"Cache-Control","value":"public, max-age=0, must-revalidate"}]},
+    {"source": "/(.*).(png|svg|webmanifest)","headers": [{"key":"Cache-Control","value":"public, max-age=3600, s-maxage=3600"}]}
   ]
 }
