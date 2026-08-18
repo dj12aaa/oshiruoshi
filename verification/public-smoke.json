@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-08-18T11:41:01.297Z",
+  "checkedAt": "2026-08-18T11:41:55.886Z",
   "url": "https://oshiruoshi.vercel.app/",
   "homeHttp": 200,
   "homeHasOshiru": true,
@@ -9,6 +9,10 @@
   "robotsText": "User-agent: *\nAllow: /\nDisallow: /api/",
   "sitemapHttp": 200,
   "sitemapHasHome": true,
+  "googleVerification": {
+    "http": 200,
+    "exact": true
+  },
   "statusHttp": 200,
   "status": {
     "yahooShopping": true,
@@ -16,23 +20,72 @@
     "rakutenAffiliate": true,
     "vision": false
   },
-  "liveHttp": 200,
-  "live": {
-    "yahooShopping": {
-      "ok": true,
-      "count": 19,
-      "error": null
+  "searches": [
+    {
+      "query": "五条悟 アクスタ",
+      "http": 200,
+      "totalItems": 34,
+      "yahooShopping": {
+        "ok": true,
+        "count": 19,
+        "error": null
+      },
+      "rakuten": {
+        "ok": true,
+        "count": 30,
+        "error": null
+      },
+      "sources": [
+        "楽天市場",
+        "Yahoo!ショッピング"
+      ],
+      "withImage": 34
     },
-    "rakuten": {
-      "ok": true,
-      "count": 30,
-      "error": null
+    {
+      "query": "初音ミク アクスタ",
+      "http": 200,
+      "totalItems": 45,
+      "yahooShopping": {
+        "ok": true,
+        "count": 30,
+        "error": null
+      },
+      "rakuten": {
+        "ok": true,
+        "count": 30,
+        "error": null
+      },
+      "sources": [
+        "楽天市場",
+        "Yahoo!ショッピング"
+      ],
+      "withImage": 45
     },
-    "totalItems": 34,
-    "sources": [
-      "楽天市場",
-      "Yahoo!ショッピング"
-    ]
+    {
+      "query": "ちいかわ モモンガ",
+      "http": 200,
+      "totalItems": 54,
+      "yahooShopping": {
+        "ok": true,
+        "count": 30,
+        "error": null
+      },
+      "rakuten": {
+        "ok": true,
+        "count": 30,
+        "error": null
+      },
+      "sources": [
+        "楽天市場",
+        "Yahoo!ショッピング"
+      ],
+      "withImage": 54
+    }
+  ],
+  "officialImageProxy": {
+    "yahooHttp": 200,
+    "yahooContentType": "image/jpeg",
+    "yahooImageOk": true
   },
   "publicReady": true
 }
