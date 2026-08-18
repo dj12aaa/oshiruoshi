@@ -44,17 +44,25 @@ jobs:
             curl -L -sS -o "/tmp/oshiru/q${n}.json" -w '%{http_code}' --get --data-urlencode "q=${QUERIES[$n]}" "$BASE/api/live-search" > "/tmp/oshiru/q${n}-code" || true
           done
 
-          PROXY_URL=$(node - <<'NODE'
+          node - <<'NODE' > /tmp/oshiru/proxy-urls
           const fs=require('fs');
           let d={};try{d=JSON.parse(fs.readFileSync('/tmp/oshiru/q0.json','utf8'))}catch{}
-          const y=(d.items||[]).find(x=>x.source==='Yahoo!ショッピング'&&/^https:\/\//.test(x.image||''));
-          if(y)process.stdout.write('https://oshiruoshi.vercel.app/api/image-proxy?source=yahoo&url='+encodeURIComponent(y.image));
+          for(const [source,key] of [['Yahoo!ショッピング','yahoo'],['楽天市場','rakuten']]){
+            const item=(d.items||[]).find(x=>x.source===source&&/^https:\/\//.test(x.image||''));
+            console.log(item?`https://oshiruoshi.vercel.app/api/image-proxy?source=${key}&url=${encodeURIComponent(item.image)}`:'');
+          }
           NODE
-          )
-          if [ -n "$PROXY_URL" ]; then
-            curl -L -sS -o /tmp/oshiru/yahoo-image.bin -w '%{http_code}|%{content_type}' "$PROXY_URL" > /tmp/oshiru/yahoo-image-result || true
+          YAHOO_PROXY=$(sed -n '1p' /tmp/oshiru/proxy-urls)
+          RAKUTEN_PROXY=$(sed -n '2p' /tmp/oshiru/proxy-urls)
+          if [ -n "$YAHOO_PROXY" ]; then
+            curl -L -sS -o /tmp/oshiru/yahoo-image.bin -w '%{http_code}|%{content_type}' "$YAHOO_PROXY" > /tmp/oshiru/yahoo-image-result || true
           else
             echo '0|' > /tmp/oshiru/yahoo-image-result
+          fi
+          if [ -n "$RAKUTEN_PROXY" ]; then
+            curl -L -sS -o /tmp/oshiru/rakuten-image.bin -w '%{http_code}|%{content_type}' "$RAKUTEN_PROXY" > /tmp/oshiru/rakuten-image-result || true
+          else
+            echo '0|' > /tmp/oshiru/rakuten-image-result
           fi
       - name: Save smoke result
         if: always()
@@ -85,7 +93,9 @@ jobs:
               withImage:items.filter(x=>/^https:\/\//.test(x.image||'')).length
             };
           });
-          const [imageHttpRaw,imageType='']=read('/tmp/oshiru/yahoo-image-result','0|').split('|');
+          const parseImageResult=(path)=>{const [httpRaw,type='']=read(path,'0|').split('|');return{http:Number(httpRaw||0),contentType:type||null,ok:Number(httpRaw)===200&&String(type).startsWith('image/')}};
+          const yahooImage=parseImageResult('/tmp/oshiru/yahoo-image-result');
+          const rakutenImage=parseImageResult('/tmp/oshiru/rakuten-image-result');
           const result={
             checkedAt:new Date().toISOString(),
             url:'https://oshiruoshi.vercel.app/',
@@ -97,16 +107,13 @@ jobs:
             robotsText:robots.slice(0,300),
             sitemapHttp:Number(read('/tmp/oshiru/sitemap-code','0')),
             sitemapHasHome:sitemap.includes('https://oshiruoshi.vercel.app/'),
-            googleVerification:{
-              http:Number(read('/tmp/oshiru/google-code','0')),
-              exact:google==='google-site-verification: google919171d19d350f0c.html'
-            },
+            googleVerification:{http:Number(read('/tmp/oshiru/google-code','0')),exact:google==='google-site-verification: google919171d19d350f0c.html'},
             statusHttp:Number(read('/tmp/oshiru/status-code','0')),
             status:status?{yahooShopping:status.yahooShopping,rakuten:status.rakuten,rakutenAffiliate:status.rakutenAffiliate,vision:status.vision}:null,
             searches,
-            officialImageProxy:{yahooHttp:Number(imageHttpRaw||0),yahooContentType:imageType||null,yahooImageOk:Number(imageHttpRaw)===200&&String(imageType).startsWith('image/')}
+            officialImageProxy:{yahoo:yahooImage,rakuten:rakutenImage}
           };
-          result.publicReady=result.homeHttp===200&&result.homeHasOshiru&&result.homeIndexable&&result.robotsHttp===200&&result.robotsAllowsRoot&&result.sitemapHttp===200&&result.googleVerification.http===200&&result.googleVerification.exact;
+          result.publicReady=result.homeHttp===200&&result.homeHasOshiru&&result.homeIndexable&&result.robotsHttp===200&&result.robotsAllowsRoot&&result.sitemapHttp===200&&result.googleVerification.http===200&&result.googleVerification.exact&&yahooImage.ok&&rakutenImage.ok;
           fs.writeFileSync('verification/public-smoke.json',JSON.stringify(result,null,2)+'\n');
           console.log(JSON.stringify(result,null,2));
           NODE
