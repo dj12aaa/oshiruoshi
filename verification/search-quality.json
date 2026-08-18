@@ -1,0 +1,100 @@
+{
+  "checkedAt": "2026-08-18T15:06:25.878Z",
+  "ok": true,
+  "results": [
+    {
+      "query": "星街すいせい アクスタ",
+      "providerQuery": "星街すいせい アクスタ",
+      "count": 31,
+      "topRelated": 10,
+      "topTypes": [
+        "アクスタ"
+      ],
+      "topSources": [
+        "楽天市場",
+        "Yahoo!ショッピング"
+      ],
+      "topScores": [
+        643,
+        547,
+        371.4
+      ],
+      "rakutenHealthy": true
+    },
+    {
+      "query": "五条悟 缶バッジ",
+      "providerQuery": "五条悟 缶バッジ",
+      "count": 60,
+      "topRelated": 10,
+      "topTypes": [
+        "缶バッジ"
+      ],
+      "topSources": [
+        "Yahoo!ショッピング",
+        "楽天市場"
+      ],
+      "topScores": [
+        601,
+        589,
+        403
+      ],
+      "rakutenHealthy": true
+    },
+    {
+      "query": "アイドルマスター アクスタ",
+      "providerQuery": "アイドルマスター アクスタ",
+      "count": 60,
+      "topRelated": 10,
+      "topTypes": [
+        "アクスタ"
+      ],
+      "topSources": [
+        "Yahoo!ショッピング"
+      ],
+      "topScores": [
+        379,
+        373,
+        373
+      ],
+      "rakutenHealthy": true
+    },
+    {
+      "query": "初音ミク ぬい",
+      "providerQuery": "初音ミク ぬい",
+      "count": 60,
+      "topRelated": 10,
+      "topTypes": [
+        "ぬい"
+      ],
+      "topSources": [
+        "楽天市場",
+        "Yahoo!ショッピング"
+      ],
+      "topScores": [
+        630.2,
+        605,
+        593
+      ],
+      "rakutenHealthy": true
+    },
+    {
+      "query": "ブルーロック アクスタ",
+      "providerQuery": "ブルーロック アクスタ",
+      "count": 60,
+      "topRelated": 10,
+      "topTypes": [
+        "アクスタ"
+      ],
+      "topSources": [
+        "Yahoo!ショッピング",
+        "楽天市場"
+      ],
+      "topScores": [
+        609,
+        609,
+        601
+      ],
+      "rakutenHealthy": true
+    }
+  ]
+}
