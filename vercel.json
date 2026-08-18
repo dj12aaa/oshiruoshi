@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": false,
   "git": {
-    "deploymentEnabled": false
+    "deploymentEnabled": true
   },
   "rewrites": [
     {"source": "/robots.txt","destination": "/api/robots"},
