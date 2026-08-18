@@ -4,6 +4,79 @@ const cache=new Map();
 const providerLastAt={yahoo:0,rakuten:0};
 const providerGate={yahoo:Promise.resolve(),rakuten:Promise.resolve()};
 
+const aliasGroups=[
+  ['アクスタ','アクリルスタンド','アクリルフィギュア'],
+  ['アクキー','アクリルキーホルダー','アクリルキーチェーン'],
+  ['缶バ','缶バッジ','カンバッジ'],
+  ['ぬい','ぬいぐるみ','マスコット','ぬいマス'],
+  ['フィギュア','ねんどろいど','スケールフィギュア'],
+  ['カード','トレカ','トレーディングカード','ブロマイド'],
+  ['ステッカー','シール'],
+  ['クリアファイル','クリアホルダー'],
+  ['コラボ','コラボレーション','限定コラボ']
+];
+const merchWords=['アクスタ','アクリルスタンド','アクキー','アクリルキーホルダー','缶バッジ','缶バ','ぬい','ぬいぐるみ','マスコット','フィギュア','ねんどろいど','カード','トレカ','ブロマイド','ステッカー','シール','クリアファイル','タオル','キーホルダー','チャーム','ポスター','色紙','グッズ','特典'];
+const collabWords=['コラボ','コラボレーション','限定','限定品','ポップアップ','popup','カフェ','一番くじ','くじ','特典','描き下ろし','先行販売'];
+
+function normalize(value=''){
+  return String(value).normalize('NFKC').toLowerCase().replace(/[・･／/|｜,，。()（）【】\[\]「」『』:_-]+/g,' ').replace(/\s+/g,' ').trim();
+}
+function hasAny(text,words){return words.some(w=>text.includes(normalize(w)))}
+function queryTokens(q){return normalize(q).split(' ').filter(Boolean)}
+function matchingAliasGroups(q){
+  const n=normalize(q);
+  return aliasGroups.filter(group=>group.some(v=>n.includes(normalize(v))));
+}
+function detectType(value=''){
+  const n=normalize(value);
+  if(hasAny(n,aliasGroups[0]))return'アクスタ';
+  if(hasAny(n,aliasGroups[1]))return'アクキー';
+  if(hasAny(n,aliasGroups[2]))return'缶バッジ';
+  if(hasAny(n,aliasGroups[3]))return'ぬい';
+  if(hasAny(n,aliasGroups[4]))return'フィギュア';
+  if(hasAny(n,aliasGroups[5]))return'カード';
+  if(hasAny(n,aliasGroups[6]))return'ステッカー';
+  if(hasAny(n,aliasGroups[7]))return'クリアファイル';
+  return'通販';
+}
+function detectCollab(value=''){
+  const n=normalize(value);
+  if(n.includes('コラボ')||n.includes('collaboration'))return'コラボ商品';
+  if(hasAny(n,['限定','ポップアップ','popup','カフェ','一番くじ','描き下ろし','先行販売']))return'限定・企画商品';
+  return'';
+}
+function relevanceScore(item,q){
+  const nq=normalize(q);
+  const title=normalize(item?.title||'');
+  const description=normalize(item?.description||'');
+  const shop=normalize(item?.shop||'');
+  const hay=`${title} ${description} ${shop}`;
+  let score=0;
+  if(nq&&title.includes(nq))score+=120;
+  const compact=nq.replace(/\s/g,'');
+  if(compact&&title.replace(/\s/g,'').includes(compact))score+=70;
+  for(const token of queryTokens(q)){
+    if(title.includes(token))score+=token.length>=3?34:24;
+    else if(description.includes(token))score+=12;
+    else if(shop.includes(token))score+=4;
+  }
+  for(const group of matchingAliasGroups(q)){
+    if(group.some(v=>title.includes(normalize(v))))score+=38;
+    else if(group.some(v=>description.includes(normalize(v))))score+=15;
+  }
+  const qHasMerch=hasAny(nq,merchWords);
+  const resultHasMerch=hasAny(hay,merchWords);
+  if(resultHasMerch)score+=qHasMerch?16:10;
+  if(hasAny(nq,collabWords)&&hasAny(hay,collabWords))score+=34;
+  if(item?.image)score+=5;
+  if(item?.status==='販売中')score+=4;
+  if(item?.affiliate)score+=0;
+  return score;
+}
+function rankItems(items,q){
+  return dedupe(items).map(item=>({...item,_score:relevanceScore(item,q)})).sort((a,b)=>(b._score||0)-(a._score||0)||(a.price??Infinity)-(b.price??Infinity));
+}
+
 function dedupe(items){
   const seen=new Set();
   return items.filter(i=>{
@@ -17,7 +90,7 @@ async function fetchJson(url,{headers={},timeout=5500}={}){
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),timeout);
   try{
-    const r=await fetch(url,{signal:controller.signal,headers:{accept:'application/json','user-agent':'OSHIRU-beta/2.2',...headers}});
+    const r=await fetch(url,{signal:controller.signal,headers:{accept:'application/json','user-agent':'OSHIRU-beta/2.3',...headers}});
     const text=await r.text();
     if(text.length>2_000_000)throw new Error('response_too_large');
     if(!r.ok){
@@ -52,11 +125,13 @@ async function yahooSearch(q){
     return(d.hits||[]).map((h,i)=>{
       const image=h?.exImage?.url||h?.image?.medium||h?.image?.small||null;
       const shippingCode=Number(h?.shipping?.code||0);
+      const description=String(h?.description||h?.headLine||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim().slice(0,240);
+      const searchText=`${h?.name||''} ${description}`;
       return{
         id:`yshop-${h?.code||i}`,
         source:'Yahoo!ショッピング',
         title:h?.name||'商品名不明',
-        description:String(h?.description||h?.headLine||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim().slice(0,240),
+        description,
         price:Number.isFinite(Number(h?.price))?Number(h.price):null,
         shipping:shippingCode===2?0:null,
         shippingLabel:h?.shipping?.name||null,
@@ -65,7 +140,8 @@ async function yahooSearch(q){
         condition:yahooCondition(h?.condition),
         url:h?.url||'#',
         image,
-        type:'通販',
+        type:detectType(searchText),
+        collab:detectCollab(searchText),
         shop:h?.seller?.name||'',
         sellerId:h?.seller?.sellerId||'',
         janCode:h?.janCode||'',
@@ -101,11 +177,14 @@ async function rakutenSearch(q){
       const image=firstRakutenImage(h);
       const available=Number(h?.availability)!==0;
       const postage=Number(h?.postageFlag);
+      const description=String(h?.itemCaption||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim().slice(0,240);
+      const title=[h?.catchcopy,h?.itemName].filter(Boolean).join(' ').trim()||'商品名不明';
+      const searchText=`${title} ${description}`;
       return{
         id:`rakuten-${h?.itemCode||i}`,
         source:'楽天市場',
-        title:[h?.catchcopy,h?.itemName].filter(Boolean).join(' ').trim()||'商品名不明',
-        description:String(h?.itemCaption||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim().slice(0,240),
+        title,
+        description,
         price:Number.isFinite(Number(h?.itemPrice))?Number(h.itemPrice):null,
         shipping:postage===0?0:null,
         shippingLabel:postage===0?'送料込み/送料無料':'送料は商品ページで確認',
@@ -115,7 +194,9 @@ async function rakutenSearch(q){
         url:h?.affiliateUrl||h?.itemUrl||'#',
         canonicalUrl:h?.itemUrl||null,
         image,
-        type:'通販',shop:h?.shopName||'',itemCode:h?.itemCode||'',
+        type:detectType(searchText),
+        collab:detectCollab(searchText),
+        shop:h?.shopName||'',itemCode:h?.itemCode||'',
         reviewCount:Number.isFinite(Number(h?.reviewCount))?Number(h.reviewCount):null,
         reviewAverage:Number.isFinite(Number(h?.reviewAverage))?Number(h.reviewAverage):null,
         affiliate:Boolean(h?.affiliateUrl),
@@ -148,7 +229,7 @@ export default async function handler(req,res){
   const settled=await Promise.all(jobs.map(async([name,promise])=>{try{return{name,ok:true,value:await promise}}catch(e){return{name,ok:false,value:[],error:String(e?.name==='AbortError'?'timeout':e?.message||e).slice(0,120)}}}));
   const providers={};let items=[];
   for(const r of settled){providers[r.name]={ok:r.ok,count:r.value.length,error:r.error||null};items.push(...r.value)}
-  const value={query:q,items:dedupe(items),providers,generatedAt:new Date().toISOString()};
+  const value={query:q,items:rankItems(items,q),providers,generatedAt:new Date().toISOString()};
   cache.set(cacheKey,{at:Date.now(),value});
   if(cache.size>100)cache.delete(cache.keys().next().value);
   return json(res,200,value);
