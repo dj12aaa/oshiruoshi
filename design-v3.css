@@ -1,0 +1,118 @@
+/* OSHIRU visual polish v3 — image-first, spacious, stable across breakpoints. */
+:root{
+  --oshiru-surface:#ffffff;
+  --oshiru-canvas:#f5f5f7;
+  --oshiru-ink:#0b0d12;
+  --oshiru-sub:#5b6472;
+  --oshiru-hair:rgba(15,23,42,.09);
+  --oshiru-shadow:0 2px 3px rgba(15,23,42,.03),0 12px 30px rgba(15,23,42,.07),0 34px 80px rgba(15,23,42,.045);
+  --oshiru-shadow-hover:0 4px 8px rgba(15,23,42,.045),0 20px 44px rgba(15,23,42,.095),0 44px 95px rgba(15,23,42,.07);
+}
+body{background:var(--oshiru-canvas)}
+.result-area{isolation:isolate}
+.product-grid{align-items:stretch}
+.product-card{
+  position:relative;
+  background:linear-gradient(180deg,rgba(255,255,255,.995),rgba(255,255,255,.97));
+  border:1px solid var(--oshiru-hair)!important;
+  box-shadow:var(--oshiru-shadow)!important;
+  content-visibility:auto;
+  contain-intrinsic-size:420px;
+  contain:layout paint style;
+  transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s ease,border-color .22s ease!important;
+}
+.product-card::after{
+  content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(15,23,42,.025);
+}
+@media(hover:hover) and (pointer:fine){
+  .product-card:hover{transform:translateY(-5px)!important;box-shadow:var(--oshiru-shadow-hover)!important;border-color:rgba(15,23,42,.13)!important}
+  .product-card:hover .market-img{transform:scale(1.025)}
+}
+.visual{background:radial-gradient(circle at 50% 44%,#fff 0,#f8f8fa 53%,#f0f1f4 100%)!important}
+.market-img{
+  object-fit:contain!important;
+  background:transparent!important;
+  transform:translateZ(0);
+  transition:transform .26s cubic-bezier(.2,.8,.2,1),opacity .2s ease;
+}
+.image-fallback{background:radial-gradient(circle at 50% 45%,#fff,#f2f3f5)!important}
+.source-pill,.heart{backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.8)}
+.card-body{background:linear-gradient(180deg,#fff,#fff 70%,#fdfdfe)}
+.product-title{color:var(--oshiru-ink);letter-spacing:-.018em}
+.meta-line{color:var(--oshiru-sub)}
+.main-price{font-variant-numeric:tabular-nums}
+.cost-row{border:1px solid rgba(15,23,42,.055);background:#f7f8fa!important}
+.card-actions a{box-shadow:0 8px 18px rgba(17,24,39,.12)}
+.card-actions a:hover{box-shadow:0 10px 24px rgba(17,24,39,.17)}
+
+/* Result hierarchy */
+.result-top{padding:3px 2px 2px}
+.result-title-row{align-items:baseline}
+.stats-row .stat{box-shadow:0 6px 20px rgba(15,23,42,.035);border-color:rgba(15,23,42,.075)}
+.source-access-panel{background:rgba(255,255,255,.82)!important;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+
+/* Comparison: more whitespace, clearer rows, sticky labels and dimensional container. */
+.modal-card:has(.compare-table){width:min(1180px,calc(100vw - 36px));padding:30px;border:1px solid rgba(255,255,255,.7);box-shadow:0 35px 100px rgba(0,0,0,.28)}
+.compare-filterbar{position:sticky;top:0;z-index:6;background:rgba(247,248,250,.94)!important;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);padding:12px 14px!important;border-radius:16px!important}
+.compare-table{
+  border-collapse:separate!important;border-spacing:0!important;width:100%;
+  border:1px solid rgba(15,23,42,.09)!important;border-radius:18px!important;
+  box-shadow:0 14px 40px rgba(15,23,42,.06);overflow:hidden;background:#fff
+}
+.compare-table tr:first-child th{position:sticky;top:58px;z-index:4;background:rgba(248,250,252,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.compare-table th,.compare-table td{padding:16px 15px!important;border-bottom:1px solid rgba(15,23,42,.065)!important;line-height:1.65!important}
+.compare-table th:first-child{min-width:112px!important;font-size:12px;letter-spacing:.02em;color:#475569!important;background:#f8fafc!important}
+.compare-table td{min-width:180px;background:#fff}
+.compare-table tr:nth-child(even) td{background:#fcfcfd}
+.compare-table td.best-value{background:linear-gradient(180deg,#fff7f8,#fff1f4)!important;box-shadow:inset 0 0 0 1px rgba(217,31,72,.2)!important}
+.compare-tip{padding:0 2px 4px;font-size:12.5px!important}
+
+/* Desktop image-first composition. */
+@media(min-width:1180px){
+  .product-card{min-height:390px!important;border-radius:28px!important}
+  .visual{min-height:390px!important}
+  .market-img{padding:30px!important}
+  .card-body{padding:30px 32px 28px!important}
+  .product-title{font-size:23px!important;line-height:1.42!important;max-width:760px}
+  .main-price{font-size:38px!important}
+  .price-block{margin-top:20px!important;padding-top:18px!important}
+  .cost-row{padding:14px 15px!important;margin-top:15px!important}
+  .verified{padding-top:18px!important}
+}
+
+/* Tablet keeps a calm two-column layout with uncropped images. */
+@media(min-width:761px) and (max-width:1179px){
+  .product-card{border-radius:22px!important;overflow:hidden}
+  .visual{aspect-ratio:1/1!important;min-height:0!important}
+  .market-img{padding:18px!important}
+  .card-body{padding:18px!important}
+  .product-title{font-size:17px!important;min-height:52px;height:auto!important;-webkit-line-clamp:3}
+  .main-price{font-size:28px!important}
+}
+
+/* Mobile: preserve one-column flow, enlarge the product itself, avoid cramped metadata. */
+@media(max-width:760px){
+  .workspace{padding-left:12px!important;padding-right:12px!important}
+  .result-area{width:100%}
+  .product-grid{gap:18px!important}
+  .product-card{border-radius:24px!important;box-shadow:0 2px 3px rgba(15,23,42,.025),0 12px 34px rgba(15,23,42,.075)!important}
+  .visual{aspect-ratio:1/1!important;min-height:0!important}
+  .market-img{padding:14px!important}
+  .card-body{padding:17px 16px 18px!important}
+  .tag-row{gap:6px!important;margin-bottom:10px!important}
+  .product-title{font-size:17.5px!important;line-height:1.5!important;-webkit-line-clamp:3!important}
+  .meta-line{line-height:1.55!important;margin-top:7px!important}
+  .main-price{font-size:30px!important}
+  .price-block{gap:12px!important}
+  .cost-row{margin-top:12px!important;padding:12px!important;line-height:1.55!important}
+  .verified{font-size:10.5px!important;gap:10px!important}
+  .card-actions{gap:9px!important}
+  .card-actions button,.card-actions a{min-height:46px!important;display:grid;place-items:center}
+  .modal-card:has(.compare-table){width:100%;padding:18px 12px!important;border-radius:20px}
+  .compare-filterbar{top:0;padding:10px!important}
+  .compare-table{min-width:720px!important;border-radius:14px!important}
+  .compare-table th,.compare-table td{padding:13px 11px!important}
+}
+
+@media(prefers-reduced-motion:reduce){.product-card,.market-img{transition:none!important}.product-card:hover{transform:none!important}}
