@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-08-19T06:56:33.067Z",
+  "checkedAt": "2026-08-19T07:00:03.223Z",
   "url": "https://oshiruoshi.vercel.app/",
   "homeHttp": 200,
   "homeHasOshiru": true,
@@ -78,19 +78,21 @@
     {
       "query": "ちいかわ モモンガ",
       "http": 200,
-      "totalItems": 0,
+      "totalItems": 30,
       "yahooShopping": {
-        "ok": false,
-        "count": 0,
-        "error": "upstream_429"
+        "ok": true,
+        "count": 30,
+        "error": null
       },
       "rakuten": {
         "ok": false,
         "count": 0,
         "error": "upstream_403"
       },
-      "sources": [],
-      "withImage": 0
+      "sources": [
+        "Yahoo!ショッピング"
+      ],
+      "withImage": 30
     }
   ],
   "officialImageProxy": {
