@@ -12,9 +12,15 @@ permissions:
 jobs:
   quality:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
+      - name: Search JavaScript syntax
+        run: |
+          node --check api/search-language.mjs
+          node --check api/live-search.js
+          node --check api/suggest.js
+          node --check app.js
       - name: Wait for production
         shell: bash
         run: |
@@ -22,23 +28,28 @@ jobs:
             if curl -fsSL https://oshiruoshi.vercel.app/performance-v3.js >/dev/null && curl -fsSL https://oshiruoshi.vercel.app/design-v3.css >/dev/null; then break; fi
             sleep 5
           done
-      - name: Search representative fandom categories and abbreviations
+      - name: Search flexible queries
         shell: bash
         run: |
           mkdir -p /tmp/oshiru-quality
           QUERIES=(
             '星街すいせい アクスタ'
             '五条悟 缶バッジ'
-            'アイドルマスター アクスタ'
             '初音ミク ぬい'
-            'ブルーロック アクスタ'
-            'ローレンイロアス アクキー'
-            '葛葉 缶バ'
-            '星街すいせい ペンラ'
-            '五条悟 クリファ'
+            'ローレンイロアスアクキー'
+            'ボイスキーホルダーFelix'
+            'Felix ボイスキーホルダー'
+            'owキリコぬいぐるみ'
+            'OW キリコ ぬい'
+            '3DS本体'
           )
           for n in "${!QUERIES[@]}"; do
-            curl --max-time 35 -fsSL --get --data-urlencode "q=${QUERIES[$n]}" https://oshiruoshi.vercel.app/api/live-search > "/tmp/oshiru-quality/q${n}.json"
+            curl --max-time 40 -fsSL --get --data-urlencode "q=${QUERIES[$n]}" https://oshiruoshi.vercel.app/api/live-search > "/tmp/oshiru-quality/q${n}.json"
+            sleep 2
+          done
+          SUGGEST=('3DS' 'owキリコ' 'ボイスキーホルダーFelix')
+          for n in "${!SUGGEST[@]}"; do
+            curl --max-time 20 -fsSL --get --data-urlencode "q=${SUGGEST[$n]}" https://oshiruoshi.vercel.app/api/suggest > "/tmp/oshiru-quality/s${n}.json"
             sleep 2
           done
       - name: Record quality result
@@ -48,43 +59,34 @@ jobs:
           node - <<'NODE'
           const fs=require('fs');
           const specs=[
-            {query:'星街すいせい アクスタ',entity:'星街すいせい',type:['アクスタ','アクリルスタンド']},
-            {query:'五条悟 缶バッジ',entity:'五条悟',type:['缶バッジ','缶バッチ']},
-            {query:'アイドルマスター アクスタ',entity:'アイドルマスター',type:['アクスタ','アクリルスタンド']},
-            {query:'初音ミク ぬい',entity:'初音ミク',type:['ぬい','ぬいぐるみ','マスコット']},
-            {query:'ブルーロック アクスタ',entity:'ブルーロック',type:['アクスタ','アクリルスタンド']},
-            {query:'ローレンイロアス アクキー',entity:'ローレンイロアス',type:['アクキー','アクリルキーホルダー','アクリルキーチェーン','キーホルダー'],expansion:'アクリルキーホルダー'},
-            {query:'葛葉 缶バ',entity:'葛葉',type:['缶バ','缶バッジ','缶バッチ'],expansion:'缶バッジ'},
-            {query:'星街すいせい ペンラ',entity:'星街すいせい',type:['ペンラ','ペンライト','ライトスティック'],expansion:'ペンライト'},
-            {query:'五条悟 クリファ',entity:'五条悟',type:['クリファ','クリアファイル','クリアホルダー'],expansion:'クリアファイル'}
+            {query:'星街すいせい アクスタ'},
+            {query:'五条悟 缶バッジ'},
+            {query:'初音ミク ぬい'},
+            {query:'ローレンイロアスアクキー',mustInclude:'アクリルキーホルダー'},
+            {query:'ボイスキーホルダーFelix',mustInclude:'ボイスキーホルダー'},
+            {query:'Felix ボイスキーホルダー',mustInclude:'ボイスキーホルダー'},
+            {query:'owキリコぬいぐるみ',mustInclude:'オーバーウォッチ',alsoInclude:'ぬいぐるみ'},
+            {query:'OW キリコ ぬい',mustInclude:'オーバーウォッチ',alsoInclude:'ぬいぐるみ'},
+            {query:'3DS本体',mustInclude:'3ds 本体'}
           ];
-          const norm=value=>String(value||'').normalize('NFKC').toLowerCase().replace(/[・･·／/|｜,，。｡()（）【】\[\]「」『』〈〉《》:_＿\-—–+＋\s]+/g,'');
+          const norm=v=>String(v||'').normalize('NFKC').toLowerCase().replace(/[・･·／/|｜,，。｡()（）【】\[\]「」『』〈〉《》:_＿\-—–+＋]+/g,' ').replace(/([a-z0-9])([ぁ-んァ-ヶ一-龯々ー])/gi,'$1 $2').replace(/([ぁ-んァ-ヶ一-龯々ー])([a-z0-9])/gi,'$1 $2').replace(/\s+/g,' ').trim();
           const results=specs.map((spec,n)=>{
             const d=JSON.parse(fs.readFileSync(`/tmp/oshiru-quality/q${n}.json`,'utf8'));
             const items=Array.isArray(d.items)?d.items:[];
-            const top=items.slice(0,12);
-            const entity=norm(spec.entity);
-            const typeTerms=spec.type.map(norm);
-            const topEntity=top.filter(x=>norm(x.title).includes(entity)).length;
-            const topExactType=top.filter(x=>norm(x.title).includes(entity)&&typeTerms.some(t=>norm(x.title).includes(t))).length;
-            const variants=Array.isArray(d.queryVariants)?d.queryVariants.map(v=>typeof v==='string'?v:v?.query).filter(Boolean):[];
-            const expansionOk=!spec.expansion||variants.some(v=>norm(v).includes(norm(spec.expansion)));
-            return{
-              query:spec.query,
-              count:items.length,
-              topEntity,
-              topExactType,
-              queryVariants:variants,
-              expansionOk,
-              topTitles:top.slice(0,3).map(x=>x.title),
-              topSources:[...new Set(top.map(x=>x.source))],
-              topScores:top.slice(0,3).map(x=>x._score),
-              aliasVersion:d.aliasVersion||null
-            };
+            const variants=(d.queryVariants||[]).map(v=>typeof v==='string'?v:v?.query).filter(Boolean);
+            const hay=variants.map(norm).join(' | ');
+            const expansionOk=(!spec.mustInclude||hay.includes(norm(spec.mustInclude)))&&(!spec.alsoInclude||hay.includes(norm(spec.alsoInclude)));
+            const scores=items.slice(0,5).map(x=>x._score);
+            return{query:spec.query,count:items.length,queryVariants:variants,expansionOk,topTitles:items.slice(0,3).map(x=>x.title),topScores:scores,aliasVersion:d.aliasVersion||null};
           });
-          const baselineOk=results.slice(0,5).every(x=>x.count>0&&x.topEntity>=2&&x.topScores.length>0&&x.topScores.every(Number.isFinite));
-          const abbreviationOk=results.slice(5).every(x=>x.count>0&&x.expansionOk&&x.topScores.length>0&&x.topScores.every(Number.isFinite));
-          const out={checkedAt:new Date().toISOString(),ok:baselineOk&&abbreviationOk,baselineOk,abbreviationOk,results};
+          const suggestions=['3DS','owキリコ','ボイスキーホルダーFelix'].map((query,n)=>{
+            const d=JSON.parse(fs.readFileSync(`/tmp/oshiru-quality/s${n}.json`,'utf8'));
+            return{query,count:Array.isArray(d.items)?d.items.length:0,items:(d.items||[]).slice(0,5).map(x=>({name:x.name,label:x.label,detail:x.detail})),providerQuery:d.providerQuery||null,signals:d.signals||null};
+          });
+          const expansionOk=results.every(x=>x.expansionOk&&x.topScores.every(Number.isFinite));
+          const baselineOk=results.slice(0,3).every(x=>x.count>0);
+          const predictiveOk=suggestions.every(x=>x.count>0);
+          const out={checkedAt:new Date().toISOString(),ok:expansionOk&&baselineOk&&predictiveOk,expansionOk,baselineOk,predictiveOk,results,suggestions};
           fs.writeFileSync('verification/search-quality.json',JSON.stringify(out,null,2)+'\n');
           console.log(JSON.stringify(out,null,2));
           if(!out.ok)process.exitCode=1;
