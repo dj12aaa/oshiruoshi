@@ -1,4 +1,22 @@
+.source-strip,
+.beta-bar {
+  display: none !important;
+}
+
 @media (max-width: 900px) {
+  .search-hero {
+    display: block !important;
+    padding-bottom: 8px !important;
+  }
+  .hero-copy {
+    display: none !important;
+  }
+  .search-panel {
+    margin-bottom: 0 !important;
+  }
+  .workspace {
+    padding-top: 0 !important;
+  }
   #suggestBox { display: none !important; }
 
   body.mobile-predictive-open {

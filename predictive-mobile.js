@@ -219,7 +219,7 @@
     renderLoading();
 
     try {
-      const response = await fetch(`/api/suggest?q=${encodeURIComponent(q)}`, {
+      const response = await fetch(`/api/suggest?v=20260819-5&q=${encodeURIComponent(q)}`, {
         headers: { accept: 'application/json' },
         signal: controller.signal
       });
