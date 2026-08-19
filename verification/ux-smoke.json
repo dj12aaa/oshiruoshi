@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-08-19T05:59:12.549Z",
+  "checkedAt": "2026-08-19T06:21:25.007Z",
   "navigationLoaded": true,
   "performanceLoaded": true,
   "affiliateLoaded": true,
@@ -15,79 +15,59 @@
   "searches": [
     {
       "query": "星街すいせい アクスタ",
-      "http": 200,
-      "count": 33,
-      "topRelated": 10,
-      "topTypes": [
-        "通販"
-      ],
-      "topSources": [
-        "Yahoo!ショッピング"
-      ],
-      "firstTitle": "中古フォトフレーム・アルバム 星街すいせい アクスタ付きカードスタンド 「バーチャルYouTuber ホロライブ」 Tファン",
-      "firstScore": 582,
+      "http": 500,
+      "count": 0,
+      "topRelated": 0,
+      "topTypes": [],
+      "topSources": [],
+      "firstTitle": "",
+      "firstScore": null,
       "ranked": true
     },
     {
       "query": "五条悟 特典 カード",
-      "http": 200,
-      "count": 41,
-      "topRelated": 10,
-      "topTypes": [
-        "通販"
-      ],
-      "topSources": [
-        "Yahoo!ショッピング"
-      ],
-      "firstTitle": "中古キャラカード 五条悟 特典カード 「呪術廻戦 第2期×TOWER RECORDS CAFE 第1弾 懐玉・玉",
-      "firstScore": 582,
+      "http": 500,
+      "count": 0,
+      "topRelated": 0,
+      "topTypes": [],
+      "topSources": [],
+      "firstTitle": "",
+      "firstScore": null,
       "ranked": true
     },
     {
       "query": "初音ミク ぬい",
-      "http": 200,
-      "count": 60,
-      "topRelated": 10,
-      "topTypes": [
-        "通販"
-      ],
-      "topSources": [
-        "Yahoo!ショッピング"
-      ],
-      "firstTitle": "初音ミク ぬいぐるみ ピアプロキャラクターズ ぬいコロン アイアップ",
-      "firstScore": 582,
+      "http": 500,
+      "count": 0,
+      "topRelated": 0,
+      "topTypes": [],
+      "topSources": [],
+      "firstTitle": "",
+      "firstScore": null,
       "ranked": true
     },
     {
       "query": "ブルーロック コラボ カード",
-      "http": 200,
-      "count": 44,
-      "topRelated": 10,
-      "topTypes": [
-        "通販"
-      ],
-      "topSources": [
-        "Yahoo!ショッピング"
-      ],
-      "firstTitle": "Jリーグオフィシャルトレーディングカード U14 千切 豹馬 C大阪 (ブルーロックコラボカード/ユニフォームナンバーカード)",
-      "firstScore": 677,
+      "http": 500,
+      "count": 0,
+      "topRelated": 0,
+      "topTypes": [],
+      "topSources": [],
+      "firstTitle": "",
+      "firstScore": null,
       "ranked": true
     },
     {
       "query": "アイドルマスター アクスタ",
-      "http": 200,
-      "count": 60,
-      "topRelated": 10,
-      "topTypes": [
-        "通販"
-      ],
-      "topSources": [
-        "Yahoo!ショッピング"
-      ],
-      "firstTitle": "中古食玩 雑貨 6.倉本千奈 「学園アイドルマスター フォトスタイルアクスタ」",
-      "firstScore": 497,
+      "http": 500,
+      "count": 0,
+      "topRelated": 0,
+      "topTypes": [],
+      "topSources": [],
+      "firstTitle": "",
+      "firstScore": null,
       "ranked": true
     }
   ],
-  "ok": true
+  "ok": false
 }
