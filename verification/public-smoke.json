@@ -1,9 +1,9 @@
 {
-  "checkedAt": "2026-08-18T12:46:09.245Z",
+  "checkedAt": "2026-08-19T03:53:00.569Z",
   "url": "https://oshiruoshi.vercel.app/",
   "homeHttp": 200,
   "homeHasOshiru": true,
-  "homeIndexable": true,
+  "homeIndexable": false,
   "fixedMarketplaceFilters": {
     "ok": true,
     "sources": [
@@ -40,62 +40,59 @@
     {
       "query": "五条悟 アクスタ",
       "http": 200,
-      "totalItems": 49,
+      "totalItems": 47,
       "yahooShopping": {
         "ok": true,
-        "count": 19,
+        "count": 47,
         "error": null
       },
       "rakuten": {
-        "ok": true,
-        "count": 30,
-        "error": null
+        "ok": false,
+        "count": 0,
+        "error": "upstream_403"
       },
       "sources": [
-        "Yahoo!ショッピング",
-        "楽天市場"
+        "Yahoo!ショッピング"
       ],
-      "withImage": 49
+      "withImage": 47
     },
     {
       "query": "初音ミク アクスタ",
       "http": 200,
-      "totalItems": 60,
+      "totalItems": 53,
       "yahooShopping": {
         "ok": true,
-        "count": 30,
+        "count": 53,
         "error": null
       },
       "rakuten": {
-        "ok": true,
-        "count": 30,
-        "error": null
+        "ok": false,
+        "count": 0,
+        "error": "upstream_403"
       },
       "sources": [
-        "Yahoo!ショッピング",
-        "楽天市場"
+        "Yahoo!ショッピング"
       ],
-      "withImage": 60
+      "withImage": 53
     },
     {
       "query": "ちいかわ モモンガ",
       "http": 200,
-      "totalItems": 60,
+      "totalItems": 57,
       "yahooShopping": {
         "ok": true,
-        "count": 30,
+        "count": 57,
         "error": null
       },
       "rakuten": {
-        "ok": true,
-        "count": 30,
-        "error": null
+        "ok": false,
+        "count": 0,
+        "error": "upstream_403"
       },
       "sources": [
-        "楽天市場",
         "Yahoo!ショッピング"
       ],
-      "withImage": 60
+      "withImage": 57
     }
   ],
   "officialImageProxy": {
@@ -105,10 +102,10 @@
       "ok": true
     },
     "rakuten": {
-      "http": 200,
-      "contentType": "image/webp",
-      "ok": true
+      "http": 0,
+      "contentType": null,
+      "ok": false
     }
   },
-  "publicReady": true
+  "publicReady": false
 }
