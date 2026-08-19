@@ -82,8 +82,8 @@ jobs:
               aliasVersion:d.aliasVersion||null
             };
           });
-          const baselineOk=results.slice(0,5).every(x=>x.count>0&&x.topEntity>=2&&x.topScores.every(Number.isFinite));
-          const abbreviationOk=results.slice(5).every(x=>x.expansionOk&&x.topScores.every(Number.isFinite));
+          const baselineOk=results.slice(0,5).every(x=>x.count>0&&x.topEntity>=2&&x.topScores.length>0&&x.topScores.every(Number.isFinite));
+          const abbreviationOk=results.slice(5).every(x=>x.count>0&&x.expansionOk&&x.topScores.length>0&&x.topScores.every(Number.isFinite));
           const out={checkedAt:new Date().toISOString(),ok:baselineOk&&abbreviationOk,baselineOk,abbreviationOk,results};
           fs.writeFileSync('verification/search-quality.json',JSON.stringify(out,null,2)+'\n');
           console.log(JSON.stringify(out,null,2));
