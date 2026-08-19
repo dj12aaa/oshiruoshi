@@ -37,6 +37,31 @@
     document.head.appendChild(desktopStability);
   }
 
+  // Mobile comparison filter hardening. The navigation stylesheet declares
+  // .mobile-compare-field as display:grid, which can override the browser's
+  // default [hidden] rule. Make the filter state authoritative and visible.
+  const compareFilterStyle=document.createElement('style');
+  compareFilterStyle.id='oshiru-mobile-compare-filter-v2';
+  compareFilterStyle.textContent=`
+    @media(max-width:900px){
+      .mobile-compare-field[hidden]{display:none!important}
+      .mobile-compare-mode-note{
+        margin:0 0 10px;padding:9px 11px;border:1px solid #e2e8f0;border-radius:11px;
+        background:#f8fafc;color:#475569;font-size:11px;font-weight:750;line-height:1.55
+      }
+      .mobile-compare-tabs button[data-mobile-compare="all"].active{background:#17181c!important;border-color:#17181c!important;color:#fff!important}
+      .mobile-compare-tabs button[data-mobile-compare="price"].active{background:#d91f48!important;border-color:#d91f48!important;color:#fff!important}
+      .mobile-compare-tabs button[data-mobile-compare="state"].active{background:#0f766e!important;border-color:#0f766e!important;color:#fff!important}
+      .mobile-compare-tabs button[data-mobile-compare="time"].active{background:#475569!important;border-color:#475569!important;color:#fff!important}
+      .mobile-compare[data-compare-mode="state"] .mobile-best,
+      .mobile-compare[data-compare-mode="time"] .mobile-best{display:none!important}
+      .mobile-compare[data-compare-mode="price"] .mobile-compare-field[data-mobile-group="price"]>span{color:#a91839}
+      .mobile-compare[data-compare-mode="state"] .mobile-compare-field[data-mobile-group="state"]>span{color:#0f766e}
+      .mobile-compare[data-compare-mode="time"] .mobile-compare-field[data-mobile-group="time"]>span{color:#475569}
+    }
+  `;
+  document.head.appendChild(compareFilterStyle);
+
   const frame=document.getElementById('rakutenAffiliateFrame');
   const input=document.getElementById('q');
   const affiliateSection=document.querySelector('.affiliate-widget-section');
@@ -120,12 +145,52 @@
     });
   }
 
+  const compareModeCopy={
+    all:'すべて：価格・送料・実質額・状態・販売状況・確認日時を表示しています。',
+    price:'料金：価格・送料・実質額だけを表示しています。最安候補を比較できます。',
+    state:'状態：商品の状態と販売状況だけを表示しています。',
+    time:'更新：情報を確認した日時だけを表示しています。'
+  };
+
+  function syncMobileCompareFilter(root){
+    if(!root)return;
+    const tabs=[...root.querySelectorAll('[data-mobile-compare]')];
+    if(!tabs.length)return;
+    const active=tabs.find(x=>x.classList.contains('active'))||tabs[0];
+    const mode=active.dataset.mobileCompare||'all';
+    root.dataset.compareMode=mode;
+    tabs.forEach(tab=>{
+      const selected=tab===active;
+      tab.classList.toggle('active',selected);
+      tab.setAttribute('role','tab');
+      tab.setAttribute('aria-selected',String(selected));
+      tab.tabIndex=selected?0:-1;
+    });
+    root.querySelectorAll('.mobile-compare-field').forEach(field=>{
+      field.hidden=!(mode==='all'||field.dataset.mobileGroup===mode);
+    });
+    let note=root.querySelector('.mobile-compare-mode-note');
+    if(!note){
+      note=document.createElement('div');
+      note.className='mobile-compare-mode-note';
+      note.setAttribute('role','status');
+      note.setAttribute('aria-live','polite');
+      root.querySelector('.mobile-compare-tabs')?.insertAdjacentElement('afterend',note);
+    }
+    note.textContent=compareModeCopy[mode]||compareModeCopy.all;
+  }
+
+  function syncAllMobileCompareFilters(){
+    document.querySelectorAll('.mobile-compare').forEach(syncMobileCompareFilter);
+  }
+
   let polishScheduled=false;
   function polishAll(){
     polishScheduled=false;
     decorateClearButton();
     decorateCompareButtons();
     decorateFavoriteButtons();
+    syncAllMobileCompareFilters();
   }
   function schedulePolish(){
     if(polishScheduled)return;
@@ -134,6 +199,10 @@
   }
 
   document.addEventListener('click',event=>{
+    const mobileTab=event.target.closest('[data-mobile-compare]');
+    if(mobileTab){
+      requestAnimationFrame(()=>syncMobileCompareFilter(mobileTab.closest('.mobile-compare')));
+    }
     const compare=event.target.closest('[data-compare]');
     if(compare){
       const id=String(compare.dataset.compare||'');
@@ -156,7 +225,7 @@
   const grid=document.getElementById('productGrid');
   if(grid)new MutationObserver(schedulePolish).observe(grid,{childList:true});
   const modal=document.getElementById('modalContent');
-  if(modal)new MutationObserver(schedulePolish).observe(modal,{childList:true});
+  if(modal)new MutationObserver(schedulePolish).observe(modal,{childList:true,subtree:true});
 
   schedulePolish();
 })();
