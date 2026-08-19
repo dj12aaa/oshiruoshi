@@ -17,6 +17,7 @@
   let debounceTimer = 0;
   let composing = false;
   let open = false;
+  let submitting = false;
   let inerted = [];
 
   const create = (tag, className, text) => {
@@ -133,7 +134,7 @@
     if (!mobileInput) return;
     const value = mobileInput.value.trim();
     if (clearButton) clearButton.hidden = !value;
-    if (submitButton) submitButton.disabled = !value;
+    if (submitButton) submitButton.disabled = !value || submitting;
     requestAnimationFrame(() => {
       if (!queryPreview || !mobileInput) return;
       const overflowed = mobileInput.scrollWidth > mobileInput.clientWidth + 3 || [...value].length >= 18;
@@ -236,6 +237,7 @@
     if (!isMobile() || open) return;
     ensureLayer();
     open = true;
+    submitting = false;
     cancelRequest();
     legacySuggest?.classList.add('hidden');
     mobileInput.value = sourceInput.value || '';
@@ -266,16 +268,29 @@
     if (layer) layer.hidden = true;
   }
 
-  function submitQuery(value) {
-    const q = String(value || '').trim().replace(/\s+/g, ' ').slice(0, 80);
-    if (!q) {
-      mobileInput?.focus({ preventScroll: true });
+  function executeSourceSearch() {
+    if (typeof window.runSearch === 'function') {
+      window.runSearch();
       return;
     }
+    sourceSearchButton.click();
+  }
+
+  function submitQuery(value) {
+    const q = String(value || '').trim().replace(/\s+/g, ' ').slice(0, 80);
+    if (!q || submitting) {
+      if (!q) mobileInput?.focus({ preventScroll: true });
+      return;
+    }
+    submitting = true;
+    syncInputChrome();
     sourceInput.value = q;
     closeLayer();
     legacySuggest?.classList.add('hidden');
-    window.setTimeout(() => sourceSearchButton.click(), 0);
+    requestAnimationFrame(() => {
+      executeSourceSearch();
+      window.setTimeout(() => { submitting = false; }, 0);
+    });
   }
 
   sourceInput.addEventListener('pointerdown', event => {
