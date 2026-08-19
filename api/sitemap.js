@@ -21,7 +21,23 @@ export default function handler(req,res){
     return;
   }
   const base=siteBase(req);
-  const pages=['/','/about.html','/terms.html','/privacy.html','/disclaimer.html','/contact.html'];
+  const pages=[
+    '/',
+    '/guide/oshi-goods',
+    '/compare/oshi-goods',
+    '/compare/acrylic-stand',
+    '/compare/can-badge',
+    '/compare/plush',
+    '/compare/card',
+    '/discover/vtuber',
+    '/discover/anime',
+    '/discover/manga',
+    '/discover/characters',
+    '/character/hoshimachi-suisei',
+    '/character/gojo-satoru',
+    '/character/hatsune-miku',
+    '/about.html','/terms.html','/privacy.html','/disclaimer.html','/contact.html'
+  ];
   const xml=`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${pages.map(p=>`<url><loc>${escXml(base+p)}</loc></url>`).join('')}</urlset>`;
   res.status(200).send(xml);
 }

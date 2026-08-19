@@ -1,13 +1,18 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": false,
+  "trailingSlash": false,
   "ignoreCommand": "git diff --quiet HEAD^ HEAD -- . ':(exclude)verification/**' ':(exclude).github/**'",
   "git": {
     "deploymentEnabled": true
   },
   "rewrites": [
     {"source": "/robots.txt","destination": "/api/robots"},
-    {"source": "/sitemap.xml","destination": "/api/sitemap"}
+    {"source": "/sitemap.xml","destination": "/api/sitemap"},
+    {"source": "/guide/:slug","destination": "/api/seo?section=guide&slug=:slug"},
+    {"source": "/compare/:slug","destination": "/api/seo?section=compare&slug=:slug"},
+    {"source": "/discover/:slug","destination": "/api/seo?section=discover&slug=:slug"},
+    {"source": "/character/:slug","destination": "/api/seo?section=character&slug=:slug"}
   ],
   "headers": [
     {"source": "/(.*)","headers": [
