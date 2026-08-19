@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-08-19T07:22:39.791Z",
+  "checkedAt": "2026-08-19T07:24:09.090Z",
   "navigationLoaded": true,
   "performanceLoaded": true,
   "affiliateLoaded": true,
@@ -16,31 +16,23 @@
     {
       "query": "星街すいせい アクスタ",
       "http": 200,
-      "count": 33,
-      "topRelated": 10,
-      "topTypes": [
-        "通販"
-      ],
-      "topSources": [
-        "Yahoo!ショッピング"
-      ],
-      "firstTitle": "中古フォトフレーム・アルバム 星街すいせい アクスタ付きカードスタンド 「バーチャルYouTuber ホロライブ」 Tファン",
-      "firstScore": 832,
+      "count": 0,
+      "topRelated": 0,
+      "topTypes": [],
+      "topSources": [],
+      "firstTitle": "",
+      "firstScore": null,
       "ranked": true
     },
     {
       "query": "五条悟 特典 カード",
       "http": 200,
-      "count": 41,
-      "topRelated": 10,
-      "topTypes": [
-        "通販"
-      ],
-      "topSources": [
-        "Yahoo!ショッピング"
-      ],
-      "firstTitle": "中古キャラカード 五条悟 特典カード 「呪術廻戦 第2期×TOWER RECORDS CAFE 第1弾 懐玉・玉",
-      "firstScore": 582,
+      "count": 0,
+      "topRelated": 0,
+      "topTypes": [],
+      "topSources": [],
+      "firstTitle": "",
+      "firstScore": null,
       "ranked": true
     },
     {
@@ -89,5 +81,5 @@
       "ranked": true
     }
   ],
-  "ok": true
+  "ok": false
 }
