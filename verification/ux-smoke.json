@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-08-19T03:21:49.226Z",
+  "checkedAt": "2026-08-19T03:47:35.836Z",
   "navigationLoaded": true,
   "performanceLoaded": true,
   "affiliateLoaded": true,
@@ -16,33 +16,31 @@
     {
       "query": "星街すいせい アクスタ",
       "http": 200,
-      "count": 31,
+      "count": 33,
       "topRelated": 10,
       "topTypes": [
-        "アクスタ"
+        "通販"
       ],
       "topSources": [
-        "楽天市場",
         "Yahoo!ショッピング"
       ],
-      "firstTitle": "【中古美品】 ホロライブ hololive 5th fes. Capture the Moment アクリルスタンド 星街すいせい アクスタ グッズ 053-260729-io-26-fuzh 万代Net店",
-      "firstScore": 643,
+      "firstTitle": "中古フォトフレーム・アルバム 星街すいせい アクスタ付きカードスタンド 「バーチャルYouTuber ホロライブ」 Tファン",
+      "firstScore": 572,
       "ranked": true
     },
     {
       "query": "五条悟 特典 カード",
       "http": 200,
-      "count": 60,
+      "count": 41,
       "topRelated": 10,
       "topTypes": [
-        "カード"
+        "通販"
       ],
       "topSources": [
-        "Yahoo!ショッピング",
-        "楽天市場"
+        "Yahoo!ショッピング"
       ],
       "firstTitle": "中古キャラカード 五条悟 特典カード 「呪術廻戦 第2期×TOWER RECORDS CAFE 第1弾 懐玉・玉",
-      "firstScore": 531,
+      "firstScore": 572,
       "ranked": true
     },
     {
@@ -51,29 +49,28 @@
       "count": 60,
       "topRelated": 10,
       "topTypes": [
-        "ぬい"
+        "通販"
       ],
       "topSources": [
-        "楽天市場",
         "Yahoo!ショッピング"
       ],
-      "firstTitle": "【8/20〜抽選で最大10万ポイント対象※条件あり】ガンダム45周年×初音ミク ぬいぐるみ 初音ミク×機動武闘伝Gガンダムおもちゃ こども 子供 女の子 ぬいぐるみ 8歳",
-      "firstScore": 644.6,
+      "firstTitle": "初音ミク ぬいぐるみ ピアプロキャラクターズ ぬいコロン アイアップ",
+      "firstScore": 572,
       "ranked": true
     },
     {
       "query": "ブルーロック コラボ カード",
       "http": 200,
-      "count": 60,
+      "count": 44,
       "topRelated": 10,
       "topTypes": [
-        "カード"
+        "通販"
       ],
       "topSources": [
-        "楽天市場"
+        "Yahoo!ショッピング"
       ],
-      "firstTitle": "Jリーグオフィシャルトレーディングカード U02 馬狼 照英 浦和 (ブルーロックコラボカード/ユニフォームナンバーカード) EPOCH 2025-26 X-tra TIME",
-      "firstScore": 618.2,
+      "firstTitle": "Jリーグオフィシャルトレーディングカード U14 千切 豹馬 C大阪 (ブルーロックコラボカード/ユニフォームナンバーカード)",
+      "firstScore": 572,
       "ranked": true
     },
     {
@@ -82,14 +79,13 @@
       "count": 60,
       "topRelated": 10,
       "topTypes": [
-        "アクスタ"
+        "通販"
       ],
       "topSources": [
-        "楽天市場",
         "Yahoo!ショッピング"
       ],
-      "firstTitle": "『学園アイドルマスター』の魅力あふれるフォトスタイルアクスタ第2弾！人気アイドルたちをデザインしたアクリルスタンドを全15種ラインナップ！ 学園アイドルマスター フォトスタイルアクスタ2 BOX (15個入) エフトイズ 食玩・ガム 2026年8月10日発売 アクスタ アクリルスタンド コレクション 全15種 学マス まとめ買い 箱買い 送料無料",
-      "firstScore": 421,
+      "firstTitle": "中古食玩 雑貨 6.倉本千奈 「学園アイドルマスター フォトスタイルアクスタ」",
+      "firstScore": 392,
       "ranked": true
     }
   ],
