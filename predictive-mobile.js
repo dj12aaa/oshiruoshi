@@ -10,6 +10,9 @@
   let layer = null;
   let mobileInput = null;
   let results = null;
+  let queryPreview = null;
+  let clearButton = null;
+  let submitButton = null;
   let requestController = null;
   let debounceTimer = 0;
   let composing = false;
@@ -22,10 +25,7 @@
     if (text != null) el.textContent = text;
     return el;
   };
-
-  function isMobile() {
-    return media.matches;
-  }
+  const isMobile = () => media.matches;
 
   function setBackgroundInert(on) {
     if (!('inert' in HTMLElement.prototype)) return;
@@ -56,9 +56,6 @@
     back.setAttribute('aria-label', '検索画面を閉じる');
 
     const field = create('div', 'mobile-predictive-field');
-    const icon = create('span', 'mobile-predictive-icon', '⌕');
-    icon.setAttribute('aria-hidden', 'true');
-
     mobileInput = create('input', 'mobile-predictive-input');
     mobileInput.id = 'mobilePredictiveInput';
     mobileInput.type = 'search';
@@ -67,49 +64,58 @@
     mobileInput.spellcheck = false;
     mobileInput.enterKeyHint = 'search';
     mobileInput.placeholder = 'キャラ・作品・グッズ名を入力';
-    mobileInput.setAttribute('aria-label', '予測検索');
+    mobileInput.setAttribute('aria-label', '検索キーワード');
 
-    const clear = create('button', 'mobile-predictive-clear', '×');
-    clear.type = 'button';
-    clear.setAttribute('aria-label', '入力をクリア');
+    clearButton = create('button', 'mobile-predictive-clear', '×');
+    clearButton.type = 'button';
+    clearButton.setAttribute('aria-label', '入力をクリア');
 
-    const submit = create('button', 'mobile-predictive-submit', '検索');
-    submit.type = 'button';
+    field.append(mobileInput, clearButton);
+    top.append(back, field);
 
-    field.append(icon, mobileInput, clear);
-    top.append(back, field, submit);
+    queryPreview = create('div', 'mobile-predictive-query-preview');
+    queryPreview.hidden = true;
+    queryPreview.setAttribute('aria-live', 'polite');
+    queryPreview.append(create('span', '', '入力中'));
+    queryPreview.append(create('b', 'mobile-predictive-query-preview-text', ''));
 
     const heading = create('div', 'mobile-predictive-heading');
-    const title = create('b', '', '予測検索');
+    const headingCopy = create('div', 'mobile-predictive-heading-copy');
+    const title = create('b', '', '検索候補');
     title.id = 'mobilePredictiveTitle';
-    const signal = create('span', '', '人気・新着・一致度');
-    heading.append(title, signal);
+    headingCopy.append(title, create('span', '', '近い候補・人気・新着を優先'));
+    submitButton = create('button', 'mobile-predictive-submit', 'この言葉で検索');
+    submitButton.type = 'button';
+    heading.append(headingCopy, submitButton);
 
     results = create('div', 'mobile-predictive-results');
     results.id = 'mobilePredictiveResults';
     results.setAttribute('role', 'listbox');
-    results.setAttribute('aria-label', '予測検索候補');
+    results.setAttribute('aria-label', '検索候補');
     results.setAttribute('aria-live', 'polite');
 
-    shell.append(top, heading, results);
+    shell.append(top, queryPreview, heading, results);
     layer.append(shell);
     document.body.append(layer);
 
     back.addEventListener('click', closeLayer);
-    clear.addEventListener('click', () => {
+    clearButton.addEventListener('click', () => {
       mobileInput.value = '';
       cancelRequest();
-      renderMessage('キャラ・作品・グッズ名を入力すると、候補を表示します。');
+      syncInputChrome();
+      renderMessage('検索したい言葉を入力してください。', 'キャラ・作品・グッズ名は、空白があってもなくても検索できます。');
       mobileInput.focus({ preventScroll: true });
     });
-    submit.addEventListener('click', () => submitQuery(mobileInput.value));
+    submitButton.addEventListener('click', () => submitQuery(mobileInput.value));
 
     mobileInput.addEventListener('compositionstart', () => { composing = true; });
     mobileInput.addEventListener('compositionend', () => {
       composing = false;
+      syncInputChrome();
       scheduleSuggest();
     });
     mobileInput.addEventListener('input', () => {
+      syncInputChrome();
       if (!composing) scheduleSuggest();
     });
     mobileInput.addEventListener('keydown', event => {
@@ -120,6 +126,20 @@
         event.preventDefault();
         closeLayer();
       }
+    });
+  }
+
+  function syncInputChrome() {
+    if (!mobileInput) return;
+    const value = mobileInput.value.trim();
+    if (clearButton) clearButton.hidden = !value;
+    if (submitButton) submitButton.disabled = !value;
+    requestAnimationFrame(() => {
+      if (!queryPreview || !mobileInput) return;
+      const overflowed = mobileInput.scrollWidth > mobileInput.clientWidth + 3 || [...value].length >= 18;
+      queryPreview.hidden = !value || !overflowed;
+      const text = queryPreview.querySelector('.mobile-predictive-query-preview-text');
+      if (text) text.textContent = value;
     });
   }
 
@@ -143,30 +163,32 @@
 
   function renderSuggestions(items) {
     results.replaceChildren();
-    if (!items.length) {
-      renderMessage('予測候補が見つかりませんでした。', '入力した検索語のまま「検索」を押せます。');
+    const visible = items.filter(item => String(item?.name || '').trim()).slice(0, 6);
+    if (!visible.length) {
+      renderMessage('近い候補は見つかりませんでした。', '入力した言葉のまま検索できます。');
       return;
     }
 
     const fragment = document.createDocumentFragment();
-    items.slice(0, 8).forEach(item => {
-      const name = String(item?.name || '').trim();
-      if (!name) return;
-
+    visible.forEach(item => {
+      const name = String(item.name).trim();
       const button = create('button', 'mobile-predictive-row');
       button.type = 'button';
       button.setAttribute('role', 'option');
       button.dataset.value = name;
+      button.dataset.kind = String(item.kind || 'search');
 
       const copy = create('span', 'mobile-predictive-copy');
       copy.append(create('b', '', name));
 
-      const metaParts = [item?.label, item?.detail].filter(Boolean).map(String);
-      if (metaParts.length) copy.append(create('small', '', metaParts.join(' ・ ')));
+      const meta = create('span', 'mobile-predictive-meta');
+      if (item.label) meta.append(create('span', 'mobile-predictive-badge', String(item.label)));
+      if (item.detail) meta.append(create('small', '', String(item.detail)));
+      if (meta.childNodes.length) copy.append(meta);
 
-      const arrow = create('span', 'mobile-predictive-arrow', '›');
-      arrow.setAttribute('aria-hidden', 'true');
-      button.append(copy, arrow);
+      const action = create('span', 'mobile-predictive-arrow', item.kind === 'exact' ? '検索' : '›');
+      action.setAttribute('aria-hidden', 'true');
+      button.append(copy, action);
       button.addEventListener('click', () => submitQuery(name));
       fragment.append(button);
     });
@@ -183,10 +205,10 @@
     cancelRequest();
     const q = mobileInput.value.trim();
     if ([...q].length < 2) {
-      renderMessage('2文字以上入力すると予測候補を表示します。');
+      renderMessage('2文字以上入力すると候補を表示します。', '誤字や表記ゆれも、分かる範囲で補正します。');
       return;
     }
-    debounceTimer = window.setTimeout(() => loadSuggestions(q), 280);
+    debounceTimer = window.setTimeout(() => loadSuggestions(q), 320);
   }
 
   async function loadSuggestions(q) {
@@ -202,32 +224,35 @@
       });
       if (!response.ok) throw new Error(`suggest_${response.status}`);
       const data = await response.json();
-      if (controller !== requestController || !open) return;
+      if (controller !== requestController || !open || mobileInput.value.trim() !== q) return;
       renderSuggestions(Array.isArray(data?.items) ? data.items : []);
     } catch (error) {
       if (error?.name === 'AbortError' || controller !== requestController || !open) return;
-      renderMessage('予測候補を取得できませんでした。', '入力した検索語のまま検索できます。');
+      renderMessage('候補を取得できませんでした。', '入力した言葉のまま検索できます。');
     }
   }
 
   function openLayer() {
     if (!isMobile() || open) return;
     ensureLayer();
-
     open = true;
     cancelRequest();
     legacySuggest?.classList.add('hidden');
     mobileInput.value = sourceInput.value || '';
+    syncInputChrome();
     layer.hidden = false;
     document.body.classList.add('mobile-predictive-open');
     setBackgroundInert(true);
 
     if ([...mobileInput.value.trim()].length >= 2) scheduleSuggest();
-    else renderMessage('キャラ・作品・グッズ名を入力すると、候補を表示します。');
+    else renderMessage('検索したい言葉を入力してください。', 'キャラ・作品・グッズ名を自由に組み合わせられます。');
 
     requestAnimationFrame(() => {
       layer.classList.add('is-open');
-      window.setTimeout(() => mobileInput.focus({ preventScroll: true }), 0);
+      window.setTimeout(() => {
+        mobileInput.focus({ preventScroll: true });
+        mobileInput.setSelectionRange?.(mobileInput.value.length, mobileInput.value.length);
+      }, 0);
     });
   }
 
@@ -247,7 +272,6 @@
       mobileInput?.focus({ preventScroll: true });
       return;
     }
-
     sourceInput.value = q;
     closeLayer();
     legacySuggest?.classList.add('hidden');
