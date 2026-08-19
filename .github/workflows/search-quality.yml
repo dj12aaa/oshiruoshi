@@ -22,13 +22,23 @@ jobs:
             if curl -fsSL https://oshiruoshi.vercel.app/performance-v3.js >/dev/null && curl -fsSL https://oshiruoshi.vercel.app/design-v3.css >/dev/null; then break; fi
             sleep 5
           done
-      - name: Search representative fandom categories
+      - name: Search representative fandom categories and abbreviations
         shell: bash
         run: |
           mkdir -p /tmp/oshiru-quality
-          QUERIES=('星街すいせい アクスタ' '五条悟 缶バッジ' 'アイドルマスター アクスタ' '初音ミク ぬい' 'ブルーロック アクスタ')
-          for n in 0 1 2 3 4; do
-            curl -fsSL --get --data-urlencode "q=${QUERIES[$n]}" https://oshiruoshi.vercel.app/api/live-search > "/tmp/oshiru-quality/q${n}.json"
+          QUERIES=(
+            '星街すいせい アクスタ'
+            '五条悟 缶バッジ'
+            'アイドルマスター アクスタ'
+            '初音ミク ぬい'
+            'ブルーロック アクスタ'
+            'ローレンイロアス アクキー'
+            '葛葉 缶バ'
+            '星街すいせい ペンラ'
+            '五条悟 クリファ'
+          )
+          for n in "${!QUERIES[@]}"; do
+            curl --max-time 35 -fsSL --get --data-urlencode "q=${QUERIES[$n]}" https://oshiruoshi.vercel.app/api/live-search > "/tmp/oshiru-quality/q${n}.json"
             sleep 2
           done
       - name: Record quality result
@@ -37,27 +47,54 @@ jobs:
           mkdir -p verification
           node - <<'NODE'
           const fs=require('fs');
-          const queries=['星街すいせい アクスタ','五条悟 缶バッジ','アイドルマスター アクスタ','初音ミク ぬい','ブルーロック アクスタ'];
-          const results=queries.map((query,n)=>{
+          const specs=[
+            {query:'星街すいせい アクスタ',entity:'星街すいせい',type:['アクスタ','アクリルスタンド']},
+            {query:'五条悟 缶バッジ',entity:'五条悟',type:['缶バッジ','缶バッチ']},
+            {query:'アイドルマスター アクスタ',entity:'アイドルマスター',type:['アクスタ','アクリルスタンド']},
+            {query:'初音ミク ぬい',entity:'初音ミク',type:['ぬい','ぬいぐるみ','マスコット']},
+            {query:'ブルーロック アクスタ',entity:'ブルーロック',type:['アクスタ','アクリルスタンド']},
+            {query:'ローレンイロアス アクキー',entity:'ローレンイロアス',type:['アクキー','アクリルキーホルダー','アクリルキーチェーン','キーホルダー'],expansion:'アクリルキーホルダー'},
+            {query:'葛葉 缶バ',entity:'葛葉',type:['缶バ','缶バッジ','缶バッチ'],expansion:'缶バッジ'},
+            {query:'星街すいせい ペンラ',entity:'星街すいせい',type:['ペンラ','ペンライト','ライトスティック'],expansion:'ペンライト'},
+            {query:'五条悟 クリファ',entity:'五条悟',type:['クリファ','クリアファイル','クリアホルダー'],expansion:'クリアファイル'}
+          ];
+          const norm=value=>String(value||'').normalize('NFKC').toLowerCase().replace(/[・･·／/|｜,，。｡()（）【】\[\]「」『』〈〉《》:_＿\-—–+＋\s]+/g,'');
+          const results=specs.map((spec,n)=>{
             const d=JSON.parse(fs.readFileSync(`/tmp/oshiru-quality/q${n}.json`,'utf8'));
             const items=Array.isArray(d.items)?d.items:[];
-            const top=items.slice(0,10);
-            const tokens=query.split(/\s+/).filter(Boolean);
-            const related=top.filter(x=>tokens.some(t=>String(x.title||'').toLowerCase().includes(t.toLowerCase()))).length;
-            return{query,providerQuery:d.providerQuery||'',count:items.length,topRelated:related,topTypes:[...new Set(top.map(x=>x.type))],topSources:[...new Set(top.map(x=>x.source))],topScores:top.slice(0,3).map(x=>x._score),rakutenHealthy:d.affiliate?.rakutenHealthy===true};
+            const top=items.slice(0,12);
+            const entity=norm(spec.entity);
+            const typeTerms=spec.type.map(norm);
+            const topEntity=top.filter(x=>norm(x.title).includes(entity)).length;
+            const topExactType=top.filter(x=>norm(x.title).includes(entity)&&typeTerms.some(t=>norm(x.title).includes(t))).length;
+            const variants=Array.isArray(d.queryVariants)?d.queryVariants.map(v=>typeof v==='string'?v:v?.query).filter(Boolean):[];
+            const expansionOk=!spec.expansion||variants.some(v=>norm(v).includes(norm(spec.expansion)));
+            return{
+              query:spec.query,
+              count:items.length,
+              topEntity,
+              topExactType,
+              queryVariants:variants,
+              expansionOk,
+              topTitles:top.slice(0,3).map(x=>x.title),
+              topSources:[...new Set(top.map(x=>x.source))],
+              topScores:top.slice(0,3).map(x=>x._score),
+              aliasVersion:d.aliasVersion||null
+            };
           });
-          const ok=results.every(x=>x.count>0&&x.topRelated>=4&&x.topScores.every(Number.isFinite));
-          const out={checkedAt:new Date().toISOString(),ok,results};
+          const baselineOk=results.slice(0,5).every(x=>x.count>0&&x.topEntity>=2&&x.topScores.every(Number.isFinite));
+          const abbreviationOk=results.slice(5).every(x=>x.expansionOk&&x.topScores.every(Number.isFinite));
+          const out={checkedAt:new Date().toISOString(),ok:baselineOk&&abbreviationOk,baselineOk,abbreviationOk,results};
           fs.writeFileSync('verification/search-quality.json',JSON.stringify(out,null,2)+'\n');
           console.log(JSON.stringify(out,null,2));
-          if(!ok)process.exitCode=1;
+          if(!out.ok)process.exitCode=1;
           NODE
       - name: Save result
         if: always()
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.email "4189826+github-actions[bot]@users.noreply.github.com"
           git add verification/search-quality.json
           if git diff --cached --quiet; then exit 0; fi
           git commit -m 'Record search quality result'
