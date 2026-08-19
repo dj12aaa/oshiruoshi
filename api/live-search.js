@@ -1,6 +1,6 @@
 import { json, cleanQuery, liveSearch as coreLiveSearch } from './_core.mjs';
 import { normalizeFlexible, buildSearchVariants, rankSearchItems, countStrongMatches } from './search-language.mjs';
-import { correctKnownQuery, typoFallbackVariants, rerankWithTypos } from './search-typo.mjs';
+import { correctKnownQuery, typoFallbackVariants, rerankWithTypos } from '../lib/search-typo.mjs';
 
 const SEARCH_ALIAS_VERSION='2026-08-19.3';
 const cache=new Map();

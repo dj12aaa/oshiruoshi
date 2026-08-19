@@ -1,6 +1,6 @@
 import { suggest as entitySuggest } from './_core.mjs';
 import { buildSearchVariants, preferredProviderQuery, detectIntent, detectMerchLabel, normalizeFlexible, compactFlexible } from './search-language.mjs';
-import { correctKnownQuery, findDynamicEntityCorrection } from './search-typo.mjs';
+import { correctKnownQuery, findDynamicEntityCorrection } from '../lib/search-typo.mjs';
 
 const cache=new Map();
 let yahooLastAt=0;
