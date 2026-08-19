@@ -7,13 +7,16 @@
   const searchInput=document.getElementById('q');
   if(searchInput)searchInput.placeholder='キャラ・作品・グッズ名を入力';
   if(searchActions){
-    searchActions.replaceChildren();
-    const help=document.createElement('span');
-    help.className='examples';
-    help.setAttribute('role','note');
-    help.textContent='検索のコツ：キャラ・作品名とグッズ種別を組み合わせると、目的の商品を絞り込みやすくなります。';
-    help.style.cssText='display:block;width:100%;margin:0;padding:2px 2px 0;font-size:12.5px;line-height:1.65;color:#475569;font-weight:700;overflow-wrap:anywhere';
-    searchActions.appendChild(help);
+    searchActions.querySelectorAll('.examples,.query-chip').forEach(el=>el.remove());
+    if(!searchActions.querySelector('[data-search-guidance]')){
+      const help=document.createElement('span');
+      help.className='examples';
+      help.dataset.searchGuidance='1';
+      help.setAttribute('role','note');
+      help.textContent='検索のコツ：キャラ・作品名とグッズ種別を組み合わせると、目的の商品を絞り込みやすくなります。';
+      help.style.cssText='display:block;flex:1 1 100%;width:100%;margin:0;padding:2px 2px 0;font-size:12.5px;line-height:1.65;color:#475569;font-weight:700;overflow-wrap:anywhere';
+      searchActions.appendChild(help);
+    }
   }
 
   const canonical=document.querySelector('link[rel="canonical"]')?.href||new URL(location.pathname,location.origin).href;
