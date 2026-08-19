@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-08-19T05:42:44.287Z",
+  "checkedAt": "2026-08-19T05:44:58.250Z",
   "url": "https://oshiruoshi.vercel.app/",
   "homeHttp": 200,
   "homeHasOshiru": true,
@@ -40,60 +40,66 @@
     {
       "query": "五条悟 アクスタ",
       "http": 200,
-      "totalItems": 0,
+      "totalItems": 47,
       "yahooShopping": {
-        "ok": false,
-        "count": 0,
-        "error": "upstream_429"
+        "ok": true,
+        "count": 47,
+        "error": null
       },
       "rakuten": {
         "ok": false,
         "count": 0,
         "error": "upstream_403"
       },
-      "sources": [],
-      "withImage": 0
+      "sources": [
+        "Yahoo!ショッピング"
+      ],
+      "withImage": 47
     },
     {
       "query": "初音ミク アクスタ",
       "http": 200,
-      "totalItems": 0,
+      "totalItems": 53,
       "yahooShopping": {
-        "ok": false,
-        "count": 0,
-        "error": "upstream_429"
+        "ok": true,
+        "count": 53,
+        "error": null
       },
       "rakuten": {
         "ok": false,
         "count": 0,
         "error": "upstream_403"
       },
-      "sources": [],
-      "withImage": 0
+      "sources": [
+        "Yahoo!ショッピング"
+      ],
+      "withImage": 53
     },
     {
       "query": "ちいかわ モモンガ",
       "http": 200,
-      "totalItems": 0,
+      "totalItems": 30,
       "yahooShopping": {
-        "ok": false,
-        "count": 0,
-        "error": "upstream_429"
+        "ok": true,
+        "count": 30,
+        "error": null
       },
       "rakuten": {
         "ok": false,
         "count": 0,
         "error": "upstream_403"
       },
-      "sources": [],
-      "withImage": 0
+      "sources": [
+        "Yahoo!ショッピング"
+      ],
+      "withImage": 30
     }
   ],
   "officialImageProxy": {
     "yahoo": {
-      "http": 0,
-      "contentType": null,
-      "ok": false
+      "http": 200,
+      "contentType": "image/jpeg",
+      "ok": true
     },
     "rakuten": {
       "http": 0,
