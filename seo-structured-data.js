@@ -1,6 +1,21 @@
 (() => {
   'use strict';
   const SITE='https://oshiruoshi.vercel.app/';
+
+  /* Main search guidance: replace character-specific sample chips with a universal explanation. */
+  const searchActions=document.querySelector('.search-actions');
+  const searchInput=document.getElementById('q');
+  if(searchInput)searchInput.placeholder='キャラ・作品・グッズ名を入力';
+  if(searchActions){
+    searchActions.replaceChildren();
+    const help=document.createElement('span');
+    help.className='examples';
+    help.setAttribute('role','note');
+    help.textContent='検索のコツ：キャラ・作品名とグッズ種別を組み合わせると、目的の商品を絞り込みやすくなります。';
+    help.style.cssText='display:block;width:100%;margin:0;padding:2px 2px 0;font-size:12.5px;line-height:1.65;color:#475569;font-weight:700;overflow-wrap:anywhere';
+    searchActions.appendChild(help);
+  }
+
   const canonical=document.querySelector('link[rel="canonical"]')?.href||new URL(location.pathname,location.origin).href;
   const description=document.querySelector('meta[name="description"]')?.content||'';
   const graph=[
