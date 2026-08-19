@@ -21,9 +21,11 @@ export default function handler(req,res){
     return;
   }
   const base=siteBase(req);
+  const lastmod='2026-08-19';
   const pages=[
     '/',
     '/guide/oshi-goods',
+    '/guide/how-oshiru-compares',
     '/compare/oshi-goods',
     '/compare/acrylic-stand',
     '/compare/can-badge',
@@ -38,6 +40,6 @@ export default function handler(req,res){
     '/character/hatsune-miku',
     '/about.html','/terms.html','/privacy.html','/disclaimer.html','/contact.html'
   ];
-  const xml=`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${pages.map(p=>`<url><loc>${escXml(base+p)}</loc></url>`).join('')}</urlset>`;
+  const xml=`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${pages.map(p=>`<url><loc>${escXml(base+p)}</loc><lastmod>${lastmod}</lastmod></url>`).join('')}</urlset>`;
   res.status(200).send(xml);
 }

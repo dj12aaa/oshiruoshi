@@ -20,5 +20,5 @@ export default function handler(req,res){
     res.status(200).send('User-agent: *\nDisallow: /\n');
     return;
   }
-  res.status(200).send(`User-agent: *\nAllow: /\nDisallow: /api/\n${base?`Sitemap: ${base}/sitemap.xml\n`:''}`);
+  res.status(200).send(`User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /*?q=\n${base?`Sitemap: ${base}/sitemap.xml\n`:''}`);
 }
