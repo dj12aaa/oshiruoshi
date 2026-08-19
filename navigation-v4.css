@@ -93,3 +93,26 @@
 }
 
 @media(prefers-reduced-motion:reduce){.utility-dock,.dock-toggle{transition:none!important}}
+
+/* Mobile compare flow: keep the screen clear and use the left drawer as the only compare-list entry point. */
+@media(max-width:900px){
+  body.dock-ready .compare-tray{display:none!important}
+  body.dock-ready .card-actions [data-compare]{
+    background:#fff0f3!important;
+    border-color:#e7a2b2!important;
+    color:#a91839!important;
+    box-shadow:inset 0 0 0 1px rgba(217,31,72,.06)!important;
+  }
+  body.dock-ready .card-actions [data-compare]:active{background:#ffe4ea!important}
+  body.dock-ready .card-actions [data-compare].is-selected{
+    background:#d91f48!important;
+    border-color:#d91f48!important;
+    color:#fff!important;
+    box-shadow:none!important;
+  }
+  body.dock-ready .dock-item[data-dock="compare"].has-items{
+    background:#fff0f3!important;
+    color:#a91839!important;
+    box-shadow:inset 0 0 0 1px rgba(217,31,72,.09)!important;
+  }
+}
