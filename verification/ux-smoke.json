@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-08-19T07:24:09.090Z",
+  "checkedAt": "2026-08-19T07:24:34.029Z",
   "navigationLoaded": true,
   "performanceLoaded": true,
   "affiliateLoaded": true,
@@ -38,16 +38,12 @@
     {
       "query": "初音ミク ぬい",
       "http": 200,
-      "count": 60,
-      "topRelated": 10,
-      "topTypes": [
-        "通販"
-      ],
-      "topSources": [
-        "Yahoo!ショッピング"
-      ],
-      "firstTitle": "初音ミク ぬいぐるみ ピアプロキャラクターズ ぬいコロン アイアップ",
-      "firstScore": 832,
+      "count": 0,
+      "topRelated": 0,
+      "topTypes": [],
+      "topSources": [],
+      "firstTitle": "",
+      "firstScore": null,
       "ranked": true
     },
     {
