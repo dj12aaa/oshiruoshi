@@ -21,6 +21,7 @@ jobs:
           node --check api/live-search.js
           node --check api/suggest.js
           node --check app.js
+          node --check predictive-mobile.js
       - name: Wait for production
         shell: bash
         run: |
@@ -47,7 +48,7 @@ jobs:
             curl --max-time 40 -fsSL --get --data-urlencode "q=${QUERIES[$n]}" https://oshiruoshi.vercel.app/api/live-search > "/tmp/oshiru-quality/q${n}.json"
             sleep 2
           done
-          SUGGEST=('3DS' 'owキリコ' 'ボイスキーホルダーFelix')
+          SUGGEST=('3DS' 'owキリコ' 'ボイスキーホルダーFelix' 'felix ボイス キーホルダー ホルダー スキズ')
           for n in "${!SUGGEST[@]}"; do
             curl --max-time 20 -fsSL --get --data-urlencode "q=${SUGGEST[$n]}" https://oshiruoshi.vercel.app/api/suggest > "/tmp/oshiru-quality/s${n}.json"
             sleep 2
@@ -79,14 +80,20 @@ jobs:
             const scores=items.slice(0,5).map(x=>x._score);
             return{query:spec.query,count:items.length,queryVariants:variants,expansionOk,topTitles:items.slice(0,3).map(x=>x.title),topScores:scores,aliasVersion:d.aliasVersion||null};
           });
-          const suggestions=['3DS','owキリコ','ボイスキーホルダーFelix'].map((query,n)=>{
+          const suggestQueries=['3DS','owキリコ','ボイスキーホルダーFelix','felix ボイス キーホルダー ホルダー スキズ'];
+          const suggestions=suggestQueries.map((query,n)=>{
             const d=JSON.parse(fs.readFileSync(`/tmp/oshiru-quality/s${n}.json`,'utf8'));
-            return{query,count:Array.isArray(d.items)?d.items.length:0,items:(d.items||[]).slice(0,5).map(x=>({name:x.name,label:x.label,detail:x.detail})),providerQuery:d.providerQuery||null,signals:d.signals||null};
+            return{query,count:Array.isArray(d.items)?d.items.length:0,items:(d.items||[]).slice(0,8).map(x=>({name:x.name,kind:x.kind,label:x.label,detail:x.detail})),providerQuery:d.providerQuery||null,signals:d.signals||null};
           });
           const expansionOk=results.every(x=>x.expansionOk&&x.topScores.every(Number.isFinite));
           const baselineOk=results.slice(0,3).every(x=>x.count>0);
-          const predictiveOk=suggestions.every(x=>x.count>0);
-          const out={checkedAt:new Date().toISOString(),ok:expansionOk&&baselineOk&&predictiveOk,expansionOk,baselineOk,predictiveOk,results,suggestions};
+          const generated=suggestions.flatMap(x=>x.items).filter(x=>x.label!=='このまま検索');
+          const duplicatePattern=/(キーホルダー\s*ホルダー|ホルダー\s*キーホルダー|ボイス\s*キーホルダー\s*ホルダー)/i;
+          const duplicateFree=generated.every(x=>!duplicatePattern.test(norm(x.name)));
+          const malformed=suggestions.find(x=>x.query.startsWith('felix ボイス'));
+          const cleanupPresent=Boolean(malformed?.items?.some(x=>x.label==='重複・表記整理'&&norm(x.name).includes(norm('felix スキズ ボイスキーホルダー'))));
+          const predictiveOk=suggestions.every(x=>x.count>0)&&duplicateFree&&cleanupPresent;
+          const out={checkedAt:new Date().toISOString(),ok:expansionOk&&baselineOk&&predictiveOk,expansionOk,baselineOk,predictiveOk,duplicateFree,cleanupPresent,results,suggestions};
           fs.writeFileSync('verification/search-quality.json',JSON.stringify(out,null,2)+'\n');
           console.log(JSON.stringify(out,null,2));
           if(!out.ok)process.exitCode=1;
