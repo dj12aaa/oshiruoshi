@@ -1,4 +1,5 @@
 import { snapshotSearch, json } from './_core.mjs';
+// Empty queries are an idle UI state. They must never seed default merchandise.
 export default async function handler(req,res){
   try{
     const u=new URL(req.url,'http://local');
