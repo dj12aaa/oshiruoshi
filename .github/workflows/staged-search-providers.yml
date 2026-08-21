@@ -53,6 +53,7 @@ jobs:
           ];
           for(const token of requiredLive)if(!live.includes(token))throw new Error(`missing live-search invariant: ${token}`);
           if(!live.includes('creatorsapi.amazon'))throw new Error('Amazon Creators API base URL missing');
+          if(!live.includes('openaiMarketplaceSearch(query)'))throw new Error('OpenAI fallback path missing');
           if(!perf.includes("u.searchParams.set('phase','fast')"))throw new Error('fast prefetch missing');
           if(!perf.includes('compositionstart')||!perf.includes('compositionend'))throw new Error('IME guard missing');
           if(!ui.includes("retailSources.includes('Amazon')")||!ui.includes("source==='Amazon'?'公式API'"))throw new Error('Amazon UI integration missing');
@@ -79,4 +80,18 @@ jobs:
             if(m[2].trim())throw new Error(`secret-like value must stay blank in .env.example: ${m[1]}`);
           }
           console.log('.env.example secret placeholders ok');
+          NODE
+
+      - name: Confirm provider disclosures and privacy notices
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const disclaimer=fs.readFileSync('disclaimer.html','utf8');
+          const privacy=fs.readFileSync('privacy.html','utf8');
+          const setup=fs.readFileSync('docs/SEARCH_PROVIDER_SETUP.md','utf8');
+          if(!disclaimer.includes('Amazonのアソシエイトとして、OSHIRUは適格販売により収入を得ています。'))throw new Error('Amazon Associates disclosure missing');
+          for(const token of ['Brave Search','Amazon','OpenAI'])if(!privacy.includes(token))throw new Error(`privacy provider notice missing: ${token}`);
+          if(!privacy.includes('最大90日'))throw new Error('Brave query retention notice missing');
+          if(!setup.includes('永続DB保存を行わず')&&!setup.includes('永続保存'))throw new Error('Brave transient-storage policy missing');
+          console.log('provider legal/privacy checks ok');
           NODE
