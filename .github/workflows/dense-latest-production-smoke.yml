@@ -1,4 +1,4 @@
-name: Dense latest production smoke
+name: V8 production browser verification
 
 on:
   push:
@@ -11,69 +11,79 @@ permissions:
   contents: write
 
 concurrency:
-  group: dense-latest-production-smoke
+  group: v8-production-browser-verification
   cancel-in-progress: true
 
 jobs:
   smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 14
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
 
-      - name: Verify live production HTTP responses
+      - name: Wait for v8 production and verify HTTP
         shell: bash
         run: |
           set -euo pipefail
           base='https://oshiruoshi.vercel.app'
-          tmp="$(mktemp -d)"
-          trap 'rm -rf "$tmp"' EXIT
+          tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
 
-          curl --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 3 "$base/latest-goods" -o "$tmp/latest.html"
-          grep -Fq '<link rel="canonical" href="https://oshiruoshi.vercel.app/latest-goods">' "$tmp/latest.html"
-          grep -Fq '最新グッズ情報' "$tmp/latest.html"
-          grep -Fq 'CollectionPage' "$tmp/latest.html"
-          for domain in shop.nijisanji.jp shop.hololivepro.com vspo.jp pjsekai.sega.jp jujutsukaisen.jp sanrio.co.jp pokemoncenter-online.com bts-official.jp straykidsjapan.com starto.jp; do
-            grep -Fq "$domain" "$tmp/latest.html"
+          ready=0
+          for attempt in $(seq 1 45); do
+            if curl --fail --silent --show-error --location "$base/gallery-v8.css?v=$(date +%s)" -o "$tmp/gallery.css" \
+              && grep -Fq 'OSHIRU gallery v8' "$tmp/gallery.css" \
+              && curl --fail --silent --show-error --location "$base/home-experience-v8.js?v=$(date +%s)" -o "$tmp/home.js" \
+              && grep -Fq 'removeLegacySourcePanel' "$tmp/home.js"; then
+              ready=1; break
+            fi
+            sleep 5
           done
+          test "$ready" = 1
 
-          curl --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 3 "$base/sitemap.xml" -o "$tmp/sitemap.xml"
-          grep -Fq '<loc>https://oshiruoshi.vercel.app/latest-goods</loc>' "$tmp/sitemap.xml"
+          curl --fail --silent --show-error --location "$base/?v=$(date +%s)" -o "$tmp/index.html"
+          grep -Fq 'OSHIRU' "$tmp/index.html"
+          curl --fail --silent --show-error --location "$base/seo-structured-data.js?v=$(date +%s)" -o "$tmp/seo.js"
+          grep -Fq '/gallery-v8.css?v=20260821-8' "$tmp/seo.js"
+          grep -Fq '/home-experience-v8.js?v=20260821-8' "$tmp/seo.js"
 
-          curl --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 3 "$base/design-v3.css" -o "$tmp/design.css"
-          grep -Fq 'Dense comparison mode v6' "$tmp/design.css"
-          grep -Fq 'repeat(6,minmax(0,1fr))' "$tmp/design.css"
-          grep -Fq 'repeat(5,minmax(0,1fr))' "$tmp/design.css"
-          grep -Fq 'repeat(4,minmax(0,1fr))' "$tmp/design.css"
-          grep -Fq 'repeat(3,minmax(0,1fr))' "$tmp/design.css"
-          grep -Fq 'repeat(2,minmax(0,1fr))' "$tmp/design.css"
-          grep -Fq '.product-card .source-pill' "$tmp/design.css"
-          grep -Fq '.product-card .main-price' "$tmp/design.css"
+          grep -Fq 'repeat(8,minmax(0,1fr))' "$tmp/gallery.css"
+          grep -Fq 'repeat(7,minmax(0,1fr))' "$tmp/gallery.css"
+          grep -Fq 'repeat(3,minmax(0,1fr))' "$tmp/gallery.css"
+          grep -Fq '#sourceAccessPanel{display:none!important}' "$tmp/gallery.css"
+          grep -Fq '.gallery-compare::before' "$tmp/gallery.css"
+          grep -Fq '.image-search-head{min-height:48px;padding-right:58px' "$tmp/gallery.css"
 
-          curl --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 3 "$base/home-experience-v6.js" -o "$tmp/home.js"
-          grep -Fq 'oshiru-interest-signals-v1' "$tmp/home.js"
-          grep -Fq 'createImageBitmap' "$tmp/home.js"
-          grep -Fq '/api/vision-search' "$tmp/home.js"
+          curl --fail --silent --show-error --location "$base/navigation-extra-v7.js?v=$(date +%s)" -o "$tmp/nav.js"
+          grep -Fq '画像検索' "$tmp/nav.js"
+          grep -Fq '最新グッズ' "$tmp/nav.js"
 
-          curl --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 3 "$base/privacy.html" -o "$tmp/privacy.html"
-          grep -Fq '最新グッズページ' "$tmp/privacy.html"
-          grep -Fq 'localStorage' "$tmp/privacy.html"
+          curl --fail --silent --show-error --location "$base/latest-goods?v=$(date +%s)" -o "$tmp/latest.html"
+          grep -Fq 'data-official-rail' "$tmp/latest.html"
+          grep -Fq 'CollectionPage' "$tmp/latest.html"
 
-          curl --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 3 "$base/api/search?q=" -o "$tmp/idle.json"
-          node -e "const d=require(process.argv[1]); if(!d.idle||!Array.isArray(d.items)||d.items.length!==0) throw new Error('empty search is not idle')" "$tmp/idle.json"
+          curl --fail --silent --show-error --location "$base/api/search?q=" -o "$tmp/idle.json"
+          node -e "const d=require(process.argv[1]);if(!d.idle||!Array.isArray(d.items)||d.items.length!==0)throw new Error('idle search regression')" "$tmp/idle.json"
 
-          curl --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 3 "$base/api/search?q=%E4%BA%94%E6%9D%A1%E6%82%9F" -o "$tmp/search.json"
-          node -e "const d=require(process.argv[1]); if(!Array.isArray(d.items)) throw new Error('search items missing')" "$tmp/search.json"
+          curl --fail --silent --show-error --location "$base/api/live-search-v8?q=%E3%83%8A%E3%83%AB%E3%83%88" -o "$tmp/naruto.json"
+          node - "$tmp/naruto.json" <<'NODE'
+          const fs=require('fs');const d=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
+          if(d.precisionVersion!=='2026-08-21.8')throw new Error('precision version is not v8');
+          if(!String(d.effectiveQuery||'').includes('NARUTO')||!String(d.effectiveQuery||'').includes('グッズ'))throw new Error(`NARUTO effective query invalid: ${d.effectiveQuery}`);
+          const bad=/(ヘアピン|ヘアクリップ|髪留め|コミック|単行本|電子書籍)/i;
+          const offending=(d.items||[]).filter(x=>bad.test(String(x.title||'')));
+          if(offending.length)throw new Error(`non-merch noise remains: ${offending.map(x=>x.title).join(' / ')}`);
+          console.log({narutoItems:(d.items||[]).length,effectiveQuery:d.effectiveQuery});
+          NODE
 
-      - name: Install Chromium test runtime
+      - name: Install Chromium runtime
         shell: bash
         run: |
           npm install --no-save --package-lock=false playwright@1.55.0
           npx playwright install --with-deps chromium
 
-      - name: Verify mobile and desktop product layouts in Chromium
+      - name: Verify mobile and desktop layouts in real browser
         shell: bash
         run: |
           mkdir -p verification/screenshots
@@ -81,109 +91,105 @@ jobs:
           const fs=require('fs');
           const {chromium}=require('playwright');
           const base='https://oshiruoshi.vercel.app';
+          const intersects=(a,b)=>Math.max(a.left,b.left)<Math.min(a.right,b.right)&&Math.max(a.top,b.top)<Math.min(a.bottom,b.bottom);
 
           async function inspect(browser,name,viewport,expectedColumns){
-            const context=await browser.newContext({viewportSize:viewport,locale:'ja-JP'});
+            const context=await browser.newContext({viewport,locale:'ja-JP',isMobile:viewport.width<600,hasTouch:viewport.width<600});
             const page=await context.newPage();
-            await page.goto(`${base}/?q=${encodeURIComponent('五条悟')}`,{waitUntil:'domcontentloaded',timeout:45000});
-            await page.waitForSelector('.product-card',{state:'visible',timeout:45000});
-            await page.waitForFunction(()=>document.querySelectorAll('.product-card').length>=2,null,{timeout:45000});
-            await page.waitForTimeout(700);
+            await page.goto(`${base}/?q=${encodeURIComponent('五条悟 アクスタ')}&verify=${Date.now()}`,{waitUntil:'domcontentloaded',timeout:45000});
+            await page.waitForSelector('#productGrid .product-card',{state:'visible',timeout:45000});
+            await page.waitForFunction(()=>document.querySelectorAll('#productGrid .product-card').length>=2,null,{timeout:45000});
+            await page.waitForTimeout(1200);
+
             const metrics=await page.evaluate(()=>{
-              const grid=document.querySelector('#productGrid');
-              const card=grid?.querySelector('.product-card');
-              const source=card?.querySelector('.source-pill');
-              const price=card?.querySelector('.main-price');
-              const gridStyle=grid?getComputedStyle(grid):null;
-              const cols=gridStyle?.gridTemplateColumns?.split(/\s+/).filter(Boolean).length||0;
+              const grid=document.querySelector('#productGrid'),cards=[...document.querySelectorAll('#productGrid .product-card')],card=cards[0];
+              const source=card?.querySelector('.source-pill'),price=card?.querySelector('.gallery-price'),heart=card?.querySelector('.heart'),compare=card?.querySelector('.gallery-compare');
+              const rect=el=>el?Object.fromEntries(['left','right','top','bottom','width','height'].map(k=>[k,el.getBoundingClientRect()[k]])):null;
               const visible=el=>!!el&&getComputedStyle(el).display!=='none'&&getComputedStyle(el).visibility!=='hidden'&&el.getBoundingClientRect().width>0&&el.getBoundingClientRect().height>0;
-              const gridRect=grid?.getBoundingClientRect();
+              const gridStyle=grid?getComputedStyle(grid):null;
+              const search=document.querySelector('.search-panel')?.getBoundingClientRect(),gridRect=grid?.getBoundingClientRect();
               return{
-                cards:grid?.querySelectorAll('.product-card').length||0,
-                columns:cols,
-                sourceVisible:visible(source),
-                sourceText:source?.textContent?.trim()||'',
-                priceVisible:visible(price),
-                priceText:price?.textContent?.trim()||'',
+                cards:cards.length,
+                columns:gridStyle?.gridTemplateColumns?.split(/\s+/).filter(Boolean).length||0,
+                sourceVisible:visible(source),priceVisible:visible(price),heartVisible:visible(heart),compareVisible:visible(compare),
+                heartText:heart?.textContent?.trim()||'',compareText:compare?.textContent?.trim()||'',
+                heartRect:rect(heart),compareRect:rect(compare),sourceRect:rect(source),priceRect:rect(price),
+                sourcePanelPresent:!!document.getElementById('sourceAccessPanel'),
+                sourceStripVisible:visible(document.querySelector('.source-strip')),
+                betaVisible:visible(document.querySelector('.beta-bar')),
                 gridInsideViewport:!!gridRect&&gridRect.left>=-1&&gridRect.right<=innerWidth+1,
-                bodyOverflow:document.documentElement.scrollWidth<=innerWidth+2
+                bodyOverflow:document.documentElement.scrollWidth>innerWidth+2,
+                searchToGridGap:search&&gridRect?gridRect.top-search.bottom:null
               };
             });
             if(metrics.columns!==expectedColumns)throw new Error(`${name}: expected ${expectedColumns} columns, got ${metrics.columns}`);
-            if(metrics.cards<2)throw new Error(`${name}: insufficient product cards`);
-            if(!metrics.sourceVisible||!metrics.sourceText)throw new Error(`${name}: source marketplace is not visible`);
-            if(!metrics.priceVisible||!metrics.priceText)throw new Error(`${name}: price is not visible`);
-            if(!metrics.gridInsideViewport)throw new Error(`${name}: product grid exceeds viewport`);
-            await page.screenshot({path:`verification/screenshots/${name}.png`,fullPage:false});
+            if(metrics.cards<2||!metrics.sourceVisible||!metrics.priceVisible||!metrics.heartVisible||!metrics.compareVisible)throw new Error(`${name}: card controls/source/price missing`);
+            if(!['♡','♥'].includes(metrics.heartText))throw new Error(`${name}: heart text broken: ${metrics.heartText}`);
+            if(metrics.compareText!=='＋')throw new Error(`${name}: compare text broken: ${metrics.compareText}`);
+            if(metrics.heartRect.width<27||metrics.heartRect.height<27||metrics.compareRect.width<27||metrics.compareRect.height<27)throw new Error(`${name}: tap targets too small`);
+            if(metrics.sourcePanelPresent||metrics.sourceStripVisible||metrics.betaVisible)throw new Error(`${name}: legacy source panels remain visible`);
+            if(metrics.bodyOverflow||!metrics.gridInsideViewport)throw new Error(`${name}: horizontal layout overflow`);
+            if(viewport.width<600&&Number(metrics.searchToGridGap)>140)throw new Error(`${name}: merchandise grid is too far below search (${metrics.searchToGridGap}px)`);
 
-            await page.goto(`${base}/latest-goods`,{waitUntil:'domcontentloaded',timeout:45000});
-            await page.waitForSelector('h1',{state:'visible',timeout:20000});
+            await page.screenshot({path:`verification/screenshots/${name}-search.png`,fullPage:false});
+
+            await page.locator('#imageSearchBtn').click({force:true});
+            await page.waitForSelector('.modal.image-search-open',{state:'visible',timeout:10000});
+            const modal=await page.evaluate(()=>{
+              const h=document.querySelector('.image-search-head h2'),x=document.querySelector('.modal.image-search-open .modal-close, .modal.image-search-open #modalClose, .modal.image-search-open #modalCloseV8');
+              const rect=el=>{const r=el?.getBoundingClientRect();return r?{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}:null};
+              return{heading:rect(h),close:rect(x),closeText:x?.textContent?.trim()||''};
+            });
+            if(!modal.heading||!modal.close)throw new Error(`${name}: image-search heading/close missing`);
+            if(intersects(modal.heading,modal.close))throw new Error(`${name}: image-search close overlaps heading`);
+            if(modal.close.width<40||modal.close.height<40)throw new Error(`${name}: image-search close target too small`);
+            await page.screenshot({path:`verification/screenshots/${name}-image-search.png`,fullPage:false});
+
+            await page.goto(`${base}/latest-goods?verify=${Date.now()}`,{waitUntil:'domcontentloaded',timeout:45000});
+            await page.waitForSelector('[data-official-rail]',{state:'visible',timeout:20000});
             const latest=await page.evaluate(()=>({
-              h1:document.querySelector('h1')?.textContent?.trim()||'',
+              previewCards:document.querySelectorAll('.official-preview-card').length,
               sourceCards:document.querySelectorAll('.official-source-card').length,
-              horizontalOverflow:document.documentElement.scrollWidth>innerWidth+2,
-              localPreferenceButtons:document.querySelectorAll('[data-interest]').length
+              overflow:document.documentElement.scrollWidth>innerWidth+2
             }));
-            if(!latest.h1.includes('最新グッズ'))throw new Error(`${name}: latest-goods heading missing`);
-            if(latest.sourceCards<10)throw new Error(`${name}: official source directory is too small`);
-            if(latest.horizontalOverflow)throw new Error(`${name}: latest-goods has horizontal overflow`);
-            if(latest.localPreferenceButtons<5)throw new Error(`${name}: personalization controls missing`);
+            if(latest.previewCards<3||latest.sourceCards<10||latest.overflow)throw new Error(`${name}: latest-goods layout/source regression`);
             await page.screenshot({path:`verification/screenshots/${name}-latest.png`,fullPage:false});
             await context.close();
-            return{...metrics,latest};
+            return{...metrics,imageSearch:modal,latest};
           }
 
           (async()=>{
             const browser=await chromium.launch({headless:true});
             try{
-              const mobile=await inspect(browser,'mobile-390x844',{width:390,height:844},2);
-              const desktop=await inspect(browser,'desktop-1440x900',{width:1440,height:900},6);
-              fs.writeFileSync('verification/dense-latest-ui-metrics.json',JSON.stringify({checkedAt:new Date().toISOString(),mobile,desktop},null,2)+'\n');
+              const mobile=await inspect(browser,'mobile-390x844',{width:390,height:844},3);
+              const desktop=await inspect(browser,'desktop-1440x900',{width:1440,height:900},7);
+              fs.writeFileSync('verification/v8-ui-metrics.json',JSON.stringify({checkedAt:new Date().toISOString(),mobile,desktop},null,2)+'\n');
             }finally{await browser.close()}
           })().catch(error=>{console.error(error);process.exit(1)});
           NODE
 
       - uses: actions/upload-artifact@v4
         with:
-          name: dense-latest-production-screenshots
+          name: v8-production-screenshots
           path: verification/screenshots/*.png
           if-no-files-found: error
           retention-days: 7
 
-      - name: Record successful verification
+      - name: Record successful v8 verification
         shell: bash
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           node <<'NODE'
-          const fs=require('fs');
-          const ui=JSON.parse(fs.readFileSync('verification/dense-latest-ui-metrics.json','utf8'));
-          fs.writeFileSync('verification/dense-latest-production.json',JSON.stringify({
-            ok:true,
-            production:'https://oshiruoshi.vercel.app',
-            checkedAt:new Date().toISOString(),
-            workflowSha:process.env.GITHUB_SHA,
-            checks:[
-              'latest-goods-200-and-canonical',
-              'official-source-links-present',
-              'sitemap-latest-goods',
-              'dense-grid-css-6-5-4-3-2-columns',
-              'source-and-price-css-visible',
-              'image-search-client-optimization-asset',
-              'privacy-local-personalization',
-              'empty-search-idle',
-              'nonempty-search-api-shape',
-              'chromium-mobile-390x844-two-columns',
-              'chromium-desktop-1440x900-six-columns',
-              'chromium-price-and-source-visible',
-              'chromium-latest-goods-no-horizontal-overflow'
-            ],
-            ui
+          const fs=require('fs');const ui=JSON.parse(fs.readFileSync('verification/v8-ui-metrics.json','utf8'));
+          fs.writeFileSync('verification/v8-production.json',JSON.stringify({
+            ok:true,production:'https://oshiruoshi.vercel.app',checkedAt:new Date().toISOString(),workflowSha:process.env.GITHUB_SHA,
+            checks:['v8-assets-live','precision-search-v8','naruto-noise-filter','mobile-three-columns','desktop-seven-columns','price-and-source-visible','favorite-and-compare-stable','source-panels-removed','image-search-close-no-overlap','latest-goods-visual-rail','no-horizontal-overflow'],ui
           },null,2)+'\n');
           NODE
-          git add verification/dense-latest-production.json verification/dense-latest-ui-metrics.json
-          git commit -m 'Record dense latest browser verification'
+          git add verification/v8-production.json verification/v8-ui-metrics.json
+          git commit -m 'Record v8 production browser verification'
           for attempt in 1 2 3; do
             if git push origin HEAD:main; then exit 0; fi
             git pull --rebase origin main
