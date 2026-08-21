@@ -37,11 +37,9 @@
     }
     const compare=card.querySelector('[data-compare]');
     if(compare){
-      const active=compare.classList.contains('is-selected')||compare.getAttribute('aria-pressed')==='true';
-      compare.textContent=active?'✓':'＋';
-      compare.setAttribute('aria-label',active?'比較から外す':'比較に追加');
-      compare.setAttribute('aria-pressed',active?'true':'false');
-      compare.title=active?'比較から外す':'比較に追加';
+      compare.textContent='＋';
+      compare.setAttribute('aria-label','比較に追加・解除');
+      compare.title='比較に追加・解除';
     }
   }
   function enhanceCard(card,index=0){

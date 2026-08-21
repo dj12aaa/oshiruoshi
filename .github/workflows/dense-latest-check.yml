@@ -1,9 +1,9 @@
-name: V9 dense grid and latest goods checks
+name: Dense grid and latest goods checks
 
 on:
   push:
     branches:
-      - 'work/**'
+      - work/fix-grid-search-v7
       - main
   pull_request:
     branches:
@@ -46,12 +46,12 @@ jobs:
           console.log({apiFunctions:api.length,vercel:'ok'});
           NODE
 
-      - name: Validate v9 responsive gallery
+      - name: Validate v8 responsive gallery
         run: |
           node <<'NODE'
           const fs=require('fs');
           const css=fs.readFileSync('gallery-v8.css','utf8');
-          for(const token of ['OSHIRU gallery v9','repeat(8,minmax(0,1fr))','repeat(7,minmax(0,1fr))','repeat(6,minmax(0,1fr))','repeat(4,minmax(0,1fr))','repeat(3,minmax(0,1fr))','.gallery-price','.gallery-compare','.gallery-compare.is-selected','aspect-ratio:1/1!important','overflow-x:hidden','#sourceAccessPanel{display:none!important}','content:none!important'])if(!css.includes(token))throw new Error(`v9 gallery invariant missing: ${token}`);
+          for(const token of ['repeat(8,minmax(0,1fr))','repeat(7,minmax(0,1fr))','repeat(6,minmax(0,1fr))','repeat(4,minmax(0,1fr))','repeat(3,minmax(0,1fr))','.gallery-price','.gallery-compare','aspect-ratio:1/1!important','overflow-x:hidden','#sourceAccessPanel{display:none!important}','content:none!important'])if(!css.includes(token))throw new Error(`v8 gallery invariant missing: ${token}`);
           const opens=(css.match(/\{/g)||[]).length,closes=(css.match(/\}/g)||[]).length;if(opens!==closes)throw new Error(`CSS brace mismatch ${opens}/${closes}`);
           NODE
 
@@ -70,12 +70,11 @@ jobs:
         run: |
           node <<'NODE'
           const fs=require('fs');
-          const latest=fs.readFileSync('latest-goods.js','utf8'),home=fs.readFileSync('home-experience-v8.js','utf8'),privacy=fs.readFileSync('privacy.html','utf8'),nav=fs.readFileSync('navigation-extra-v7.js','utf8'),html=fs.readFileSync('index.html','utf8'),seo=fs.readFileSync('seo-structured-data.js','utf8'),perf=fs.readFileSync('performance-v3.js','utf8');
+          const latest=fs.readFileSync('latest-goods.js','utf8'),home=fs.readFileSync('home-experience-v8.js','utf8'),privacy=fs.readFileSync('privacy.html','utf8'),nav=fs.readFileSync('navigation-extra-v7.js','utf8'),seo=fs.readFileSync('seo-structured-data.js','utf8'),perf=fs.readFileSync('performance-v3.js','utf8');
           if(!latest.includes('localStorage'))throw new Error('local personalization missing');
           for(const token of ['createImageBitmap','MAX_DIMENSION=1600','/api/vision-search','removeLegacySourcePanel'])if(!home.includes(token))throw new Error(`image/search optimization missing: ${token}`);
           for(const token of ['画像検索','最新グッズ','/latest-goods'])if(!nav.includes(token))throw new Error(`taskbar item missing: ${token}`);
-          for(const token of ['/gallery-v8.css?v=20260822-9','/home-experience-v8.js?v=20260822-9','/navigation-extra-v7.js?v=20260822-9'])if(!html.includes(token))throw new Error(`critical asset missing: ${token}`);
-          if(/loadScript|data-gallery-v8|home-experience-v8/.test(seo))throw new Error('dynamic critical-asset bootstrap remains');
+          for(const token of ['/gallery-v8.css?v=20260821-8','/home-experience-v8.js?v=20260821-8','/navigation-extra-v7.js?v=20260821-7'])if(!seo.includes(token))throw new Error(`bootstrap missing: ${token}`);
           if(!privacy.includes('最新グッズページ')||!privacy.includes('localStorage'))throw new Error('privacy disclosure missing');
           if(!perf.includes('idleResponse')||!perf.includes('enterIdle')||!perf.includes('/api/live-search-v8'))throw new Error('idle/precision routing protection missing');
           NODE
@@ -107,5 +106,5 @@ jobs:
           curl --fail --silent --show-error --location --retry 8 --retry-all-errors --retry-delay 4 "$base/api/search?q=" -o "$tmp/idle.json"
           node -e "const d=require(process.argv[1]); if(!d.idle||!Array.isArray(d.items)||d.items.length!==0) process.exit(1)" "$tmp/idle.json"
           curl --fail --silent --show-error --location --retry 8 --retry-all-errors --retry-delay 4 "$base/api/live-search-v8?q=%E3%83%8A%E3%83%AB%E3%83%88" -o "$tmp/live.json"
-          node -e "const d=require(process.argv[1]); if(d.precisionVersion!=='2026-08-22.9'||!Array.isArray(d.items)||!String(d.effectiveQuery||'').includes('グッズ')) process.exit(1)" "$tmp/live.json"
-          echo 'Production v9 HTTP smoke passed.'
+          node -e "const d=require(process.argv[1]); if(d.precisionVersion!=='2026-08-21.8'||!Array.isArray(d.items)||!String(d.effectiveQuery||'').includes('グッズ')) process.exit(1)" "$tmp/live.json"
+          echo 'Production v8 HTTP smoke passed.'
