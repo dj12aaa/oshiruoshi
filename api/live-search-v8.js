@@ -26,37 +26,42 @@ function groupMatch(group,text){
 function queryMentions(query,term){return includesLoose(normalizeFlexible(query),term)}
 function hasOshiSignal(text){return OSHI_HINTS.some(term=>includesLoose(text,term))}
 function noiseHit(text,query){return GENERIC_RETAIL_NOISE.some(term=>includesLoose(text,term)&&!queryMentions(query,term))}
+function isNarutoQuery(query=''){return /^(?:naruto|ナルト|なると)$/i.test(String(query||'').trim())}
+function hasNarutoEntity(text=''){return ['NARUTO','ナルト'].some(value=>includesLoose(text,value))}
 function entityTokenMatch(intent,text){
   const tokens=normalizeFlexible(intent.entity||'').split(/\s+/).filter(token=>compactFlexible(token).length>=2);
   if(!tokens.length)return true;
   const matched=tokens.filter(token=>includesLoose(text,token)).length;
   return matched===tokens.length || (tokens.length>=3&&matched>=tokens.length-1);
 }
-function relevant(item,query){
+export function relevant(item,query){
   const intent=detectIntent(query),text=itemText(item);
   if(!text)return false;
   if(noiseHit(text,query))return false;
+  if(isNarutoQuery(query)&&!hasNarutoEntity(text))return false;
 
   if(intent.entityGroups.length&&!intent.entityGroups.some(group=>groupMatch(group,text)))return false;
-  if(!intent.entityGroups.length&&intent.entity&&!entityTokenMatch(intent,text))return false;
+  if(!isNarutoQuery(query)&&!intent.entityGroups.length&&intent.entity&&!entityTokenMatch(intent,text))return false;
   if(intent.merchGroups.length&&!intent.merchGroups.some(group=>groupMatch(group,text)))return false;
 
-  // OSHIRU is a goods finder. Entity-only searches should not be led by ordinary retail goods, books or unrelated media.
+  // Entity-only searches should show merchandise, not ordinary retail goods, books or media with the same word.
   if(!intent.merchGroups.length&&intent.entity&&!hasOshiSignal(text))return false;
   return true;
 }
-function normalizeAmbiguousQuery(query=''){
+export function normalizeAmbiguousQuery(query=''){
   const q=String(query||'').trim();
-  if(/^(?:naruto|ナルト|なると)$/i.test(q))return 'NARUTO ナルト';
+  if(isNarutoQuery(q))return 'NARUTO ナルト';
   return q;
 }
-function effectiveQuery(query=''){
+export function effectiveQuery(query=''){
   const normalized=normalizeAmbiguousQuery(query),intent=detectIntent(normalized);
   if(intent.entity&&!intent.merchGroups.length)return `${normalized} グッズ`;
   return normalized;
 }
 function adjustedProviders(providers={},items=[]){
-  const p=structuredClone?structuredClone(providers):JSON.parse(JSON.stringify(providers||{}));
+  const p=typeof structuredClone==='function'
+    ? structuredClone(providers||{})
+    : JSON.parse(JSON.stringify(providers||{}));
   const map={yahooShopping:'Yahoo!ショッピング',rakuten:'楽天市場',x:'X'};
   for(const [key,source] of Object.entries(map))if(p[key])p[key].count=items.filter(item=>item.source===source).length;
   return p;
@@ -88,7 +93,11 @@ export default async function handler(req,res){
       res.status(result.status||500).json(result.data||{error:'precision_search_failed'});return;
     }
     const strict=result.data.items.filter(item=>relevant(item,original));
-    const items=(strict.length?strict:result.data.items.filter(item=>!noiseHit(itemText(item),original)&&Number(item?._score||0)>=120)).slice(0,120);
+    const originalIntent=detectIntent(normalizeAmbiguousQuery(original));
+    const fallback=originalIntent.entity
+      ? []
+      : result.data.items.filter(item=>!noiseHit(itemText(item),original)&&Number(item?._score||0)>=120);
+    const items=(strict.length?strict:fallback).slice(0,120);
     res.setHeader('X-OSHIRU-Precision-Version',VERSION);
     res.setHeader('Cache-Control','public, max-age=8, s-maxage=22, stale-while-revalidate=75');
     res.status(200).json({
