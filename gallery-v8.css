@@ -1,0 +1,86 @@
+/* OSHIRU gallery v8 — final layout/interaction overrides. */
+html,body{max-width:100%;overflow-x:hidden}
+.source-strip,.beta-bar,#sourceAccessPanel{display:none!important}
+.search-hero{margin-bottom:6px!important}
+.workspace{margin-top:0!important}
+.result-area{min-width:0!important;width:100%!important}
+
+/* Image-first merchandise grid */
+body .result-area #productGrid.product-grid{display:grid!important;width:100%!important;min-width:0!important;grid-template-columns:repeat(8,minmax(0,1fr))!important;gap:7px!important;align-items:start!important;overflow:visible!important}
+body #productGrid .product-card{position:relative!important;display:block!important;min-width:0!important;width:auto!important;min-height:0!important;height:auto!important;margin:0!important;padding:0!important;overflow:hidden!important;border:1px solid #dfe4ea!important;border-radius:9px!important;background:#fff!important;box-shadow:none!important;transform:none!important;contain:layout paint style!important;content-visibility:auto;contain-intrinsic-size:210px 135px}
+body #productGrid .product-card::before,body #productGrid .product-card::after{content:none!important;display:none!important}
+body #productGrid .visual{position:relative!important;width:100%!important;min-width:0!important;height:auto!important;min-height:0!important;aspect-ratio:1/1!important;overflow:hidden!important;background:#eef1f4!important;cursor:pointer!important;isolation:isolate}
+body #productGrid .market-img{display:block!important;width:100%!important;height:100%!important;min-height:0!important;object-fit:cover!important;object-position:center!important;padding:0!important;margin:0!important;background:#eef1f4!important;transform:none!important}
+body #productGrid .image-fallback{width:100%!important;height:100%!important;min-height:0!important;display:grid!important;place-items:center!important;padding:8px!important;font-size:9px!important;line-height:1.35!important;text-align:center!important;background:#f0f2f5!important;color:#64748b!important}
+body #productGrid .image-fallback small{display:none!important}
+
+/* Marketplace + price overlays */
+body #productGrid .source-pill{position:absolute!important;left:4px!important;top:4px!important;right:auto!important;z-index:4!important;display:flex!important;align-items:center!important;gap:4px!important;max-width:calc(100% - 39px)!important;min-height:20px!important;padding:4px 6px!important;border:0!important;border-radius:7px!important;background:rgba(255,255,255,.96)!important;color:#111827!important;box-shadow:0 1px 5px rgba(15,23,42,.13)!important;font-size:8.5px!important;font-weight:900!important;line-height:1!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+body #productGrid .source-pill .source-dot{width:6px!important;height:6px!important;min-width:6px!important}
+body #productGrid .gallery-price{position:absolute!important;left:4px!important;bottom:4px!important;z-index:5!important;max-width:calc(100% - 42px)!important;padding:4px 6px!important;border-radius:6px!important;background:rgba(11,15,21,.88)!important;color:#fff!important;font-size:12px!important;font-weight:950!important;line-height:1.1!important;font-variant-numeric:tabular-nums!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;pointer-events:none!important}
+
+/* Compact controls — force legacy pseudo labels off. */
+body #productGrid .heart,body #productGrid .gallery-compare{position:absolute!important;z-index:8!important;width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important;margin:0!important;padding:0!important;border:1px solid rgba(15,23,42,.08)!important;border-radius:50%!important;display:grid!important;place-items:center!important;background:rgba(255,255,255,.97)!important;box-shadow:0 2px 7px rgba(15,23,42,.15)!important;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;font-weight:900!important;line-height:1!important;writing-mode:horizontal-tb!important;text-orientation:mixed!important;white-space:nowrap!important;overflow:hidden!important}
+body #productGrid .heart{right:4px!important;top:4px!important;color:#334155!important;font-size:18px!important}
+body #productGrid .heart.on{color:#d91f48!important;background:#fff5f7!important}
+body #productGrid .gallery-compare{right:4px!important;bottom:4px!important;color:#b0163c!important;font-size:20px!important}
+body #productGrid .heart::before,body #productGrid .heart::after,body #productGrid .gallery-compare::before,body #productGrid .gallery-compare::after{content:none!important;display:none!important}
+body #productGrid .heart:focus-visible,body #productGrid .gallery-compare:focus-visible{outline:3px solid rgba(217,31,72,.42)!important;outline-offset:1px!important}
+
+body #productGrid .card-body{display:block!important;min-width:0!important;padding:5px 6px 7px!important;background:#fff!important}
+body #productGrid .tag-row,body #productGrid .meta-line,body #productGrid .price-block,body #productGrid .cost-row,body #productGrid .verified,body #productGrid .card-actions{display:none!important}
+body #productGrid .product-title{display:-webkit-box!important;width:100%!important;height:30px!important;min-height:30px!important;max-height:30px!important;margin:0!important;padding:0!important;overflow:hidden!important;color:#101827!important;font-size:10.5px!important;font-weight:780!important;line-height:1.4!important;letter-spacing:-.01em!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;word-break:break-word!important;cursor:pointer!important}
+
+/* Remove intermediary chrome: search -> products, especially on mobile. */
+body .provider-notice{display:none!important}
+body .result-top{margin-bottom:5px!important;gap:6px!important}
+body .stats-row{margin-bottom:5px!important}
+
+/* Image search modal: reserve a real close-button column so text never overlaps. */
+body .modal.image-search-open .modal-card{position:relative!important;width:min(760px,calc(100vw - 24px))!important;max-height:calc(100dvh - 24px)!important;overflow:auto!important;padding:20px!important;border-radius:18px!important}
+body .modal.image-search-open .modal-card>.modal-close,body .modal.image-search-open #modalClose,body .modal.image-search-open #modalCloseV7,body .modal.image-search-open #modalCloseV8{position:absolute!important;top:14px!important;right:14px!important;left:auto!important;width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;margin:0!important;padding:0!important;display:grid!important;place-items:center!important;border:0!important;border-radius:12px!important;background:#f1f3f6!important;color:#147bd1!important;font-size:32px!important;font-weight:400!important;line-height:1!important;z-index:20!important;transform:none!important}
+body .modal.image-search-open #modalContent{min-width:0!important;padding:0!important}
+.image-search-head{min-height:48px;padding-right:58px;margin-bottom:16px}
+.image-search-head h2{margin:4px 0 8px!important;font-size:clamp(22px,4vw,32px)!important;line-height:1.25!important;letter-spacing:-.025em!important;overflow-wrap:anywhere!important}
+.image-search-head .lead{margin:0!important;font-size:14px!important;line-height:1.75!important;color:#475569!important}
+.image-search-eyebrow{display:block;font-size:10px;font-weight:900;letter-spacing:.08em;color:#b0163c}
+.image-search-zone{min-width:0!important;border:2px dashed #d5dce6!important;border-radius:16px!important;padding:22px!important;text-align:center!important;background:#fbfcfe!important}
+.image-search-help{font-size:12px!important;color:#64748b!important;margin:7px 0 11px!important}
+.vision-api-state{margin:12px auto 0;padding:8px 10px;border-radius:9px;background:#f0f5ff;color:#334155;font-size:11px;line-height:1.5;max-width:520px}
+.image-search-preview{display:block;width:auto!important;max-width:100%!important;max-height:320px!important;margin:14px auto!important;object-fit:contain!important;border-radius:12px!important}
+.image-search-open .vision-result{max-width:520px;margin:12px auto 0;padding:12px;border-radius:10px;background:#f5f7fa;font-size:13px;line-height:1.65;text-align:left}
+.image-search-open .vision-result button{margin-top:8px;min-height:40px;border:0;border-radius:9px;background:#17181c;color:#fff;font-weight:800;padding:8px 12px}
+
+@media(max-width:1449px){body .result-area #productGrid.product-grid{grid-template-columns:repeat(7,minmax(0,1fr))!important}}
+@media(max-width:1199px){body .result-area #productGrid.product-grid{grid-template-columns:repeat(6,minmax(0,1fr))!important}}
+@media(max-width:959px){body .result-area #productGrid.product-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important}}
+@media(max-width:759px){
+  body .search-hero{margin-bottom:2px!important}
+  body .workspace{width:100%!important;max-width:100%!important;padding:0 6px!important;gap:0!important}
+  body .filter-panel{display:none!important}
+  body .result-area #productGrid.product-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:5px!important}
+  body .result-top,body .stats-row,body .provider-notice{display:none!important}
+  body .result-area{padding-top:0!important;margin-top:0!important}
+}
+@media(max-width:520px){
+  body .workspace{padding:0 4px!important}
+  body .result-area #productGrid.product-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:4px!important}
+  body #productGrid .product-card{border-radius:6px!important;contain-intrinsic-size:170px 105px}
+  body #productGrid .card-body{padding:4px 4px 5px!important}
+  body #productGrid .product-title{height:28px!important;min-height:28px!important;max-height:28px!important;font-size:9.5px!important}
+  body #productGrid .source-pill{left:3px!important;top:3px!important;max-width:calc(100% - 38px)!important;padding:3px 4px!important;font-size:7.5px!important}
+  body #productGrid .heart,body #productGrid .gallery-compare{width:28px!important;height:28px!important;min-width:28px!important;min-height:28px!important}
+  body #productGrid .heart{right:3px!important;top:3px!important;font-size:17px!important}
+  body #productGrid .gallery-compare{right:3px!important;bottom:3px!important;font-size:19px!important}
+  body #productGrid .gallery-price{left:3px!important;bottom:3px!important;max-width:calc(100% - 38px)!important;padding:3px 4px!important;font-size:10.5px!important}
+  body .modal.image-search-open .modal-card{width:calc(100vw - 12px)!important;max-height:calc(100dvh - 12px)!important;padding:16px!important;border-radius:14px!important}
+  body .modal.image-search-open .modal-card>.modal-close,body .modal.image-search-open #modalClose,body .modal.image-search-open #modalCloseV7,body .modal.image-search-open #modalCloseV8{top:10px!important;right:10px!important;width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;font-size:29px!important}
+  .image-search-head{padding-right:52px!important;margin-bottom:12px!important}
+  .image-search-head h2{font-size:23px!important;line-height:1.28!important;margin-top:2px!important}
+  .image-search-head .lead{font-size:12.5px!important;line-height:1.7!important}
+  .image-search-zone{padding:18px 12px!important;border-radius:13px!important}
+  .image-search-preview{max-height:280px!important}
+}
+@media(max-width:330px){body .result-area #productGrid.product-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(hover:none){body #productGrid .product-card:hover{transform:none!important;box-shadow:none!important}}
+@media(prefers-reduced-motion:reduce){body #productGrid .product-card,body #productGrid .market-img{transition:none!important}}
