@@ -3,11 +3,13 @@
   const nativeFetch=window.fetch.bind(window);
   const liveCache=new Map();
   const TTL=22000;
+  let warmTimer=null;
+  let composing=false;
 
   function absolute(input){
     try{return new URL(typeof input==='string'?input:input.url,location.href)}catch{return null}
   }
-  function liveKey(url){return `${url.pathname}?q=${url.searchParams.get('q')||''}`}
+  function liveKey(url){return `${url.pathname}?q=${url.searchParams.get('q')||''}&phase=${url.searchParams.get('phase')||'all'}`}
   async function snapshotResponse(response){
     const body=await response.arrayBuffer();
     const headers=[...response.headers.entries()];
@@ -68,14 +70,20 @@
     document.body.classList.remove('search-idle');
   }
 
+  function requestForPhase(url,phase){
+    const next=new URL(url.href);next.searchParams.set('phase',phase||'all');return next;
+  }
   function warmLive(q){
-    if(!q)return;
-    const u=new URL('/api/live-search',location.href);u.searchParams.set('q',q);
-    const key=liveKey(u);const old=liveCache.get(key);
-    if(old&&Date.now()-old.at<TTL)return;
+    const query=String(q||'').trim();if(query.length<3||composing)return;
+    const u=new URL('/api/live-search',location.href);u.searchParams.set('q',query);u.searchParams.set('phase','fast');
+    const key=liveKey(u),old=liveCache.get(key);if(old&&Date.now()-old.at<TTL)return;
     const entry={at:Date.now(),promise:null};
     entry.promise=nativeFetch(u.href,{headers:{accept:'application/json'}}).then(snapshotResponse).then(s=>{if(!s.ok)liveCache.delete(key);return s}).catch(e=>{liveCache.delete(key);throw e});
     liveCache.set(key,entry);
+  }
+  function scheduleWarm(value,delay=320){
+    clearTimeout(warmTimer);const query=String(value||'').trim();if(query.length<3||composing)return;
+    warmTimer=setTimeout(()=>warmLive(query),delay);
   }
 
   window.fetch=(input,init={})=>{
@@ -92,10 +100,10 @@
     if(u.pathname==='/api/live-search'){
       const q=(u.searchParams.get('q')||'').trim();
       if(!q)return Promise.resolve(idleResponse());
-      const key=liveKey(u);const hit=liveCache.get(key);
+      const phase=u.searchParams.get('phase')||window.__oshiruLivePhase||'all',requestUrl=requestForPhase(u,phase),key=liveKey(requestUrl),hit=liveCache.get(key);
       if(hit&&Date.now()-hit.at<TTL)return hit.promise.then(restore);
       const entry={at:Date.now(),promise:null};
-      entry.promise=nativeFetch(input,init).then(snapshotResponse).then(s=>{if(!s.ok)liveCache.delete(key);return s}).catch(e=>{liveCache.delete(key);throw e});
+      entry.promise=nativeFetch(requestUrl.href,init).then(snapshotResponse).then(s=>{if(!s.ok)liveCache.delete(key);return s}).catch(e=>{liveCache.delete(key);throw e});
       liveCache.set(key,entry);
       return entry.promise.then(restore);
     }
@@ -105,6 +113,17 @@
   ensureIdleUi();
   const q=document.getElementById('q');
   if(!q||!q.value.trim())enterIdle();
+  if(q){
+    q.addEventListener('compositionstart',()=>{composing=true;clearTimeout(warmTimer)});
+    q.addEventListener('compositionend',()=>{composing=false;scheduleWarm(q.value,220)});
+    q.addEventListener('input',e=>{if(e.isComposing||composing)return;scheduleWarm(q.value,320)},{passive:true});
+  }
+
+  function loadProviderUi(){
+    if(document.getElementById('oshiruProviderUi'))return;
+    const s=document.createElement('script');s.id='oshiruProviderUi';s.src='/search-provider-ui.js?v=20260821-provider-stage2';s.async=true;document.head.append(s);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadProviderUi,{once:true});else setTimeout(loadProviderUi,0);
 
   // Keep repeat searches instant without keeping stale marketplace data for long.
   window.addEventListener('pageshow',()=>{
