@@ -9,11 +9,17 @@
 - Yahoo!ショッピング・楽天市場・X: 既存の公式API検索を継続利用
 - Amazon: Amazon Creators API `SearchItems` 対応
 - メルカリ / Yahoo!フリマ / Yahoo!オークション: Brave Search API で個別商品URLを発見する補完検索
-- Brave未設定時: `OPENAI_API_KEY` があれば既存Web検索をフォールバック
-- 検索を `fast` と `discovery` に分離し、公式API側を先に表示してからWeb発見結果を追加
+- Braveが未設定または一時失敗した場合: `OPENAI_API_KEY` があればWeb検索をフォールバック
+- 検索を `fast` と `discovery` に分離
+  - `fast`: 確認済みデータ + Yahoo!ショッピング / 楽天市場 / X を先に返す
+  - `discovery`: Amazon + Brave/OpenAIによるメルカリ / Yahoo!フリマ / Yahoo!オークションの発見結果を追加する
+- Amazonの初回OAuth認証やWeb検索が遅くても、最初の検索結果表示を待たせない構造
 - 入力中に `fast` 検索を短時間プリフェッチし、実検索時の待ち時間を短縮
+- 日本語IME変換中はプリフェッチを抑止し、確定後のみ実行
 - Amazon OAuth2トークンを有効期限までサーバー側メモリで再利用
+- Amazonの商品検索結果は5分だけ運用キャッシュし、Creators API公式のキャッシュ上限（Offers 1時間、その他主要商品情報1日）より短い範囲で利用
 - Brave検索結果は通常プランの条件に合わせ、永続DB保存を行わず短時間の運用キャッシュだけを使用
+- Web検索スニペットから価格を推測せず、メルカリ等のWeb発見結果は価格不明として販売元ページで確認する
 
 ## 必要なVercel環境変数
 
@@ -27,6 +33,8 @@
 - `RAKUTEN_ACCESS_KEY`
 - `RAKUTEN_AFFILIATE_ID`（アフィリエイトURLを使う場合）
 - `RAKUTEN_ICHIBA_ENDPOINT=https://openapi.rakuten.co.jp/ichibams/api/IchibaItem/Search/20260701`
+
+楽天2026-07-01版ではApp IDとAccess Keyが必要です。作業ブランチではAccess KeyをURLに含めずHTTPヘッダーで送信し、認証エラー時にも秘密値をログやレスポンスへ露出しないようにしています。
 
 ### Amazon Creators API
 
@@ -44,6 +52,7 @@ Amazon Creators APIの利用には、Amazonアソシエイトへの正式参加�
 - https://affiliate.amazon.co.jp/creatorsapi/docs/en-us/onboarding/register-for-creators-api
 - https://affiliate.amazon.co.jp/creatorsapi/docs/en-us/get-started/using-curl
 - https://affiliate.amazon.co.jp/creatorsapi/docs/en-us/api-reference/operations/search-items
+- https://affiliate.amazon.co.jp/creatorsapi/docs/en-us/concepts/best-programming-practices
 
 ### Brave Search API
 
@@ -76,7 +85,7 @@ Brave Search APIは通常のWeb Searchプランでは検索結果の永続保存
 3. 規約同意・本人の支払方法確認
 4. API Keysからキーを発行
 
-Braveは無料クレジットがある場合でも不正利用防止のためカード確認を要求する場合があります。規約同意・支払方法登録は本人操作が必要です。
+Braveはプランや不正利用防止要件により支払方法確認を求める場合があります。規約同意・支払方法登録は本人操作が必要です。
 
 ### 楽天
 
@@ -90,15 +99,30 @@ Braveは無料クレジットがある場合でも不正利用防止のためカ
 - Vercel Productionに必要な環境変数が設定されている
 - 秘密鍵がGitHubやクライアントJSへ含まれていない
 - `/api/status` でAmazon/Brave/Rakuten/Yahooの設定状態を確認
-- `phase=fast` でYahoo/Rakuten/Amazonが独立して失敗しても全体検索を止めない
+- `phase=fast` でYahoo/Rakuten/Xの一部が失敗しても全体検索を止めない
+- `phase=discovery` でAmazonの失敗がWeb発見を止めず、Web発見の失敗もAmazonを止めない
 - `phase=discovery` でメルカリ/Yahoo!フリマ/Yahoo!オークションのURL形式を厳格検証
 - 検索結果ページ・カテゴリページを商品カードとして採用しない
+- Web検索スニペットの価格を商品価格として断定しない
 - Brave検索結果を永続DB保存しない（ストレージ権限取得前）
 - Amazonを有効化する場合はAmazonアソシエイトの表示義務を免責/広告表示へ反映
 - スマホ/PCで検索、絞り込み、比較、お気に入り、予測検索を回帰確認
+- 実APIキーを設定したステージ環境でAmazon OAuth / SearchItems、Brave検索、楽天403の解消を実通信確認する
+
+## 自動検証
+
+Draft PR #3 の `Staged search provider checks` で以下を検証します。
+
+- Node.js構文チェック
+- `vercel.json` JSON妥当性
+- Amazon / Brave / fast-discovery の必須実装条件
+- Vercel Functions数が上限内であること
+- クライアントJSへサーバー秘密情報名が混入していないこと
+- `.env.example` に実際の秘密値が入っていないこと
+- Amazonアソシエイト表示、Brave/Amazon/OpenAIのプライバシー表示
 
 ## 現在の作業ブランチ
 
 `work/search-providers-no-deploy`
 
-このブランチではVercelビルドを明示的にスキップする設定を入れており、Productionへは反映していません。
+このブランチではVercelビルドを明示的にスキップする設定を入れており、Productionへは反映していません。Draft PR #3 は検証専用で、明示的な許可があるまでマージしません。
