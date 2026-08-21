@@ -9,7 +9,7 @@ import {
   rankSearchItems
 } from './search-language.mjs';
 
-const SEARCH_ALIAS_VERSION='2026-08-21.3-stage';
+const SEARCH_ALIAS_VERSION='2026-08-21.4-stage';
 const cache=new Map();
 const discoveryCache=new Map();
 const amazonCache=new Map();
@@ -154,14 +154,19 @@ function diversifySources(items=[],limit=MAX_RESULTS){
 async function fastPart(q,providerQuery){
   const snapshotQueries=compactFlexible(providerQuery)===compactFlexible(q)?[q]:[q,providerQuery];
   const snapshotPromise=Promise.all(snapshotQueries.map(x=>snapshotSearch(x))).then(parts=>dedupe(parts.flatMap(x=>x.items||[])));
-  const [snapResult,coreResult,amazonResult]=await Promise.allSettled([snapshotPromise,coreLiveSearch(providerQuery),amazonSearch(providerQuery)]);
-  const snapshotItems=settledValue(snapResult,[]),live=settledValue(coreResult,{items:[],providers:{search:{ok:false,count:0,error:'live_search_failed'}}}),amazon=settledValue(amazonResult,{items:[],provider:{ok:false,count:0,error:'amazon_search_failed'}}),providers={snapshot:{ok:true,count:snapshotItems.length,error:null}};
-  mergeProviderState(providers,live.providers);providers.amazon=amazon.provider;
-  const items=dedupe([...snapshotItems.map(x=>({...x,_variantWeight:8,_queryReason:'verified-snapshot'})),...(live.items||[]).map(x=>({...x,_variantWeight:6,_queryReason:'live-provider'})),...(amazon.items||[]).map(x=>({...x,_variantWeight:6,_queryReason:'amazon-creators-api'}))]);
+  const [snapResult,coreResult]=await Promise.allSettled([snapshotPromise,coreLiveSearch(providerQuery)]);
+  const snapshotItems=settledValue(snapResult,[]),live=settledValue(coreResult,{items:[],providers:{search:{ok:false,count:0,error:'live_search_failed'}}}),providers={snapshot:{ok:true,count:snapshotItems.length,error:null}};
+  mergeProviderState(providers,live.providers);
+  const items=dedupe([...snapshotItems.map(x=>({...x,_variantWeight:8,_queryReason:'verified-snapshot'})),...(live.items||[]).map(x=>({...x,_variantWeight:6,_queryReason:'live-provider'}))]);
   return{items,providers};
 }
 async function discoveryPart(providerQuery){
-  const discovery=await discoverySearch(providerQuery),providers={};providers.public=discovery.public||{ok:false,count:0,sources:{}};providers[discovery.providerName||'web']={ok:discovery.ok===true,count:discovery.items?.length||0,error:discovery.error||null,skipped:discovery.skipped===true};return{items:discovery.items||[],providers};
+  const [amazonResult,webResult]=await Promise.allSettled([amazonSearch(providerQuery),discoverySearch(providerQuery)]);
+  const amazon=settledValue(amazonResult,{items:[],provider:{ok:false,count:0,error:'amazon_search_failed'}}),discovery=settledValue(webResult,{items:[],ok:false,error:'web_search_failed',public:{ok:false,count:0,sources:{}},providerName:'web'}),providers={amazon:amazon.provider};
+  providers.public=discovery.public||{ok:false,count:0,sources:{}};
+  providers[discovery.providerName||'web']={ok:discovery.ok===true,count:discovery.items?.length||0,error:discovery.error||null,skipped:discovery.skipped===true};
+  const items=dedupe([...(amazon.items||[]).map(x=>({...x,_variantWeight:6,_queryReason:'amazon-creators-api'})),...(discovery.items||[]).map(x=>({...x,_variantWeight:4,_queryReason:'marketplace-discovery'}))]);
+  return{items,providers};
 }
 
 export default async function handler(req,res){
