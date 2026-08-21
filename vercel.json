@@ -9,6 +9,7 @@
   "rewrites": [
     {"source": "/robots.txt","destination": "/api/robots"},
     {"source": "/sitemap.xml","destination": "/api/sitemap"},
+    {"source": "/latest-goods","destination": "/latest-goods.html"},
     {"source": "/guide/:slug","destination": "/api/seo-v2?section=guide&slug=:slug"},
     {"source": "/compare/:slug","destination": "/api/seo-v2?section=compare&slug=:slug"},
     {"source": "/discover/:slug","destination": "/api/seo-v2?section=discover&slug=:slug"},
