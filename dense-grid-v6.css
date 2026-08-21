@@ -1,0 +1,87 @@
+/* OSHIRU dense comparison grid v6 — loaded on the search home only. */
+.product-grid{
+  display:grid!important;
+  grid-template-columns:repeat(auto-fill,minmax(168px,1fr))!important;
+  gap:8px!important;
+  align-items:start;
+}
+.product-card{
+  border-radius:11px!important;
+  box-shadow:none!important;
+  transition:border-color .12s ease!important;
+  content-visibility:auto;
+  contain:layout style paint;
+  contain-intrinsic-size:286px 190px;
+  overflow:hidden;
+}
+.product-card:hover{transform:none!important;box-shadow:none!important;border-color:#aeb9c7!important}
+.product-card .visual{aspect-ratio:1/1!important;background:#eef1f4}
+.product-card .market-img{object-fit:cover;background:#eef1f4}
+.product-card .source-pill{
+  left:6px!important;top:6px!important;padding:5px 7px!important;
+  max-width:calc(100% - 42px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  font-size:10.5px!important;box-shadow:0 2px 8px rgba(15,23,42,.10)!important;
+}
+.product-card .heart{
+  right:6px!important;top:6px!important;width:29px!important;height:29px!important;
+  font-size:15px!important;box-shadow:0 2px 8px rgba(15,23,42,.10)!important;
+}
+.product-card .card-body{padding:9px!important}
+.product-card .tag-row{gap:3px!important;margin-bottom:5px!important;min-height:20px;overflow:hidden}
+.product-card .tag{padding:3px 5px!important;font-size:9.5px!important;white-space:nowrap}
+.product-card .tag-row .tag:nth-child(n+3){display:none}
+.product-card .product-title{
+  height:38px!important;font-size:13px!important;line-height:1.42!important;font-weight:830!important;
+  -webkit-line-clamp:2!important;
+}
+.product-card .meta-line{height:16px!important;margin-top:3px!important;font-size:10.5px!important;line-height:16px!important}
+.product-card .price-block{margin-top:6px!important;display:block!important}
+.product-card .main-price{font-size:20px!important;line-height:1.15!important;letter-spacing:-.03em!important}
+.product-card .ship{margin-top:3px;text-align:left!important;font-size:10.5px!important;line-height:1.35!important;min-height:28px}
+.product-card .cost-row,.product-card .verified{display:none!important}
+.product-card .card-actions{grid-template-columns:32px 1fr!important;gap:4px!important;margin-top:6px}
+.product-card .card-actions button{min-height:32px;border-radius:7px!important;padding:0!important}
+.product-card .card-actions a{padding:8px 4px!important;border-radius:7px!important;font-size:11px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.product-card .image-fallback{padding:10px!important;font-size:10.5px!important}
+.product-card .image-fallback small{font-size:9px}
+.result-area{min-width:0}
+.stats-row{margin-bottom:9px!important}
+.provider-notice{margin-bottom:9px!important}
+
+/* Dense cards benefit more from stable layout than hover animation. */
+.market-img{image-rendering:auto}
+
+@media (min-width:1280px){
+  .product-grid{grid-template-columns:repeat(6,minmax(0,1fr))!important}
+}
+@media (min-width:1040px) and (max-width:1279px){
+  .product-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+}
+@media (min-width:760px) and (max-width:1039px){
+  .product-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+}
+@media (max-width:759px){
+  .workspace{padding-left:10px!important;padding-right:10px!important}
+  .result-top{margin-bottom:8px!important}
+  .stats-row{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important}
+  .stat{padding:8px 9px!important;border-radius:9px!important}
+  .stat span{font-size:10px!important}.stat b{font-size:14px!important}
+  .product-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
+  .product-card{border-radius:9px!important;contain-intrinsic-size:248px 160px}
+  .product-card .card-body{padding:7px!important}
+  .product-card .source-pill{font-size:9.5px!important;padding:4px 6px!important}
+  .product-card .heart{width:27px!important;height:27px!important;font-size:14px!important}
+  .product-card .product-title{font-size:12px!important;height:35px!important}
+  .product-card .meta-line{display:none!important}
+  .product-card .main-price{font-size:18px!important}
+  .product-card .ship{font-size:9.5px!important;min-height:25px}
+  .product-card .tag{font-size:8.5px!important;padding:3px 4px!important}
+  .product-card .card-actions{grid-template-columns:29px 1fr!important}
+  .product-card .card-actions button{min-height:29px!important}
+  .product-card .card-actions a{padding:7px 3px!important;font-size:10px!important}
+}
+@media (min-width:560px) and (max-width:759px){
+  .product-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+
+@media (prefers-reduced-motion:reduce){.product-card{transition:none!important}}
