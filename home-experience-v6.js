@@ -75,8 +75,11 @@
     try{bitmap=await createImageBitmap(file,{imageOrientation:'from-image'})}
     catch{
       bitmap=await new Promise((resolve,reject)=>{
-        const img=new Image();
-        img.onload=()=>resolve(img);img.onerror=reject;img.src=URL.createObjectURL(file);
+        const img=new Image(),objectUrl=URL.createObjectURL(file);
+        const release=()=>URL.revokeObjectURL(objectUrl);
+        img.onload=()=>{release();resolve(img)};
+        img.onerror=error=>{release();reject(error)};
+        img.src=objectUrl;
       });
     }
     const width=bitmap.width||bitmap.naturalWidth,height=bitmap.height||bitmap.naturalHeight;
