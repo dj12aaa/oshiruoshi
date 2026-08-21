@@ -48,14 +48,20 @@ function dedupe(items){
   return items.filter(i=>{const k=(i.url||`${i.source}|${i.title}|${i.price}`).replace(/[?#].*$/,'');if(seen.has(k))return false;seen.add(k);return true});
 }
 
+function upstreamErrorCode(data,status){
+  const candidates=[data?.error?.code,data?.errorCode,data?.code,data?.error,data?.errors?.[0]?.code,data?.Errors?.[0]?.Code].filter(v=>typeof v==='string'||typeof v==='number');
+  const value=String(candidates[0]??'').replace(/[^a-zA-Z0-9_.:-]/g,'_').slice(0,80);
+  return value?`upstream_${status}:${value}`:`upstream_${status}`;
+}
 async function fetchJson(url,opts={}){
   const c=new AbortController();const timer=setTimeout(()=>c.abort(),5000);
   try{
     const r=await fetch(url,{...opts,signal:c.signal,headers:{'user-agent':'OSHIRU-beta/2.0',accept:'application/json',...(opts.headers||{})}});
     const len=Number(r.headers?.get?.('content-length')||0);if(len>2_000_000)throw new Error('response_too_large');
     const text=await r.text();if(text.length>2_000_000)throw new Error('response_too_large');
-    if(!r.ok)throw new Error(`upstream_${r.status}`);
-    return JSON.parse(text);
+    let data={};if(text){try{data=JSON.parse(text)}catch{if(r.ok)throw new Error('invalid_json')}}
+    if(!r.ok)throw new Error(upstreamErrorCode(data,r.status));
+    return data;
   }finally{clearTimeout(timer)}
 }
 
@@ -150,10 +156,10 @@ async function rakutenRequest(q){
   const appId=process.env.RAKUTEN_APP_ID;
   const accessKey=process.env.RAKUTEN_ACCESS_KEY;
   if(!appId||!accessKey||!q)return[];
-  const p=new URLSearchParams({applicationId:appId,accessKey,keyword:q,hits:'30',format:'json',formatVersion:'2',availability:'1'});
+  const p=new URLSearchParams({applicationId:appId,keyword:q,hits:'30',format:'json',formatVersion:'2',availability:'1'});
   if(process.env.RAKUTEN_AFFILIATE_ID)p.set('affiliateId',process.env.RAKUTEN_AFFILIATE_ID);
   const ep=process.env.RAKUTEN_ICHIBA_ENDPOINT||'https://openapi.rakuten.co.jp/ichibams/api/IchibaItem/Search/20260701';
-  const d=await fetchJson(`${ep}?${p}`);
+  const d=await fetchJson(`${ep}?${p}`,{headers:{accessKey}});
   const now=new Date().toISOString();
   const rows=d.Items||d.items||[];
   return rows.map((row,i)=>mapRakutenItem(row,i,now)).filter(x=>x.url&&x.url!=='#');
@@ -200,7 +206,7 @@ export async function liveSearch(q){
   if(process.env.YAHOO_CLIENT_ID)jobs.push(['yahooShopping',yahooShopping(q)]);
   if(process.env.RAKUTEN_APP_ID&&process.env.RAKUTEN_ACCESS_KEY)jobs.push(['rakuten',rakuten(q)]);
   if(process.env.X_BEARER_TOKEN)jobs.push(['x',xSearch(q)]);
-  const settled=await Promise.all(jobs.map(async([name,p])=>{try{const value=await p;return{name,ok:true,value}}catch(e){return{name,ok:false,value:[],error:String(e.message||e)}}}));
+  const settled=await Promise.all(jobs.map(async([name,p])=>{try{const value=await p;return{name,ok:true,value}}catch(e){return{name,ok:false,value:[],error:String(e.message||e).slice(0,140)}}}));
   let items=[];const providers={};
   for(const r of settled){items.push(...r.value);providers[r.name]={ok:r.ok,count:r.value.length,error:r.error||null}}
   return{query:q,items:dedupe(items),providers,generatedAt:new Date().toISOString()};
