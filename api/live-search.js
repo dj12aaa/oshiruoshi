@@ -9,7 +9,7 @@ import {
   rankSearchItems
 } from './search-language.mjs';
 
-const SEARCH_ALIAS_VERSION='2026-08-21.2-stage';
+const SEARCH_ALIAS_VERSION='2026-08-21.3-stage';
 const cache=new Map();
 const discoveryCache=new Map();
 const amazonCache=new Map();
@@ -99,15 +99,12 @@ async function amazonSearch(query){
 function sourceFromUrl(value=''){
   try{const u=new URL(value);for(const market of WEB_MARKETS)if(u.hostname===market.domain&&market.path.test(u.pathname))return market.source}catch{}return'';
 }
-function parseExplicitPrice(value=''){
-  const text=String(value||'').replace(/\s+/g,' ');let m=text.match(/[¥￥]\s*([0-9][0-9,]{1,8})/);if(!m)m=text.match(/(?:^|\s)([0-9][0-9,]{1,8})\s*円(?:\s|$|[（(])/);if(!m)return null;const n=Number(m[1].replace(/,/g,''));return Number.isFinite(n)&&n>0&&n<100_000_000?n:null;
-}
-function mapWebRows(rows=[],query=''){
+function mapWebRows(rows=[],query='',origin='public-page-live'){
   const now=new Date().toISOString(),intent=detectIntent(query),type=intent.merchGroups?.[0]?.canonical||'その他',out=[];
   for(let i=0;i<rows.length&&out.length<30;i++){
     const row=rows[i]||{},url=String(row.url||'').trim(),source=sourceFromUrl(url),title=String(row.title||'').replace(/\s+/g,' ').trim().slice(0,180);if(!source||!title)continue;
     const snippet=String(row.description||row.snippet||'').replace(/\s+/g,' ').trim();
-    out.push({id:`web-${i}-${Buffer.from(url).toString('base64url').slice(-12)}`,source,title,description:snippet.slice(0,240),price:parseExplicitPrice(`${title} ${snippet}`),shipping:null,fee:0,status:'販売中候補',condition:'要確認',url,image:null,type,shop:'',verifiedAt:now,origin:'openai-web-search',real:true,imageVerified:false,tags:[query,type].filter(Boolean)});
+    out.push({id:`web-${i}-${Buffer.from(url).toString('base64url').slice(-12)}`,source,title,description:snippet.slice(0,240),price:null,shipping:null,fee:0,status:'販売中候補',condition:'要確認',url,image:null,type,shop:'',verifiedAt:now,origin,real:true,imageVerified:false,tags:[query,type].filter(Boolean)});
   }
   return dedupe(out);
 }
@@ -115,7 +112,7 @@ async function braveSearchOne(market,query){
   const params=new URLSearchParams({q:`${query} site:${market.domain}`,count:'6',country:'JP',search_lang:'ja'});
   const data=await fetchJson(`https://api.search.brave.com/res/v1/web/search?${params}`,{headers:{accept:'application/json','x-subscription-token':process.env.BRAVE_SEARCH_API_KEY}},1700);
   const rows=(data?.web?.results||[]).map(x=>({title:x?.title||'',url:x?.url||'',description:x?.description||''}));
-  return mapWebRows(rows,query).filter(x=>x.source===market.source);
+  return mapWebRows(rows,query,'public-page-live').filter(x=>x.source===market.source);
 }
 async function braveMarketplaceSearch(query=''){
   const q=cleanQuery(query);if(!process.env.BRAVE_SEARCH_API_KEY||!q)return{items:[],ok:false,skipped:true,error:null,public:{ok:false,count:0,sources:{}}};
@@ -126,19 +123,27 @@ async function braveMarketplaceSearch(query=''){
 }
 function extractOutputText(data){return(data?.output||[]).flatMap(x=>x?.content||[]).map(x=>x?.text||'').join('').trim()}
 async function openaiMarketplaceSearch(query=''){
-  const q=cleanQuery(query);if(process.env.BRAVE_SEARCH_API_KEY||!process.env.OPENAI_API_KEY||!q)return{items:[],ok:false,skipped:true,error:null,public:{ok:false,count:0,sources:{}}};
+  const q=cleanQuery(query);if(!process.env.OPENAI_API_KEY||!q)return{items:[],ok:false,skipped:true,error:null,public:{ok:false,count:0,sources:{}}};
   const key=`openai|${normalizeFlexible(q)}`,hit=discoveryCache.get(key);if(hit&&Date.now()-hit.at<45_000)return hit.value;
   const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),2400);
   try{
     const model=process.env.OPENAI_SEARCH_MODEL||process.env.OPENAI_MODEL||'gpt-5-mini';
-    const prompt=`検索語「${q}」に関連するメルカリ・Yahoo!フリマ・Yahoo!オークションの公開中の個別商品/個別出品ページだけを探してください。検索結果ページやカテゴリページは除外し、存在を確認できないURLを作らないでください。最大18件。JSONだけで {"items":[{"title":"...","url":"https://...","price":1234}]} を返してください。価格が明示されていない場合はnull。`;
+    const prompt=`検索語「${q}」に関連するメルカリ・Yahoo!フリマ・Yahoo!オークションの公開中の個別商品/個別出品ページだけを探してください。検索結果ページやカテゴリページは除外し、存在を確認できないURLを作らないでください。最大18件。JSONだけで {"items":[{"title":"...","url":"https://...","price":null}]} を返してください。価格は推測せず常にnullにしてください。`;
     const response=await fetch('https://api.openai.com/v1/responses',{method:'POST',signal:controller.signal,headers:{'content-type':'application/json','authorization':`Bearer ${process.env.OPENAI_API_KEY}`},body:JSON.stringify({model,tools:[{type:'web_search',filters:{allowed_domains:WEB_MARKETS.map(x=>x.domain)},search_context_size:'low'}],input:prompt,max_output_tokens:1600})});
     if(!response.ok)throw new Error(`openai_${response.status}`);const data=await response.json();let text=extractOutputText(data).replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'').trim(),parsed={items:[]};try{parsed=JSON.parse(text)}catch{const match=text.match(/\{[\s\S]*\}/);if(match)parsed=JSON.parse(match[0])}
-    const items=mapWebRows(Array.isArray(parsed?.items)?parsed.items:[],q),sources={};for(const market of WEB_MARKETS)sources[market.key]={ok:true,count:items.filter(x=>x.source===market.source).length,error:null};const value={items,ok:true,error:null,public:{ok:true,count:items.length,sources}};discoveryCache.set(key,{at:Date.now(),value});return value;
+    const items=mapWebRows(Array.isArray(parsed?.items)?parsed.items:[],q,'openai-web-search'),sources={};for(const market of WEB_MARKETS)sources[market.key]={ok:true,count:items.filter(x=>x.source===market.source).length,error:null};const value={items,ok:true,error:null,public:{ok:true,count:items.length,sources}};discoveryCache.set(key,{at:Date.now(),value});return value;
   }catch(error){return{items:[],ok:false,error:String(error?.name==='AbortError'?'timeout':error?.message||error).slice(0,120),public:{ok:false,count:0,sources:{}}}}finally{clearTimeout(timer)}
 }
 async function discoverySearch(query){
-  const brave=await braveMarketplaceSearch(query);if(!brave.skipped)return{...brave,providerName:'brave'};const openai=await openaiMarketplaceSearch(query);return{...openai,providerName:'openai'};
+  const brave=await braveMarketplaceSearch(query);
+  if(!brave.skipped&&brave.ok)return{...brave,providerName:'brave'};
+  if(process.env.OPENAI_API_KEY){
+    const openai=await openaiMarketplaceSearch(query);
+    if(!openai.skipped&&openai.ok)return{...openai,providerName:'openai',fallbackFrom:!brave.skipped?'brave':null};
+    if(!brave.skipped)return{...brave,providerName:'brave'};
+    return{...openai,providerName:'openai'};
+  }
+  return{...brave,providerName:'brave'};
 }
 function diversifySources(items=[],limit=MAX_RESULTS){
   const ranked=dedupe(items),sources=['メルカリ','Yahoo!フリマ','Yahoo!オークション','Yahoo!ショッピング','楽天市場','Amazon','X'],buckets=new Map(sources.map(s=>[s,ranked.filter(x=>x.source===s)])),chosen=[],used=new Set();
@@ -176,7 +181,8 @@ export default async function handler(req,res){
   let ranked=rankSearchItems(items,scoringQuery);if(!known.changed)ranked=rerankFuzzy(ranked,q);ranked=diversifySources(ranked,MAX_RESULTS);
   const sourceCounts={yahooShopping:'Yahoo!ショッピング',rakuten:'楽天市場',amazon:'Amazon',x:'X'};for(const [name,source] of Object.entries(sourceCounts))if(providers[name])providers[name].count=ranked.filter(item=>item.source===source).length;
   if(providers.snapshot)providers.snapshot.count=ranked.filter(item=>item.origin==='verified-snapshot'||item.origin==='web-index-snapshot').length;
-  if(providers.public){providers.public.count=ranked.filter(item=>['メルカリ','Yahoo!フリマ','Yahoo!オークション'].includes(item.source)&&item.origin==='openai-web-search').length;for(const market of WEB_MARKETS)if(providers.public.sources?.[market.key])providers.public.sources[market.key].count=ranked.filter(item=>item.source===market.source&&item.origin==='openai-web-search').length}
+  const discoveryOrigins=new Set(['public-page-live','openai-web-search']);
+  if(providers.public){providers.public.count=ranked.filter(item=>['メルカリ','Yahoo!フリマ','Yahoo!オークション'].includes(item.source)&&discoveryOrigins.has(item.origin)).length;for(const market of WEB_MARKETS)if(providers.public.sources?.[market.key])providers.public.sources[market.key].count=ranked.filter(item=>item.source===market.source&&discoveryOrigins.has(item.origin)).length}
   const value={query:q,providerQuery,queryVariants:[{query:providerQuery,reason:'single-fast-provider-query'}],aliasVersion:SEARCH_ALIAS_VERSION,inputCompletion:prefix.changed?prefix:null,typoCorrection:known.changed?known:null,phase,items:ranked,providers,generatedAt:new Date().toISOString()};
   cache.set(cacheKey,{at:Date.now(),value});if(cache.size>160)cache.delete(cache.keys().next().value);return send(res,200,value,true);
 }
