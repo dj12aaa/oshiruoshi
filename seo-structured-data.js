@@ -60,4 +60,12 @@
   script.type='application/ld+json';
   script.textContent=JSON.stringify({'@context':'https://schema.org','@graph':graph});
   document.head.appendChild(script);
+
+  /* Product density is in design-v3.css so first paint is stable; only JS is added here. */
+  if((location.pathname==='/'||location.pathname==='/index.html')&&!document.querySelector('script[data-home-experience-v6]')){
+    const experience=document.createElement('script');
+    experience.src='/home-experience-v6.js?v=20260821-1';
+    experience.dataset.homeExperienceV6='1';
+    document.head.appendChild(experience);
+  }
 })();

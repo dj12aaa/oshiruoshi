@@ -1,0 +1,121 @@
+name: Dense grid and latest goods checks
+
+on:
+  push:
+    branches:
+      - work/dense-grid-latest-goods
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: JavaScript syntax
+        run: |
+          node --check home-experience-v6.js
+          node --check latest-goods.js
+          node --check seo-structured-data.js
+          node --check api/sitemap.js
+          node --check app.js
+          node --check performance-v3.js
+
+      - name: Validate Vercel config and function budget
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const config=JSON.parse(fs.readFileSync('vercel.json','utf8'));
+          const rewrites=config.rewrites||[];
+          if(!rewrites.some(x=>x.source==='/latest-goods'&&x.destination==='/latest-goods.html'))throw new Error('latest-goods rewrite missing');
+          const api=fs.readdirSync('api').filter(f=>f.endsWith('.js')&&!f.startsWith('_'));
+          if(api.length>12)throw new Error(`Vercel function budget exceeded: ${api.length}`);
+          console.log({apiFunctions:api.length,vercel:'ok'});
+          NODE
+
+      - name: Validate dense responsive comparison layout
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const css=fs.readFileSync('design-v3.css','utf8');
+          for(const token of [
+            'repeat(6,minmax(0,1fr))',
+            'repeat(5,minmax(0,1fr))',
+            'repeat(4,minmax(0,1fr))',
+            'repeat(3,minmax(0,1fr))',
+            'repeat(2,minmax(0,1fr))',
+            '.product-card .source-pill',
+            '.product-card .main-price',
+            'content-visibility:auto',
+            'min-height:0!important'
+          ])if(!css.includes(token))throw new Error(`dense layout invariant missing: ${token}`);
+          const opens=(css.match(/\{/g)||[]).length,closes=(css.match(/\}/g)||[]).length;
+          if(opens!==closes)throw new Error(`CSS brace mismatch ${opens}/${closes}`);
+          console.log('responsive dense layout ok');
+          NODE
+
+      - name: Validate latest goods SEO and official-source hub
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const html=fs.readFileSync('latest-goods.html','utf8');
+          const sitemap=fs.readFileSync('api/sitemap.js','utf8');
+          const required=[
+            '<link rel="canonical" href="https://oshiruoshi.vercel.app/latest-goods">',
+            '"@type":"CollectionPage"',
+            '"@type":"ItemList"',
+            'shop.nijisanji.jp',
+            'shop.hololivepro.com',
+            'vspo.jp',
+            'games/apex-legends/apex-legends/news',
+            'pjsekai.sega.jp/news',
+            'jujutsukaisen.jp/news',
+            'tv.bluelock-pr.com/news',
+            'sanrio.co.jp/news',
+            'pokemoncenter-online.com',
+            'bts-official.jp',
+            'straykidsjapan.com',
+            'starto.jp'
+          ];
+          for(const token of required)if(!html.includes(token))throw new Error(`latest goods requirement missing: ${token}`);
+          if(/"@type":"(?:Product|MerchantListing)"/.test(html))throw new Error('Product/MerchantListing must not be used on the collection hub');
+          if(!sitemap.includes("'/latest-goods'"))throw new Error('latest-goods missing from sitemap');
+          if(!sitemap.includes("const lastmod='2026-08-21'"))throw new Error('sitemap lastmod not updated');
+          console.log('latest-goods SEO/source checks ok');
+          NODE
+
+      - name: Validate privacy-first personalization and image search
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const latest=fs.readFileSync('latest-goods.js','utf8');
+          const home=fs.readFileSync('home-experience-v6.js','utf8');
+          const privacy=fs.readFileSync('privacy.html','utf8');
+          if(!latest.includes("localStorage")||/\bfetch\s*\(/.test(latest))throw new Error('latest personalization must remain local-only');
+          for(const token of ['oshiru-interest-signals-v1','oshiru-latest-preferences-v1'])if(!latest.includes(token)&&!home.includes(token))throw new Error(`interest storage missing: ${token}`);
+          for(const token of ['createImageBitmap','MAX_DIMENSION=1600','toDataURL(\'image/jpeg\'','/api/vision-search','status?.vision'])if(!home.includes(token))throw new Error(`image-search optimization missing: ${token}`);
+          if(!privacy.includes('最新グッズページ')||!privacy.includes('localStorage')||!privacy.includes('外部サービスへ送信しません'))throw new Error('privacy disclosure for personalization missing');
+          console.log('privacy and image-search checks ok');
+          NODE
+
+      - name: Validate homepage integration and empty-search protection
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const seo=fs.readFileSync('seo-structured-data.js','utf8');
+          const perf=fs.readFileSync('performance-v3.js','utf8');
+          if(!seo.includes('/home-experience-v6.js?v=20260821-1'))throw new Error('home experience bootstrap missing');
+          if(!perf.includes('idleResponse')||!perf.includes('enterIdle'))throw new Error('empty-search idle protection missing');
+          if(!fs.readFileSync('design-v3.css','utf8').includes('Dense comparison mode v6'))throw new Error('dense CSS not in first-paint stylesheet');
+          console.log('homepage integration ok');
+          NODE

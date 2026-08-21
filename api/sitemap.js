@@ -21,9 +21,10 @@ export default function handler(req,res){
     return;
   }
   const base=siteBase(req);
-  const lastmod='2026-08-19';
+  const lastmod='2026-08-21';
   const pages=[
     '/',
+    '/latest-goods',
     '/guide/oshi-goods',
     '/guide/how-oshiru-compares',
     '/compare/oshi-goods',
