@@ -17,13 +17,13 @@ concurrency:
 jobs:
   smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 6
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
 
-      - name: Verify live production
+      - name: Verify live production HTTP responses
         shell: bash
         run: |
           set -euo pipefail
@@ -67,15 +67,98 @@ jobs:
           curl --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 3 "$base/api/search?q=%E4%BA%94%E6%9D%A1%E6%82%9F" -o "$tmp/search.json"
           node -e "const d=require(process.argv[1]); if(!Array.isArray(d.items)) throw new Error('search items missing')" "$tmp/search.json"
 
+      - name: Install Chromium test runtime
+        shell: bash
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Verify mobile and desktop product layouts in Chromium
+        shell: bash
+        run: |
+          mkdir -p verification/screenshots
+          node <<'NODE'
+          const fs=require('fs');
+          const {chromium}=require('playwright');
+          const base='https://oshiruoshi.vercel.app';
+
+          async function inspect(browser,name,viewport,expectedColumns){
+            const context=await browser.newContext({viewportSize:viewport,locale:'ja-JP'});
+            const page=await context.newPage();
+            await page.goto(`${base}/?q=${encodeURIComponent('五条悟')}`,{waitUntil:'domcontentloaded',timeout:45000});
+            await page.waitForSelector('.product-card',{state:'visible',timeout:45000});
+            await page.waitForFunction(()=>document.querySelectorAll('.product-card').length>=2,null,{timeout:45000});
+            await page.waitForTimeout(700);
+            const metrics=await page.evaluate(()=>{
+              const grid=document.querySelector('#productGrid');
+              const card=grid?.querySelector('.product-card');
+              const source=card?.querySelector('.source-pill');
+              const price=card?.querySelector('.main-price');
+              const gridStyle=grid?getComputedStyle(grid):null;
+              const cols=gridStyle?.gridTemplateColumns?.split(/\s+/).filter(Boolean).length||0;
+              const visible=el=>!!el&&getComputedStyle(el).display!=='none'&&getComputedStyle(el).visibility!=='hidden'&&el.getBoundingClientRect().width>0&&el.getBoundingClientRect().height>0;
+              const gridRect=grid?.getBoundingClientRect();
+              return{
+                cards:grid?.querySelectorAll('.product-card').length||0,
+                columns:cols,
+                sourceVisible:visible(source),
+                sourceText:source?.textContent?.trim()||'',
+                priceVisible:visible(price),
+                priceText:price?.textContent?.trim()||'',
+                gridInsideViewport:!!gridRect&&gridRect.left>=-1&&gridRect.right<=innerWidth+1,
+                bodyOverflow:document.documentElement.scrollWidth<=innerWidth+2
+              };
+            });
+            if(metrics.columns!==expectedColumns)throw new Error(`${name}: expected ${expectedColumns} columns, got ${metrics.columns}`);
+            if(metrics.cards<2)throw new Error(`${name}: insufficient product cards`);
+            if(!metrics.sourceVisible||!metrics.sourceText)throw new Error(`${name}: source marketplace is not visible`);
+            if(!metrics.priceVisible||!metrics.priceText)throw new Error(`${name}: price is not visible`);
+            if(!metrics.gridInsideViewport)throw new Error(`${name}: product grid exceeds viewport`);
+            await page.screenshot({path:`verification/screenshots/${name}.png`,fullPage:false});
+
+            await page.goto(`${base}/latest-goods`,{waitUntil:'domcontentloaded',timeout:45000});
+            await page.waitForSelector('h1',{state:'visible',timeout:20000});
+            const latest=await page.evaluate(()=>({
+              h1:document.querySelector('h1')?.textContent?.trim()||'',
+              sourceCards:document.querySelectorAll('.official-source-card').length,
+              horizontalOverflow:document.documentElement.scrollWidth>innerWidth+2,
+              localPreferenceButtons:document.querySelectorAll('[data-interest]').length
+            }));
+            if(!latest.h1.includes('最新グッズ'))throw new Error(`${name}: latest-goods heading missing`);
+            if(latest.sourceCards<10)throw new Error(`${name}: official source directory is too small`);
+            if(latest.horizontalOverflow)throw new Error(`${name}: latest-goods has horizontal overflow`);
+            if(latest.localPreferenceButtons<5)throw new Error(`${name}: personalization controls missing`);
+            await page.screenshot({path:`verification/screenshots/${name}-latest.png`,fullPage:false});
+            await context.close();
+            return{...metrics,latest};
+          }
+
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            try{
+              const mobile=await inspect(browser,'mobile-390x844',{width:390,height:844},2);
+              const desktop=await inspect(browser,'desktop-1440x900',{width:1440,height:900},6);
+              fs.writeFileSync('verification/dense-latest-ui-metrics.json',JSON.stringify({checkedAt:new Date().toISOString(),mobile,desktop},null,2)+'\n');
+            }finally{await browser.close()}
+          })().catch(error=>{console.error(error);process.exit(1)});
+          NODE
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dense-latest-production-screenshots
+          path: verification/screenshots/*.png
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Record successful verification
         shell: bash
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          mkdir -p verification
           node <<'NODE'
           const fs=require('fs');
+          const ui=JSON.parse(fs.readFileSync('verification/dense-latest-ui-metrics.json','utf8'));
           fs.writeFileSync('verification/dense-latest-production.json',JSON.stringify({
             ok:true,
             production:'https://oshiruoshi.vercel.app',
@@ -90,10 +173,20 @@ jobs:
               'image-search-client-optimization-asset',
               'privacy-local-personalization',
               'empty-search-idle',
-              'nonempty-search-api-shape'
-            ]
+              'nonempty-search-api-shape',
+              'chromium-mobile-390x844-two-columns',
+              'chromium-desktop-1440x900-six-columns',
+              'chromium-price-and-source-visible',
+              'chromium-latest-goods-no-horizontal-overflow'
+            ],
+            ui
           },null,2)+'\n');
           NODE
-          git add verification/dense-latest-production.json
-          git commit -m 'Record dense latest production verification'
-          git push origin HEAD:main
+          git add verification/dense-latest-production.json verification/dense-latest-ui-metrics.json
+          git commit -m 'Record dense latest browser verification'
+          for attempt in 1 2 3; do
+            if git push origin HEAD:main; then exit 0; fi
+            git pull --rebase origin main
+            sleep 2
+          done
+          exit 1
