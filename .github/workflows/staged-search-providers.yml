@@ -1,0 +1,81 @@
+name: Staged search provider checks
+
+on:
+  push:
+    branches:
+      - work/search-providers-no-deploy
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Syntax check staged JavaScript
+        run: |
+          node --check api/live-search.js
+          node --check api/status.js
+          node --check performance-v3.js
+          node --check search-provider-ui.js
+          node --check api/_core.mjs
+          node --check api/search-language.mjs
+
+      - name: Validate vercel.json
+        run: node -e "JSON.parse(require('fs').readFileSync('vercel.json','utf8')); console.log('vercel.json ok')"
+
+      - name: Enforce staged search invariants
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const live=fs.readFileSync('api/live-search.js','utf8');
+          const perf=fs.readFileSync('performance-v3.js','utf8');
+          const ui=fs.readFileSync('search-provider-ui.js','utf8');
+          const vercel=fs.readFileSync('vercel.json','utf8');
+          const requiredLive=[
+            'AMAZON_CREATORS_CLIENT_ID',
+            'AMAZON_CREATORS_CLIENT_SECRET',
+            'BRAVE_SEARCH_API_KEY',
+            "phase=['fast','discovery','all']",
+            'https://creatorsapi.amazon/catalog/v1/searchItems',
+            'https://api.search.brave.com/res/v1/web/search',
+            "price:null",
+            "origin='public-page-live'"
+          ];
+          for(const token of requiredLive)if(!live.includes(token))throw new Error(`missing live-search invariant: ${token}`);
+          if(!perf.includes("u.searchParams.set('phase','fast')"))throw new Error('fast prefetch missing');
+          if(!perf.includes('compositionstart')||!perf.includes('compositionend'))throw new Error('IME guard missing');
+          if(!ui.includes("retailSources.includes('Amazon')")||!ui.includes("source==='Amazon'?'公式API'"))throw new Error('Amazon UI integration missing');
+          if(!vercel.includes('work/search-providers-no-deploy')||!vercel.includes('exit 0'))throw new Error('no-deploy guard missing');
+          const clientFiles=['app.js','performance-v3.js','search-provider-ui.js','predictive-mobile.js'];
+          for(const file of clientFiles){
+            if(!fs.existsSync(file))continue;
+            const text=fs.readFileSync(file,'utf8');
+            if(/AMAZON_CREATORS_CLIENT_SECRET|BRAVE_SEARCH_API_KEY|RAKUTEN_ACCESS_KEY/.test(text))throw new Error(`server secret name leaked into client file: ${file}`);
+          }
+          const apiFunctions=fs.readdirSync('api').filter(f=>/\.(js|mjs)$/.test(f)&&!f.startsWith('_')&&!f.endsWith('.mjs'));
+          if(apiFunctions.length>12)throw new Error(`Vercel function budget exceeded: ${apiFunctions.length}`);
+          console.log({apiFunctions:apiFunctions.length,checks:'ok'});
+          NODE
+
+      - name: Confirm example env contains no secret values
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const lines=fs.readFileSync('.env.example','utf8').split(/\r?\n/);
+          const secretNames=new Set(['YAHOO_CLIENT_ID','RAKUTEN_APP_ID','RAKUTEN_ACCESS_KEY','RAKUTEN_AFFILIATE_ID','AMAZON_CREATORS_CLIENT_ID','AMAZON_CREATORS_CLIENT_SECRET','AMAZON_PARTNER_TAG','BRAVE_SEARCH_API_KEY','OPENAI_API_KEY','X_BEARER_TOKEN']);
+          for(const line of lines){
+            const m=line.match(/^([A-Z0-9_]+)=(.*)$/);if(!m||!secretNames.has(m[1]))continue;
+            if(m[2].trim())throw new Error(`secret-like value must stay blank in .env.example: ${m[1]}`);
+          }
+          console.log('.env.example secret placeholders ok');
+          NODE
