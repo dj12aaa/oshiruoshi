@@ -4,6 +4,7 @@
   const liveCache=new Map();
   const TTL=22000;
   let warmTimer=null;
+  let composing=false;
 
   function absolute(input){
     try{return new URL(typeof input==='string'?input:input.url,location.href)}catch{return null}
@@ -73,12 +74,16 @@
     const next=new URL(url.href);next.searchParams.set('phase',phase||'all');return next;
   }
   function warmLive(q){
-    const query=String(q||'').trim();if(query.length<2)return;
+    const query=String(q||'').trim();if(query.length<3||composing)return;
     const u=new URL('/api/live-search',location.href);u.searchParams.set('q',query);u.searchParams.set('phase','fast');
     const key=liveKey(u),old=liveCache.get(key);if(old&&Date.now()-old.at<TTL)return;
     const entry={at:Date.now(),promise:null};
     entry.promise=nativeFetch(u.href,{headers:{accept:'application/json'}}).then(snapshotResponse).then(s=>{if(!s.ok)liveCache.delete(key);return s}).catch(e=>{liveCache.delete(key);throw e});
     liveCache.set(key,entry);
+  }
+  function scheduleWarm(value,delay=320){
+    clearTimeout(warmTimer);const query=String(value||'').trim();if(query.length<3||composing)return;
+    warmTimer=setTimeout(()=>warmLive(query),delay);
   }
 
   window.fetch=(input,init={})=>{
@@ -109,15 +114,14 @@
   const q=document.getElementById('q');
   if(!q||!q.value.trim())enterIdle();
   if(q){
-    q.addEventListener('input',()=>{
-      clearTimeout(warmTimer);const value=q.value.trim();if(value.length<2)return;
-      warmTimer=setTimeout(()=>warmLive(value),260);
-    },{passive:true});
+    q.addEventListener('compositionstart',()=>{composing=true;clearTimeout(warmTimer)});
+    q.addEventListener('compositionend',()=>{composing=false;scheduleWarm(q.value,220)});
+    q.addEventListener('input',e=>{if(e.isComposing||composing)return;scheduleWarm(q.value,320)},{passive:true});
   }
 
   function loadProviderUi(){
     if(document.getElementById('oshiruProviderUi'))return;
-    const s=document.createElement('script');s.id='oshiruProviderUi';s.src='/search-provider-ui.js?v=20260821-provider-stage1';s.async=true;document.head.append(s);
+    const s=document.createElement('script');s.id='oshiruProviderUi';s.src='/search-provider-ui.js?v=20260821-provider-stage2';s.async=true;document.head.append(s);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadProviderUi,{once:true});else setTimeout(loadProviderUi,0);
 
