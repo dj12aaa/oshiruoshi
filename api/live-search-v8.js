@@ -1,12 +1,14 @@
 import legacyHandler from './live-search.js';
 import { detectIntent, normalizeFlexible, compactFlexible } from './search-language.mjs';
+import { snapshotSearch } from './_core.mjs';
 
-const VERSION='2026-08-21.8';
+const VERSION='2026-08-22.9';
 const OSHI_HINTS=[
   'グッズ','アクスタ','アクリルスタンド','アクキー','アクリルキーホルダー','アクリル','缶バッジ','缶バ','ぬい','ぬいぐるみ','マスコット',
   'トレカ','トレーディングカード','ブロマイド','チェキ','クリアファイル','ステッカー','シール','ラバスト','ラバーストラップ',
   'タペストリー','ペンライト','フィギュア','キーホルダー','キーチェーン','チャーム','タオル','色紙','ポスター','うちわ',
-  '一番くじ','くじ','プライズ','景品','特典','公式グッズ','限定グッズ','記念グッズ','コラボグッズ','tシャツ','パーカー','アパレル'
+  '一番くじ','くじ','プライズ','景品','特典','公式グッズ','限定グッズ','記念グッズ','コラボグッズ','生誕グッズ','周年グッズ',
+  '誕生日グッズ','トレーディング','ランダム','セット','痛バッグ','法被','tシャツ','パーカー','アパレル'
 ];
 const GENERIC_RETAIL_NOISE=[
   'ヘアピン','ヘアクリップ','髪留め','ヘアゴム','ピアス','イヤリング','ネックレス','指輪','リング','コスメ','化粧品','食品','お菓子',
@@ -58,13 +60,23 @@ export function effectiveQuery(query=''){
   if(intent.entity&&!intent.merchGroups.length)return `${normalized} グッズ`;
   return normalized;
 }
-function adjustedProviders(providers={},items=[]){
+function adjustedProviders(providers={},items=[],snapshotCount=0){
   const p=typeof structuredClone==='function'
     ? structuredClone(providers||{})
     : JSON.parse(JSON.stringify(providers||{}));
   const map={yahooShopping:'Yahoo!ショッピング',rakuten:'楽天市場',x:'X'};
   for(const [key,source] of Object.entries(map))if(p[key])p[key].count=items.filter(item=>item.source===source).length;
+  p.snapshot={ok:true,count:snapshotCount,label:'確認済み出品'};
   return p;
+}
+function dedupeItems(items=[]){
+  const seen=new Set(),out=[];
+  for(const item of items){
+    const key=String(item?.id||item?.canonicalUrl||item?.url||`${item?.source}|${item?.title}|${item?.price}`);
+    if(!key||seen.has(key))continue;
+    seen.add(key);out.push(item);
+  }
+  return out;
 }
 function captureResponse(){
   let resolve;
@@ -87,17 +99,21 @@ export default async function handler(req,res){
   const forwarded={...req,url:`/api/live-search?q=${encodeURIComponent(target)}`};
   const capture=captureResponse();
   try{
+    const verifiedPromise=snapshotSearch(original);
     await Promise.resolve(legacyHandler(forwarded,capture.res));
-    const result=await capture.promise;
+    const [result,verifiedResult]=await Promise.all([capture.promise,verifiedPromise]);
     if(result.status>=400||!result.data||!Array.isArray(result.data.items)){
       res.status(result.status||500).json(result.data||{error:'precision_search_failed'});return;
     }
-    const strict=result.data.items.filter(item=>relevant(item,original));
+    const strictLive=result.data.items.filter(item=>relevant(item,original));
+    const strictVerified=(verifiedResult.items||[]).filter(item=>relevant(item,original));
+    const strict=dedupeItems([...strictLive,...strictVerified]);
     const originalIntent=detectIntent(normalizeAmbiguousQuery(original));
     const fallback=originalIntent.entity
       ? []
       : result.data.items.filter(item=>!noiseHit(itemText(item),original)&&Number(item?._score||0)>=120);
-    const items=(strict.length?strict:fallback).slice(0,120);
+    const items=dedupeItems(strict.length?strict:fallback).slice(0,120);
+    const snapshotCount=items.filter(item=>String(item.origin||'').includes('snapshot')).length;
     res.setHeader('X-OSHIRU-Precision-Version',VERSION);
     res.setHeader('Cache-Control','public, max-age=8, s-maxage=22, stale-while-revalidate=75');
     res.status(200).json({
@@ -106,7 +122,9 @@ export default async function handler(req,res){
       effectiveQuery:target,
       precisionVersion:VERSION,
       items,
-      providers:adjustedProviders(result.data.providers,items)
+      direct:verifiedResult.direct||[],
+      snapshotCount,
+      providers:adjustedProviders(result.data.providers,items,snapshotCount)
     });
   }catch(error){
     res.status(500).json({error:'precision_search_failed',message:String(error?.message||error).slice(0,160)});

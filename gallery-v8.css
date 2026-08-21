@@ -1,4 +1,4 @@
-/* OSHIRU gallery v8 — final layout/interaction overrides. */
+/* OSHIRU gallery v9 — critical, deterministic layout/interaction overrides. */
 html,body{max-width:100%;overflow-x:hidden}
 .source-strip,.beta-bar,#sourceAccessPanel{display:none!important}
 .search-hero{margin-bottom:6px!important}
@@ -24,6 +24,7 @@ body #productGrid .heart,body #productGrid .gallery-compare{position:absolute!im
 body #productGrid .heart{right:4px!important;top:4px!important;color:#334155!important;font-size:18px!important}
 body #productGrid .heart.on{color:#d91f48!important;background:#fff5f7!important}
 body #productGrid .gallery-compare{right:4px!important;bottom:4px!important;color:#b0163c!important;font-size:20px!important}
+body #productGrid .gallery-compare.is-selected{background:#d91f48!important;color:#fff!important;border-color:#d91f48!important}
 body #productGrid .heart::before,body #productGrid .heart::after,body #productGrid .gallery-compare::before,body #productGrid .gallery-compare::after{content:none!important;display:none!important}
 body #productGrid .heart:focus-visible,body #productGrid .gallery-compare:focus-visible{outline:3px solid rgba(217,31,72,.42)!important;outline-offset:1px!important}
 

@@ -29,13 +29,6 @@
   const modified=document.querySelector('meta[name="last-modified"]')?.content;if(modified)graph[1].dateModified=modified;
   const structured=document.createElement('script');structured.type='application/ld+json';structured.textContent=JSON.stringify({'@context':'https://schema.org','@graph':graph});document.head.appendChild(structured);
 
-  function loadScript(src,key){if(document.querySelector(`script[data-${key}]`))return;const s=document.createElement('script');s.src=src;s.dataset[key]='1';document.head.appendChild(s)}
-  const home=location.pathname==='/'||location.pathname==='/index.html';
-  if(home){
-    if(!document.querySelector('link[data-gallery-v8]')){
-      const link=document.createElement('link');link.rel='stylesheet';link.href='/gallery-v8.css?v=20260821-8';link.dataset.galleryV8='1';document.head.appendChild(link);
-    }
-    loadScript('/home-experience-v8.js?v=20260821-8','homeExperienceV8');
-  }
-  loadScript('/navigation-extra-v7.js?v=20260821-7','navigationExtraV7');
+  // Page-critical assets are declared in HTML. Keeping structured data free of
+  // asset bootstrapping removes a race that could expose the legacy card layout.
 })();

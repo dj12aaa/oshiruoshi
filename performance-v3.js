@@ -54,11 +54,12 @@
   }
   function leaveIdle(){if(!idleUi.active&&!document.body.classList.contains('search-idle'))return;idleUi.active=false;document.body.classList.remove('search-idle')}
 
-  function warmLive(q){
-    if(!q)return;const key=liveKeyFromQuery(q),old=liveCache.get(key);if(old&&Date.now()-old.at<TTL)return;
+  function precisionResponse(q,init={}){
+    const key=liveKeyFromQuery(q),hit=liveCache.get(key);
+    if(hit&&Date.now()-hit.at<TTL)return hit.promise.then(restore);
     const target=precisionUrl(q),entry={at:Date.now(),promise:null};
-    entry.promise=nativeFetch(target.href,{headers:{accept:'application/json'}}).then(snapshotResponse).then(s=>{if(!s.ok)liveCache.delete(key);return s}).catch(e=>{liveCache.delete(key);throw e});
-    liveCache.set(key,entry);
+    entry.promise=nativeFetch(target.href,{...init,headers:{accept:'application/json',...(init?.headers||{})}}).then(snapshotResponse).then(s=>{if(!s.ok)liveCache.delete(key);return s}).catch(e=>{liveCache.delete(key);throw e});
+    liveCache.set(key,entry);return entry.promise.then(restore);
   }
 
   window.fetch=(input,init={})=>{
@@ -66,14 +67,11 @@
     if(!u||u.origin!==location.origin||method!=='GET')return nativeFetch(input,init);
     if(u.pathname==='/api/search'){
       const q=(u.searchParams.get('q')||'').trim();if(!q){enterIdle();return Promise.resolve(idleResponse())}
-      leaveIdle();warmLive(q);return nativeFetch(input,init);
+      leaveIdle();return precisionResponse(q,init);
     }
     if(u.pathname==='/api/live-search'){
       const q=(u.searchParams.get('q')||'').trim();if(!q)return Promise.resolve(idleResponse());
-      const key=liveKeyFromQuery(q),hit=liveCache.get(key);if(hit&&Date.now()-hit.at<TTL)return hit.promise.then(restore);
-      const target=precisionUrl(q),entry={at:Date.now(),promise:null};
-      entry.promise=nativeFetch(target.href,{...init,headers:{accept:'application/json',...(init?.headers||{})}}).then(snapshotResponse).then(s=>{if(!s.ok)liveCache.delete(key);return s}).catch(e=>{liveCache.delete(key);throw e});
-      liveCache.set(key,entry);return entry.promise.then(restore);
+      leaveIdle();return precisionResponse(q,init);
     }
     return nativeFetch(input,init);
   };

@@ -1,4 +1,4 @@
-name: V8 production browser verification
+name: V9 production browser verification
 
 on:
   push:
@@ -11,7 +11,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: v8-production-browser-verification
+  group: v9-production-browser-verification
   cancel-in-progress: true
 
 jobs:
@@ -23,7 +23,7 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Wait for v8 production and verify HTTP
+      - name: Wait for v9 production and verify HTTP
         shell: bash
         run: |
           set -euo pipefail
@@ -33,7 +33,7 @@ jobs:
           ready=0
           for attempt in $(seq 1 45); do
             if curl --fail --silent --show-error --location "$base/gallery-v8.css?v=$(date +%s)" -o "$tmp/gallery.css" \
-              && grep -Fq 'OSHIRU gallery v8' "$tmp/gallery.css" \
+              && grep -Fq 'OSHIRU gallery v9' "$tmp/gallery.css" \
               && curl --fail --silent --show-error --location "$base/home-experience-v8.js?v=$(date +%s)" -o "$tmp/home.js" \
               && grep -Fq 'removeLegacySourcePanel' "$tmp/home.js"; then
               ready=1; break
@@ -44,9 +44,11 @@ jobs:
 
           curl --fail --silent --show-error --location "$base/?v=$(date +%s)" -o "$tmp/index.html"
           grep -Fq 'OSHIRU' "$tmp/index.html"
+          grep -Fq '/gallery-v8.css?v=20260822-9' "$tmp/index.html"
+          grep -Fq '/home-experience-v8.js?v=20260822-9' "$tmp/index.html"
+          grep -Fq '/navigation-extra-v7.js?v=20260822-9' "$tmp/index.html"
           curl --fail --silent --show-error --location "$base/seo-structured-data.js?v=$(date +%s)" -o "$tmp/seo.js"
-          grep -Fq '/gallery-v8.css?v=20260821-8' "$tmp/seo.js"
-          grep -Fq '/home-experience-v8.js?v=20260821-8' "$tmp/seo.js"
+          ! grep -Fq 'loadScript' "$tmp/seo.js"
 
           grep -Fq 'repeat(8,minmax(0,1fr))' "$tmp/gallery.css"
           grep -Fq 'repeat(7,minmax(0,1fr))' "$tmp/gallery.css"
@@ -69,7 +71,7 @@ jobs:
           curl --fail --silent --show-error --location "$base/api/live-search-v8?q=%E3%83%8A%E3%83%AB%E3%83%88" -o "$tmp/naruto.json"
           node - "$tmp/naruto.json" <<'NODE'
           const fs=require('fs');const d=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
-          if(d.precisionVersion!=='2026-08-21.8')throw new Error('precision version is not v8');
+          if(d.precisionVersion!=='2026-08-22.9')throw new Error('precision version is not v9');
           if(!String(d.effectiveQuery||'').includes('NARUTO')||!String(d.effectiveQuery||'').includes('グッズ'))throw new Error(`NARUTO effective query invalid: ${d.effectiveQuery}`);
           const bad=/(ヘアピン|ヘアクリップ|髪留め|コミック|単行本|電子書籍)/i;
           const offending=(d.items||[]).filter(x=>bad.test(String(x.title||'')));
@@ -147,12 +149,17 @@ jobs:
 
             await page.goto(`${base}/latest-goods?verify=${Date.now()}`,{waitUntil:'domcontentloaded',timeout:45000});
             await page.waitForSelector('[data-official-rail]',{state:'visible',timeout:20000});
-            const latest=await page.evaluate(()=>({
+            const initialRailLeft=await page.locator('[data-official-rail]').evaluate(el=>el.scrollLeft);
+            await page.waitForTimeout(4700);
+            const latest=await page.evaluate(initialRailLeft=>({
               previewCards:document.querySelectorAll('.official-preview-card').length,
               sourceCards:document.querySelectorAll('.official-source-card').length,
+              sourceLabels:document.querySelectorAll('.official-preview-source').length,
+              railToggleVisible:document.getElementById('railToggle')?.getBoundingClientRect().width>0,
+              autoMoved:document.querySelector('[data-official-rail]')?.scrollLeft>initialRailLeft+2,
               overflow:document.documentElement.scrollWidth>innerWidth+2
-            }));
-            if(latest.previewCards<3||latest.sourceCards<10||latest.overflow)throw new Error(`${name}: latest-goods layout/source regression`);
+            }),initialRailLeft);
+            if(latest.previewCards<3||latest.sourceCards<10||latest.sourceLabels<3||!latest.railToggleVisible||!latest.autoMoved||latest.overflow)throw new Error(`${name}: latest-goods layout/source/rotation regression`);
             await page.screenshot({path:`verification/screenshots/${name}-latest.png`,fullPage:false});
             await context.close();
             return{...metrics,imageSearch:modal,latest};
@@ -163,33 +170,33 @@ jobs:
             try{
               const mobile=await inspect(browser,'mobile-390x844',{width:390,height:844},3);
               const desktop=await inspect(browser,'desktop-1440x900',{width:1440,height:900},7);
-              fs.writeFileSync('verification/v8-ui-metrics.json',JSON.stringify({checkedAt:new Date().toISOString(),mobile,desktop},null,2)+'\n');
+              fs.writeFileSync('verification/v9-ui-metrics.json',JSON.stringify({checkedAt:new Date().toISOString(),mobile,desktop},null,2)+'\n');
             }finally{await browser.close()}
           })().catch(error=>{console.error(error);process.exit(1)});
           NODE
 
       - uses: actions/upload-artifact@v4
         with:
-          name: v8-production-screenshots
+          name: v9-production-screenshots
           path: verification/screenshots/*.png
           if-no-files-found: error
           retention-days: 7
 
-      - name: Record successful v8 verification
+      - name: Record successful v9 verification
         shell: bash
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           node <<'NODE'
-          const fs=require('fs');const ui=JSON.parse(fs.readFileSync('verification/v8-ui-metrics.json','utf8'));
-          fs.writeFileSync('verification/v8-production.json',JSON.stringify({
+          const fs=require('fs');const ui=JSON.parse(fs.readFileSync('verification/v9-ui-metrics.json','utf8'));
+          fs.writeFileSync('verification/v9-production.json',JSON.stringify({
             ok:true,production:'https://oshiruoshi.vercel.app',checkedAt:new Date().toISOString(),workflowSha:process.env.GITHUB_SHA,
-            checks:['v8-assets-live','precision-search-v8','naruto-noise-filter','mobile-three-columns','desktop-seven-columns','price-and-source-visible','favorite-and-compare-stable','source-panels-removed','image-search-close-no-overlap','latest-goods-visual-rail','no-horizontal-overflow'],ui
+            checks:['v9-assets-live','precision-search-v9','naruto-noise-filter','mobile-three-columns','desktop-seven-columns','price-and-source-visible','favorite-and-compare-stable','source-panels-removed','image-search-close-no-overlap','latest-goods-visual-rail','latest-goods-auto-rotation','no-horizontal-overflow'],ui
           },null,2)+'\n');
           NODE
-          git add verification/v8-production.json verification/v8-ui-metrics.json
-          git commit -m 'Record v8 production browser verification'
+          git add verification/v9-production.json verification/v9-ui-metrics.json
+          git commit -m 'Record v9 production browser verification'
           for attempt in 1 2 3; do
             if git push origin HEAD:main; then exit 0; fi
             git pull --rebase origin main
