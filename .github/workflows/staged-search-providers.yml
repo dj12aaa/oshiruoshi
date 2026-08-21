@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - work/search-providers-no-deploy
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
