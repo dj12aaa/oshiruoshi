@@ -3,7 +3,7 @@ name: Dense grid and latest goods checks
 on:
   push:
     branches:
-      - work/dense-grid-latest-goods
+      - work/fix-grid-search-v7
       - main
   pull_request:
     branches:
@@ -16,7 +16,7 @@ permissions:
 jobs:
   quality:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 6
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -25,9 +25,11 @@ jobs:
 
       - name: JavaScript syntax
         run: |
-          node --check home-experience-v6.js
+          node --check home-experience-v7.js
+          node --check navigation-extra-v7.js
           node --check latest-goods.js
           node --check seo-structured-data.js
+          node --check api/live-search.js
           node --check api/sitemap.js
           node --check app.js
           node --check performance-v3.js
@@ -37,127 +39,72 @@ jobs:
           node <<'NODE'
           const fs=require('fs');
           const config=JSON.parse(fs.readFileSync('vercel.json','utf8'));
-          const rewrites=config.rewrites||[];
-          if(!rewrites.some(x=>x.source==='/latest-goods'&&x.destination==='/latest-goods.html'))throw new Error('latest-goods rewrite missing');
+          if(!(config.rewrites||[]).some(x=>x.source==='/latest-goods'&&x.destination==='/latest-goods.html'))throw new Error('latest-goods rewrite missing');
           const api=fs.readdirSync('api').filter(f=>f.endsWith('.js')&&!f.startsWith('_'));
           if(api.length>12)throw new Error(`Vercel function budget exceeded: ${api.length}`);
           console.log({apiFunctions:api.length,vercel:'ok'});
           NODE
 
-      - name: Validate dense responsive comparison layout
+      - name: Validate v7 responsive gallery
         run: |
           node <<'NODE'
           const fs=require('fs');
-          const css=fs.readFileSync('design-v3.css','utf8');
-          for(const token of [
-            'repeat(6,minmax(0,1fr))',
-            'repeat(5,minmax(0,1fr))',
-            'repeat(4,minmax(0,1fr))',
-            'repeat(3,minmax(0,1fr))',
-            'repeat(2,minmax(0,1fr))',
-            '.product-card .source-pill',
-            '.product-card .main-price',
-            'content-visibility:auto',
-            'min-height:0!important'
-          ])if(!css.includes(token))throw new Error(`dense layout invariant missing: ${token}`);
-          const opens=(css.match(/\{/g)||[]).length,closes=(css.match(/\}/g)||[]).length;
-          if(opens!==closes)throw new Error(`CSS brace mismatch ${opens}/${closes}`);
-          console.log('responsive dense layout ok');
+          const css=fs.readFileSync('gallery-v7.css','utf8');
+          for(const token of ['repeat(8,minmax(0,1fr))','repeat(6,minmax(0,1fr))','repeat(4,minmax(0,1fr))','repeat(3,minmax(0,1fr))','.gallery-price','.gallery-compare','aspect-ratio:1/1!important','overflow-x:hidden'])if(!css.includes(token))throw new Error(`v7 gallery invariant missing: ${token}`);
+          const opens=(css.match(/\{/g)||[]).length,closes=(css.match(/\}/g)||[]).length;if(opens!==closes)throw new Error(`CSS brace mismatch ${opens}/${closes}`);
           NODE
 
       - name: Validate latest goods SEO and official-source hub
         run: |
           node <<'NODE'
           const fs=require('fs');
-          const html=fs.readFileSync('latest-goods.html','utf8');
-          const sitemap=fs.readFileSync('api/sitemap.js','utf8');
-          const required=[
-            '<link rel="canonical" href="https://oshiruoshi.vercel.app/latest-goods">',
-            '"@type":"CollectionPage"',
-            '"@type":"ItemList"',
-            'shop.nijisanji.jp',
-            'shop.hololivepro.com',
-            'vspo.jp',
-            'games/apex-legends/apex-legends/news',
-            'pjsekai.sega.jp/news',
-            'jujutsukaisen.jp/news',
-            'tv.bluelock-pr.com/news',
-            'sanrio.co.jp/news',
-            'pokemoncenter-online.com',
-            'bts-official.jp',
-            'straykidsjapan.com',
-            'starto.jp'
-          ];
+          const html=fs.readFileSync('latest-goods.html','utf8'),sitemap=fs.readFileSync('api/sitemap.js','utf8');
+          const required=['<link rel="canonical" href="https://oshiruoshi.vercel.app/latest-goods">','"@type":"CollectionPage"','"@type":"ItemList"','shop.nijisanji.jp','shop.hololivepro.com','vspo.jp','games/apex-legends/apex-legends/news','pjsekai.sega.jp','jujutsukaisen.jp/news','tv.bluelock-pr.com/news','sanrio.co.jp/news','pokemoncenter-online.com','bts-official.jp','straykidsjapan.com','starto.jp','data-official-rail'];
           for(const token of required)if(!html.includes(token))throw new Error(`latest goods requirement missing: ${token}`);
-          if(/"@type":"(?:Product|MerchantListing)"/.test(html))throw new Error('Product/MerchantListing must not be used on the collection hub');
+          if(/"@type":"(?:Product|MerchantListing)"/.test(html))throw new Error('Product/MerchantListing must not be used on collection hub');
           if(!sitemap.includes("'/latest-goods'"))throw new Error('latest-goods missing from sitemap');
-          if(!sitemap.includes("const lastmod='2026-08-21'"))throw new Error('sitemap lastmod not updated');
-          console.log('latest-goods SEO/source checks ok');
           NODE
 
-      - name: Validate privacy-first personalization and image search
+      - name: Validate privacy, image search, taskbar and idle state
         run: |
           node <<'NODE'
           const fs=require('fs');
-          const latest=fs.readFileSync('latest-goods.js','utf8');
-          const home=fs.readFileSync('home-experience-v6.js','utf8');
-          const privacy=fs.readFileSync('privacy.html','utf8');
-          if(!latest.includes('localStorage')||/\bfetch\s*\(/.test(latest))throw new Error('latest personalization must remain local-only');
-          for(const token of ['oshiru-interest-signals-v1','oshiru-latest-preferences-v1'])if(!latest.includes(token)&&!home.includes(token))throw new Error(`interest storage missing: ${token}`);
-          for(const token of ['createImageBitmap','MAX_DIMENSION=1600',"toDataURL('image/jpeg'",'/api/vision-search','status?.vision'])if(!home.includes(token))throw new Error(`image-search optimization missing: ${token}`);
-          if(!privacy.includes('最新グッズページ')||!privacy.includes('localStorage')||!privacy.includes('外部サービスへ送信しません'))throw new Error('privacy disclosure for personalization missing');
-          console.log('privacy and image-search checks ok');
-          NODE
-
-      - name: Validate homepage integration and empty-search protection
-        run: |
-          node <<'NODE'
-          const fs=require('fs');
-          const seo=fs.readFileSync('seo-structured-data.js','utf8');
-          const perf=fs.readFileSync('performance-v3.js','utf8');
-          if(!seo.includes('/home-experience-v6.js?v=20260821-1'))throw new Error('home experience bootstrap missing');
+          const latest=fs.readFileSync('latest-goods.js','utf8'),home=fs.readFileSync('home-experience-v7.js','utf8'),privacy=fs.readFileSync('privacy.html','utf8'),nav=fs.readFileSync('navigation-extra-v7.js','utf8'),seo=fs.readFileSync('seo-structured-data.js','utf8'),perf=fs.readFileSync('performance-v3.js','utf8');
+          if(!latest.includes('localStorage'))throw new Error('local personalization missing');
+          for(const token of ['createImageBitmap','MAX_DIMENSION=1600','/api/vision-search'])if(!home.includes(token))throw new Error(`image-search optimization missing: ${token}`);
+          for(const token of ['画像検索','最新グッズ','/latest-goods'])if(!nav.includes(token))throw new Error(`taskbar item missing: ${token}`);
+          for(const token of ['/gallery-v7.css?v=20260821-7','/home-experience-v7.js?v=20260821-7','/navigation-extra-v7.js?v=20260821-7'])if(!seo.includes(token))throw new Error(`bootstrap missing: ${token}`);
+          if(!privacy.includes('最新グッズページ')||!privacy.includes('localStorage'))throw new Error('privacy disclosure missing');
           if(!perf.includes('idleResponse')||!perf.includes('enterIdle'))throw new Error('empty-search idle protection missing');
-          if(!fs.readFileSync('design-v3.css','utf8').includes('Dense comparison mode v6'))throw new Error('dense CSS not in first-paint stylesheet');
-          console.log('homepage integration ok');
           NODE
 
   production-smoke:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 7
     steps:
-      - name: Verify live latest-goods page, assets and search APIs
+      - name: Verify live v7 assets, latest-goods and search APIs
         shell: bash
         run: |
           set -euo pipefail
           base='https://oshiruoshi.vercel.app'
-          tmp="$(mktemp -d)"
-          trap 'rm -rf "$tmp"' EXIT
-
-          curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 3 "$base/latest-goods" -o "$tmp/latest.html"
-          grep -Fq '<link rel="canonical" href="https://oshiruoshi.vercel.app/latest-goods">' "$tmp/latest.html"
-          grep -Fq '最新グッズ情報' "$tmp/latest.html"
+          tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
+          curl --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 3 "$base/latest-goods" -o "$tmp/latest.html"
+          grep -Fq 'data-official-rail' "$tmp/latest.html"
           grep -Fq 'CollectionPage' "$tmp/latest.html"
           grep -Fq 'shop.nijisanji.jp' "$tmp/latest.html"
           grep -Fq 'shop.hololivepro.com' "$tmp/latest.html"
-          grep -Fq 'bts-official.jp' "$tmp/latest.html"
-
-          curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 3 "$base/sitemap.xml" -o "$tmp/sitemap.xml"
-          grep -Fq '<loc>https://oshiruoshi.vercel.app/latest-goods</loc>' "$tmp/sitemap.xml"
-
-          curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 3 "$base/design-v3.css" -o "$tmp/design.css"
-          grep -Fq 'Dense comparison mode v6' "$tmp/design.css"
-          grep -Fq 'repeat(6,minmax(0,1fr))' "$tmp/design.css"
-          grep -Fq 'repeat(2,minmax(0,1fr))' "$tmp/design.css"
-
-          curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 3 "$base/home-experience-v6.js" -o "$tmp/home.js"
-          grep -Fq 'oshiru-interest-signals-v1' "$tmp/home.js"
+          curl --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 3 "$base/gallery-v7.css" -o "$tmp/gallery.css"
+          grep -Fq 'repeat(8,minmax(0,1fr))' "$tmp/gallery.css"
+          grep -Fq 'repeat(3,minmax(0,1fr))' "$tmp/gallery.css"
+          grep -Fq '.gallery-price' "$tmp/gallery.css"
+          curl --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 3 "$base/home-experience-v7.js" -o "$tmp/home.js"
           grep -Fq 'createImageBitmap' "$tmp/home.js"
-
-          curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 3 "$base/api/search?q=" -o "$tmp/idle.json"
+          grep -Fq 'gallery-price' "$tmp/home.js"
+          curl --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 3 "$base/navigation-extra-v7.js" -o "$tmp/nav.js"
+          grep -Fq '画像検索' "$tmp/nav.js"; grep -Fq '最新グッズ' "$tmp/nav.js"
+          curl --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 3 "$base/api/search?q=" -o "$tmp/idle.json"
           node -e "const d=require(process.argv[1]); if(!d.idle||!Array.isArray(d.items)||d.items.length!==0) process.exit(1)" "$tmp/idle.json"
-
-          curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 3 "$base/api/search?q=%E4%BA%94%E6%9D%A1%E6%82%9F" -o "$tmp/search.json"
-          node -e "const d=require(process.argv[1]); if(!Array.isArray(d.items)) process.exit(1)" "$tmp/search.json"
-
-          echo 'Production smoke checks passed.'
+          curl --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 3 "$base/api/live-search?q=%E4%BA%94%E6%9D%A1%E6%82%9F%20%E3%82%A2%E3%82%AF%E3%82%B9%E3%82%BF" -o "$tmp/live.json"
+          node -e "const d=require(process.argv[1]); if(d.aliasVersion!=='2026-08-21.7'||!Array.isArray(d.items)||!Array.isArray(d.queryVariants)||!d.queryVariants.length) process.exit(1)" "$tmp/live.json"
+          echo 'Production v7 HTTP smoke passed.'

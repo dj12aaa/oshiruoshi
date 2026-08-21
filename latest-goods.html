@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <title>最新グッズ情報 | VTuber・ゲーム・アニメ・アイドル公式情報まとめ | OSHIRU</title>
-  <meta name="description" content="にじさんじ、ホロライブ、ぶいすぽ、Apex Legends、プロセカ、呪術廻戦、ブルーロック、サンリオ、BTS、Stray Kids、嵐などの公式サイト・公式X・公式ショップから最新グッズやコラボ、イベント情報を確認できるOSHIRUの公式情報ハブです。">
+  <title>最新グッズ情報 | VTuber・ゲーム・アニメ・アイドル公式情報 | OSHIRU</title>
+  <meta name="description" content="にじさんじ、ホロライブ、Apex Legends、プロセカ、呪術廻戦、サンリオ、BTS、Stray Kidsなどの公式サイト・公式ショップ・公式Xから推し活グッズやイベントの最新情報を探せるOSHIRUの公式情報ハブです。">
   <meta name="robots" content="index,follow,max-image-preview:large">
   <meta name="last-modified" content="2026-08-21">
   <link rel="canonical" href="https://oshiruoshi.vercel.app/latest-goods">
@@ -14,35 +14,36 @@
   <meta property="og:locale" content="ja_JP">
   <meta property="og:site_name" content="OSHIRU">
   <meta property="og:title" content="最新グッズ情報 | OSHIRU">
-  <meta property="og:description" content="VTuber・ゲーム・アニメ・キャラクター・アイドルの公式情報をカテゴリ別に確認。気になる公式情報からそのままOSHIRUの商品検索へ移動できます。">
+  <meta property="og:description" content="推しの最新グッズ・コラボ・イベントを公式情報から確認し、そのまま商品検索へ。">
   <meta property="og:url" content="https://oshiruoshi.vercel.app/latest-goods">
   <meta name="twitter:card" content="summary">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/styles.css?v=20260819-pcfix1">
-  <link rel="stylesheet" href="/latest-goods.css?v=20260821-1">
+  <link rel="stylesheet" href="/navigation-v4.css?v=20260819-pcfix1">
+  <link rel="stylesheet" href="/latest-goods.css?v=20260821-7">
   <link rel="manifest" href="/manifest.webmanifest">
-  <script src="/seo-structured-data.js?v=20260821-latest1" defer></script>
   <script type="application/ld+json">{
     "@context":"https://schema.org",
     "@type":"CollectionPage",
     "name":"最新グッズ情報",
     "url":"https://oshiruoshi.vercel.app/latest-goods",
-    "description":"VTuber、ゲーム、アニメ、キャラクター、アイドルの公式グッズ・コラボ・イベント情報を公式サイトや公式SNSから確認するための情報ハブ。",
+    "description":"VTuber、ゲーム、アニメ、キャラクター、アイドルの公式グッズ・コラボ・イベント情報を公式サイトや公式SNSから確認する情報ハブ。",
     "dateModified":"2026-08-21",
     "isPartOf":{"@type":"WebSite","name":"OSHIRU","url":"https://oshiruoshi.vercel.app/"},
+    "breadcrumb":{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"OSHIRU","item":"https://oshiruoshi.vercel.app/"},{"@type":"ListItem","position":2,"name":"最新グッズ情報","item":"https://oshiruoshi.vercel.app/latest-goods"}]},
     "mainEntity":{"@type":"ItemList","name":"公式グッズ情報ソース","itemListElement":[
       {"@type":"ListItem","position":1,"name":"にじさんじオフィシャルストア","url":"https://shop.nijisanji.jp/"},
       {"@type":"ListItem","position":2,"name":"hololive production official shop","url":"https://shop.hololivepro.com/"},
       {"@type":"ListItem","position":3,"name":"ぶいすぽっ！公式サイト","url":"https://vspo.jp/"},
       {"@type":"ListItem","position":4,"name":"Apex Legends 公式ニュース","url":"https://www.ea.com/ja/games/apex-legends/apex-legends/news"},
-      {"@type":"ListItem","position":5,"name":"プロジェクトセカイ 公式NEWS","url":"https://pjsekai.sega.jp/news/index.html"},
+      {"@type":"ListItem","position":5,"name":"プロジェクトセカイ 公式","url":"https://pjsekai.sega.jp/"},
       {"@type":"ListItem","position":6,"name":"TVアニメ 呪術廻戦 公式NEWS","url":"https://jujutsukaisen.jp/news/"},
       {"@type":"ListItem","position":7,"name":"ブルーロック 公式NEWS","url":"https://tv.bluelock-pr.com/news/"},
       {"@type":"ListItem","position":8,"name":"サンリオ 公式ニュース","url":"https://www.sanrio.co.jp/news/list/"},
       {"@type":"ListItem","position":9,"name":"ポケモンセンターオンライン","url":"https://www.pokemoncenter-online.com/"},
       {"@type":"ListItem","position":10,"name":"BTS JAPAN OFFICIAL SITE","url":"https://bts-official.jp/"},
-      {"@type":"ListItem","position":11,"name":"Stray Kids Official Website","url":"https://www.straykidsjapan.com/"},
-      {"@type":"ListItem","position":12,"name":"ARASHI | STARTO ENTERTAINMENT","url":"https://starto.jp/s/p/artist/10"}
+      {"@type":"ListItem","position":11,"name":"Stray Kids Japan Official Website","url":"https://www.straykidsjapan.com/"},
+      {"@type":"ListItem","position":12,"name":"STARTO ENTERTAINMENT","url":"https://starto.jp/"}
     ]}
   }</script>
 </head>
@@ -53,19 +54,20 @@
     <nav class="header-nav" aria-label="メインナビゲーション"><a href="/">商品検索</a><a href="/latest-goods" aria-current="page">最新グッズ</a><a href="/guide/oshi-goods">比較ガイド</a></nav>
   </div>
 </header>
+
 <main class="latest-main">
-  <nav class="latest-breadcrumb seo-breadcrumb" aria-label="パンくず"><a href="/">OSHIRU</a> / <span>最新グッズ情報</span></nav>
+  <nav class="latest-breadcrumb" aria-label="パンくず"><a href="/">OSHIRU</a> / <span>最新グッズ情報</span></nav>
 
   <section class="latest-hero">
     <div class="latest-hero-copy">
       <span class="latest-eyebrow">OFFICIAL GOODS & NEWS</span>
-      <h1>推しの最新グッズ情報を、<br>公式ソースからまとめて確認。</h1>
-      <p>VTuber、ゲーム、アニメ・漫画、キャラクター、アイドル・K-POPの公式サイト、公式ショップ、公式Xへの入口を一つにまとめました。新商品、受注開始、ポップアップ、コラボ、イベント情報を確認したあと、そのままOSHIRUで同じ推しの商品を横断検索できます。</p>
-      <a class="latest-search-link" href="/">商品価格を横断検索する →</a>
+      <h1>推しの最新グッズを、<br>公式情報からすばやく確認。</h1>
+      <p>公式ショップ・公式サイト・公式Xをカテゴリ別に整理し、グッズ、受注、コラボ、ポップアップ、イベントの入口を一つにまとめています。気になる情報を見つけたら、そのままOSHIRUの商品検索で価格候補を比較できます。</p>
+      <a class="latest-search-link" href="/">推しグッズを横断検索する →</a>
     </div>
     <aside class="personal-box" aria-labelledby="personalTitle">
       <h2 id="personalTitle">あなた向けに並べ替え</h2>
-      <p>興味のあるカテゴリを選ぶと、このページの「あなた向け」を優先表示します。OSHIRU内で検索したジャンルの傾向も、この端末内だけで補助的に使います。</p>
+      <p>興味のあるカテゴリを選ぶと優先表示します。OSHIRU内で検索したジャンル傾向も、この端末内だけで補助的に使います。</p>
       <div class="interest-chips" aria-label="興味カテゴリ">
         <button class="interest-chip" data-interest="vtuber" aria-pressed="false">VTuber</button>
         <button class="interest-chip" data-interest="games" aria-pressed="false">ゲーム</button>
@@ -73,67 +75,101 @@
         <button class="interest-chip" data-interest="character" aria-pressed="false">キャラクター</button>
         <button class="interest-chip" data-interest="music" aria-pressed="false">アイドル・K-POP</button>
       </div>
-      <button id="personalReset" class="personal-reset">選択をリセット</button>
-      <div class="privacy-note">氏名・メールアドレス・会員IDは使いません。カテゴリ選好と検索傾向はlocalStorageに保存し、このパーソナライズ機能では外部送信しません。</div>
+      <button id="personalReset" class="personal-reset" type="button">選択をリセット</button>
+      <div class="privacy-note">選好データはlocalStorageに保存します。このパーソナライズ機能では氏名・メールアドレス等を使わず、選好データを外部送信しません。</div>
     </aside>
   </section>
 
+  <section class="latest-section" aria-labelledby="visualLatestTitle">
+    <div class="section-head">
+      <div><h2 id="visualLatestTitle">公式最新ピックアップ</h2><p>確認日：2026年8月21日。画像・商品名・公式サイトを一画面で確認できます。</p></div>
+      <p class="rail-note">約4秒ごとに次の情報へ移動します。タッチ・マウス操作中は自動移動を止めます。</p>
+    </div>
+    <div class="official-rail-wrap">
+      <div class="official-rail" data-official-rail aria-label="公式最新グッズの横スクロール一覧">
+        <article class="official-preview-card" data-category="vtuber" data-priority="10">
+          <div class="official-preview-media">
+            <img src="https://shop.nijisanji.jp/on/demandware.static/-/Sites-nijisanji-master-catalog/default/dwf310afd9/physical/SSZS000076996_01.png" alt="にじさんじ うるちゅるポップシール にじたうん その1" loading="eager" decoding="async" referrerpolicy="no-referrer">
+            <span class="official-preview-source">にじさんじ公式ストア</span><div class="official-preview-fallback">公式画像を読み込めません<br>公式ページで確認できます</div>
+          </div>
+          <div class="official-preview-body"><div class="official-preview-meta"><span class="latest-badge official">公式商品</span><span class="latest-badge">VTuber</span></div><h3>うるちゅるポップシール「にじたうん その1」</h3><p>公式商品ページで商品画像・価格・販売状況を確認できます。</p><div class="official-preview-actions"><a class="primary" href="https://shop.nijisanji.jp/SSZS-76996.html" target="_blank" rel="noopener noreferrer">公式ページ ↗</a><a href="/?q=%E3%81%AB%E3%81%98%E3%81%95%E3%82%93%E3%81%98%20%E3%82%B0%E3%83%83%E3%82%BA">商品検索</a></div></div>
+        </article>
+        <article class="official-preview-card" data-category="vtuber" data-priority="9">
+          <div class="official-preview-media">
+            <img src="https://shop.hololivepro.com/cdn/shop/files/holo_TokoyamiTowa_BC_banner_JP_0730_ol_6_200x200.png?v=1785825005" alt="常闇トワ 誕生日記念2026 リバーシブルアクリルスタンド" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+            <span class="official-preview-source">hololive公式ショップ</span><div class="official-preview-fallback">公式画像を読み込めません<br>公式ページで確認できます</div>
+          </div>
+          <div class="official-preview-body"><div class="official-preview-meta"><span class="latest-badge official">公式商品</span><span class="latest-badge">VTuber</span></div><h3>常闇トワ 誕生日記念2026</h3><p>アクリルスタンド、キーホルダーなどの誕生日記念グッズ。販売状況は公式ページで確認してください。</p><div class="official-preview-actions"><a class="primary" href="https://shop.hololivepro.com/products/tokoyamitowa_birthday_2026" target="_blank" rel="noopener noreferrer">公式ページ ↗</a><a href="/?q=%E5%B8%B8%E9%97%87%E3%83%88%E3%83%AF%20%E3%82%B0%E3%83%83%E3%82%BA">商品検索</a></div></div>
+        </article>
+        <article class="official-preview-card" data-category="anime" data-priority="10">
+          <div class="official-preview-media">
+            <img src="https://jujutsukaisen.jp/news/images/20260803_01_01.jpg" alt="呪術廻戦5周年 POP UP SHOP closed space" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+            <span class="official-preview-source">TVアニメ 呪術廻戦 公式</span><div class="official-preview-fallback">公式画像を読み込めません<br>公式NEWSで確認できます</div>
+          </div>
+          <div class="official-preview-body"><div class="official-preview-meta"><span class="latest-badge official">公式NEWS</span><span class="latest-badge">8/21開始</span></div><h3>5周年 POP UP SHOP「closed space」</h3><p>新規描き下ろしグッズ、場面写グッズ、ぬいぐるみマスコットなどを公式NEWSで案内。</p><div class="official-preview-actions"><a class="primary" href="https://jujutsukaisen.jp/news/5th_20260803_01.php" target="_blank" rel="noopener noreferrer">公式NEWS ↗</a><a href="/?q=%E5%91%AA%E8%A1%93%E5%BB%BB%E6%88%A6%20%E3%82%B0%E3%83%83%E3%82%BA">商品検索</a></div></div>
+        </article>
+        <article class="official-preview-card" data-category="music" data-priority="9">
+          <div class="official-preview-media">
+            <img src="https://www.straykidsjapan.com/runitjapan/img/photo-2-pc.jpg" alt="Stray Kids World Tour RUN IT JAPAN" loading="lazy" decoding="async" referrerpolicy="no-referrer">
+            <span class="official-preview-source">Stray Kids Japan 公式</span><div class="official-preview-fallback">公式画像を読み込めません<br>特設サイトで確認できます</div>
+          </div>
+          <div class="official-preview-body"><div class="official-preview-meta"><span class="latest-badge official">公式特設</span><span class="latest-badge">K-POP</span></div><h3>World Tour「RUN IT JAPAN」</h3><p>公式特設サイトにgoodsセクションがあります。公演情報と合わせて公式導線から確認できます。</p><div class="official-preview-actions"><a class="primary" href="https://www.straykidsjapan.com/runitjapan/#goods" target="_blank" rel="noopener noreferrer">公式goods ↗</a><a href="/?q=Stray%20Kids%20%E3%82%B0%E3%83%83%E3%82%BA">商品検索</a></div></div>
+        </article>
+      </div>
+      <div class="rail-status" aria-hidden="true"><span data-rail-dot class="active"></span><span data-rail-dot></span><span data-rail-dot></span><span data-rail-dot></span> 自動スライド</div>
+    </div>
+  </section>
+
   <section class="latest-section" aria-labelledby="forYouTitle">
-    <div class="section-head"><div><h2 id="forYouTitle">あなた向け最新チェック</h2><p id="forYouState">初回はカテゴリを横断して表示しています</p></div><p>公式ページ上で確認できた情報をOSHIRU側で短く整理しています。価格・在庫・開催状況は必ずリンク先の公式情報で再確認してください。</p></div>
+    <div class="section-head"><div><h2 id="forYouTitle">あなた向け最新チェック</h2><p id="forYouState">初回はカテゴリを横断して表示しています</p></div><p>公式情報の要点です。価格・在庫・開催状況は必ず公式ページで再確認してください。</p></div>
     <div id="forYouGrid" class="latest-grid"></div>
   </section>
 
   <section class="latest-section" aria-labelledby="latestHighlightsTitle">
-    <div class="section-head"><div><h2 id="latestHighlightsTitle">公式サイトで確認できる最近のグッズ・コラボ情報</h2><p>確認日：2026年8月21日</p></div><p>転載ではなく、公式ページへの導線を目的とした要約です。自動取得APIを導入するまでは、確認済み情報を更新して掲載します。</p></div>
+    <div class="section-head"><div><h2 id="latestHighlightsTitle">最近の公式グッズ・イベント情報</h2><p>API自動取得前のため、確認済みの公式情報を掲載しています。</p></div></div>
     <div id="latestHighlights" class="latest-grid">
-      <article class="latest-card" data-category="anime" data-priority="10"><div class="card-meta"><span class="latest-badge official">公式</span><span class="latest-badge">呪術廻戦</span><span class="latest-badge">8/21開始</span></div><h3>アニメ『呪術廻戦』5周年 POP UP SHOP「closed space」</h3><p>公式NEWSでは、名古屋・福岡を皮切りに新規描き下ろしグッズやぬいぐるみマスコットなどを扱うPOP UP SHOPが案内されています。</p><div class="latest-actions"><a class="primary" href="https://jujutsukaisen.jp/news/5th_20260803_01.php" target="_blank" rel="noopener noreferrer">公式NEWS ↗</a><a href="/?q=%E5%91%AA%E8%A1%93%E5%BB%BB%E6%88%A6%20%E3%82%B0%E3%83%83%E3%82%BA">OSHIRUで検索</a></div></article>
-      <article class="latest-card" data-category="vtuber" data-priority="9"><div class="card-meta"><span class="latest-badge official">公式ストア</span><span class="latest-badge">にじさんじ</span><span class="latest-badge">8/21確認</span></div><h3>「きゅんbro」新着グッズがオフィシャルストアに掲載</h3><p>オーロラアクリルスタンド、ランダムフォト風カード、缶バッジ、キーホルダーなどの新着・販売予定商品を公式ストアで確認できます。</p><div class="latest-actions"><a class="primary" href="https://shop.nijisanji.jp/" target="_blank" rel="noopener noreferrer">公式ストア ↗</a><a href="/?q=%E3%81%AB%E3%81%98%E3%81%95%E3%82%93%E3%81%98%20%E3%82%B0%E3%83%83%E3%82%BA">OSHIRUで検索</a></div></article>
-      <article class="latest-card" data-category="vtuber" data-priority="8"><div class="card-meta"><span class="latest-badge official">公式ストア</span><span class="latest-badge">hololive</span><span class="latest-badge">8/21確認</span></div><h3>ホロライブ公式ショップのNEW MERCHを確認</h3><p>宝鐘マリン活動7周年記念、常闇トワ誕生日記念2026など、公式ショップのNEW MERCHから新着商品を直接確認できます。</p><div class="latest-actions"><a class="primary" href="https://shop.hololivepro.com/" target="_blank" rel="noopener noreferrer">公式ショップ ↗</a><a href="/?q=%E3%83%9B%E3%83%AD%E3%83%A9%E3%82%A4%E3%83%96%20%E3%82%B0%E3%83%83%E3%82%BA">OSHIRUで検索</a></div></article>
-      <article class="latest-card" data-category="character" data-priority="8"><div class="card-meta"><span class="latest-badge official">公式通販</span><span class="latest-badge">サンリオ</span><span class="latest-badge">8/10</span></div><h3>フラガリアメモリーズ バースデーグッズ2026</h3><p>サンリオオンラインショップの新着情報で、缶バッジ、アクリルキーホルダー、アクリルスタンド、キャンバスボードなどが案内されています。</p><div class="latest-actions"><a class="primary" href="https://shop.sanrio.co.jp/mailmag/20260810" target="_blank" rel="noopener noreferrer">公式情報 ↗</a><a href="/?q=%E3%82%B5%E3%83%B3%E3%83%AA%E3%82%AA%20%E3%82%A2%E3%82%AF%E3%82%B9%E3%82%BF">OSHIRUで検索</a></div></article>
-      <article class="latest-card" data-category="music" data-priority="7"><div class="card-meta"><span class="latest-badge official">公式</span><span class="latest-badge">Stray Kids</span><span class="latest-badge">2026 TOUR</span></div><h3>Stray Kids World Tour「RUN IT JAPAN」公式特設サイト</h3><p>日本公演の特設サイトにはgoodsセクションが用意されており、公演・チケット情報と合わせて公式導線から確認できます。</p><div class="latest-actions"><a class="primary" href="https://www.straykidsjapan.com/runitjapan/" target="_blank" rel="noopener noreferrer">特設サイト ↗</a><a href="/?q=Stray%20Kids%20%E3%82%B0%E3%83%83%E3%82%BA">OSHIRUで検索</a></div></article>
-      <article class="latest-card" data-category="music" data-priority="6"><div class="card-meta"><span class="latest-badge official">公式</span><span class="latest-badge">BTS</span><span class="latest-badge">7/14</span></div><h3>「BTS POP-UP : ARIRANG」大阪開催情報</h3><p>BTS JAPAN OFFICIAL SITEのNEWSで大阪でのPOP-UP開催が案内されています。公式サイトから詳細と関連導線を確認できます。</p><div class="latest-actions"><a class="primary" href="https://bts-official.jp/" target="_blank" rel="noopener noreferrer">BTS公式 ↗</a><a href="/?q=BTS%20%E3%82%B0%E3%83%83%E3%82%BA">OSHIRUで検索</a></div></article>
-      <article class="latest-card" data-category="games" data-priority="5"><div class="card-meta"><span class="latest-badge official">公式</span><span class="latest-badge">Apex Legends</span><span class="latest-badge">8/3</span></div><h3>Apex Legends「マークド」最新アップデート</h3><p>EA公式ニュースでは最新シーズン・イベント・コラボ情報を確認できます。ゲーム側のコラボ発表を追い、その名称でグッズ検索する入口として利用できます。</p><div class="latest-actions"><a class="primary" href="https://www.ea.com/ja/games/apex-legends/apex-legends/news" target="_blank" rel="noopener noreferrer">EA公式NEWS ↗</a><a href="/?q=APEX%20%E3%82%B0%E3%83%83%E3%82%BA">OSHIRUで検索</a></div></article>
-      <article class="latest-card" data-category="anime" data-priority="4"><div class="card-meta"><span class="latest-badge official">公式</span><span class="latest-badge">ブルーロック</span><span class="latest-badge">8/6</span></div><h3>TVアニメ『ブルーロック』公式NEWSを継続チェック</h3><p>TVシリーズの公式NEWSとGOODS導線から、イベント・展覧会・関連商品の発表を追えます。</p><div class="latest-actions"><a class="primary" href="https://tv.bluelock-pr.com/news/" target="_blank" rel="noopener noreferrer">公式NEWS ↗</a><a href="/?q=%E3%83%96%E3%83%AB%E3%83%BC%E3%83%AD%E3%83%83%E3%82%AF%20%E3%82%B0%E3%83%83%E3%82%BA">OSHIRUで検索</a></div></article>
+      <article class="latest-card" data-category="anime" data-priority="10"><div class="card-meta"><span class="latest-badge official">公式</span><span class="latest-badge">呪術廻戦</span></div><h3>5周年 POP UP SHOP「closed space」</h3><p>8月21日から名古屋・福岡で開始。描き下ろしグッズやぬいぐるみマスコット等を案内。</p><div class="latest-actions"><a class="primary" href="https://jujutsukaisen.jp/news/5th_20260803_01.php" target="_blank" rel="noopener noreferrer">公式NEWS ↗</a><a href="https://x.com/animejujutsu" target="_blank" rel="noopener noreferrer">公式X ↗</a><a href="/?q=%E5%91%AA%E8%A1%93%E5%BB%BB%E6%88%A6%20%E3%82%B0%E3%83%83%E3%82%BA">検索</a></div></article>
+      <article class="latest-card" data-category="vtuber" data-priority="9"><div class="card-meta"><span class="latest-badge official">公式ストア</span><span class="latest-badge">にじさんじ</span></div><h3>オフィシャルストア新着グッズ</h3><p>新着商品、誕生日グッズ＆ボイス、イベント・記念グッズを公式ストアから確認できます。</p><div class="latest-actions"><a class="primary" href="https://shop.nijisanji.jp/" target="_blank" rel="noopener noreferrer">公式ストア ↗</a><a href="https://x.com/nijisanji_app" target="_blank" rel="noopener noreferrer">公式X ↗</a><a href="/?q=%E3%81%AB%E3%81%98%E3%81%95%E3%82%93%E3%81%98%20%E3%82%B0%E3%83%83%E3%82%BA">検索</a></div></article>
+      <article class="latest-card" data-category="vtuber" data-priority="9"><div class="card-meta"><span class="latest-badge official">公式ストア</span><span class="latest-badge">hololive</span></div><h3>hololive official shop NEW MERCH</h3><p>誕生日・周年・イベントなどの最新グッズを公式ショップで確認できます。</p><div class="latest-actions"><a class="primary" href="https://shop.hololivepro.com/" target="_blank" rel="noopener noreferrer">公式ショップ ↗</a><a href="https://x.com/hololivetv" target="_blank" rel="noopener noreferrer">公式X ↗</a><a href="/?q=%E3%83%9B%E3%83%AD%E3%83%A9%E3%82%A4%E3%83%96%20%E3%82%B0%E3%83%83%E3%82%BA">検索</a></div></article>
+      <article class="latest-card" data-category="games" data-priority="8"><div class="card-meta"><span class="latest-badge official">公式</span><span class="latest-badge">プロセカ</span></div><h3>プロジェクトセカイ 公式NEWS・グッズ</h3><p>公式NEWSやイベント特設ページから、アクリルスタンドや缶バッジ等のグッズ情報へ移動できます。</p><div class="latest-actions"><a class="primary" href="https://pjsekai.sega.jp/" target="_blank" rel="noopener noreferrer">公式サイト ↗</a><a href="/?q=%E3%83%97%E3%83%AD%E3%82%BB%E3%82%AB%20%E3%82%B0%E3%83%83%E3%82%BA">検索</a></div></article>
+      <article class="latest-card" data-category="character" data-priority="7"><div class="card-meta"><span class="latest-badge official">公式</span><span class="latest-badge">サンリオ</span></div><h3>サンリオ公式ニュース・オンラインショップ</h3><p>新商品やキャラクターグッズの告知から公式通販へ移動できます。</p><div class="latest-actions"><a class="primary" href="https://www.sanrio.co.jp/news/list/" target="_blank" rel="noopener noreferrer">公式NEWS ↗</a><a href="/?q=%E3%82%B5%E3%83%B3%E3%83%AA%E3%82%AA%20%E3%82%B0%E3%83%83%E3%82%BA">検索</a></div></article>
+      <article class="latest-card" data-category="music" data-priority="8"><div class="card-meta"><span class="latest-badge official">公式</span><span class="latest-badge">Stray Kids</span></div><h3>World Tour「RUN IT JAPAN」</h3><p>特設サイトにgoodsセクションがあり、公演情報と一緒に確認できます。</p><div class="latest-actions"><a class="primary" href="https://www.straykidsjapan.com/runitjapan/" target="_blank" rel="noopener noreferrer">公式特設 ↗</a><a href="/?q=Stray%20Kids%20%E3%82%B0%E3%83%83%E3%82%BA">検索</a></div></article>
+      <article class="latest-card" data-category="music" data-priority="7"><div class="card-meta"><span class="latest-badge official">公式</span><span class="latest-badge">BTS</span></div><h3>BTS JAPAN OFFICIAL SITE</h3><p>日本向けのNEWS、イベント、関連情報を公式サイトから確認できます。</p><div class="latest-actions"><a class="primary" href="https://bts-official.jp/" target="_blank" rel="noopener noreferrer">公式サイト ↗</a><a href="/?q=BTS%20%E3%82%B0%E3%83%83%E3%82%BA">検索</a></div></article>
+      <article class="latest-card" data-category="music" data-priority="6"><div class="card-meta"><span class="latest-badge official">公式</span><span class="latest-badge">STARTO</span></div><h3>STARTO ENTERTAINMENT</h3><p>所属アーティストの公式ページや最新情報へ移動できます。</p><div class="latest-actions"><a class="primary" href="https://starto.jp/" target="_blank" rel="noopener noreferrer">公式サイト ↗</a><a href="/?q=%E3%82%A2%E3%82%A4%E3%83%89%E3%83%AB%20%E3%82%B0%E3%83%83%E3%82%BA">検索</a></div></article>
     </div>
   </section>
 
-  <section class="latest-section" aria-labelledby="sourceTitle">
-    <div class="section-head"><div><h2 id="sourceTitle">カテゴリ別 公式情報ソース</h2><p>公式サイト・公式ショップ・確認できた公式Xを優先</p></div><p>検索エンジンやまとめサイトではなく、発表元へ直接移動できる入口です。カテゴリで絞り込めます。</p></div>
-    <div class="category-tabs" role="group" aria-label="公式情報カテゴリ">
-      <button class="category-tab active" data-category-filter="all">すべて</button><button class="category-tab" data-category-filter="vtuber">VTuber</button><button class="category-tab" data-category-filter="games">ゲーム</button><button class="category-tab" data-category-filter="anime">アニメ・漫画</button><button class="category-tab" data-category-filter="character">キャラクター</button><button class="category-tab" data-category-filter="music">アイドル・K-POP</button>
-    </div>
-    <div class="source-directory" style="margin-top:12px">
-      <article class="official-source-card" data-category="vtuber" data-priority="10"><div class="source-logo">NIJI</div><div class="source-meta"><span class="latest-badge official">公式</span><span class="latest-badge">VTuber</span></div><h3>にじさんじ</h3><p>オフィシャルストアの新着グッズ・ボイスと、公式Xのグッズ・イベント発表を確認。</p><div class="source-actions"><a class="primary" href="https://shop.nijisanji.jp/" target="_blank" rel="noopener noreferrer">公式ストア</a><a href="https://x.com/nijisanji_app" target="_blank" rel="noopener noreferrer">公式X</a></div></article>
-      <article class="official-source-card" data-category="vtuber" data-priority="10"><div class="source-logo">HOLO</div><div class="source-meta"><span class="latest-badge official">公式</span><span class="latest-badge">VTuber</span></div><h3>hololive production</h3><p>公式ショップのNEW MERCH・再販・デジタル商品と、公式Xの新商品情報を確認。</p><div class="source-actions"><a class="primary" href="https://shop.hololivepro.com/" target="_blank" rel="noopener noreferrer">公式ショップ</a><a href="https://x.com/hololivetv" target="_blank" rel="noopener noreferrer">公式X</a></div></article>
-      <article class="official-source-card" data-category="vtuber" data-priority="7"><div class="source-logo">VSPO</div><div class="source-meta"><span class="latest-badge official">公式</span><span class="latest-badge">VTuber</span></div><h3>ぶいすぽっ！</h3><p>公式サイトのNEWSと公式Xからイベント・コラボ・グッズ関連発表を確認。</p><div class="source-actions"><a class="primary" href="https://vspo.jp/" target="_blank" rel="noopener noreferrer">公式サイト</a><a href="https://x.com/Vspo77" target="_blank" rel="noopener noreferrer">公式X</a></div></article>
-
-      <article class="official-source-card" data-category="games" data-priority="8"><div class="source-logo">APEX</div><div class="source-meta"><span class="latest-badge official">公式</span><span class="latest-badge">ゲーム</span></div><h3>Apex Legends</h3><p>EA公式NEWSからシーズン、イベント、コラボ等の最新発表を確認。</p><div class="source-actions"><a class="primary" href="https://www.ea.com/ja/games/apex-legends/apex-legends/news" target="_blank" rel="noopener noreferrer">公式NEWS</a></div></article>
-      <article class="official-source-card" data-category="games" data-priority="8"><div class="source-logo">PRSK</div><div class="source-meta"><span class="latest-badge official">公式</span><span class="latest-badge">ゲーム</span></div><h3>プロジェクトセカイ</h3><p>セガ公式NEWSと公式SNSからアップデート・イベント・関連企画を確認。</p><div class="source-actions"><a class="primary" href="https://pjsekai.sega.jp/news/index.html" target="_blank" rel="noopener noreferrer">公式NEWS</a><a href="https://x.com/pj_sekai" target="_blank" rel="noopener noreferrer">公式X</a></div></article>
-      <article class="official-source-card" data-category="games character" data-priority="8"><div class="source-logo">PKMN</div><div class="source-meta"><span class="latest-badge official">公式通販</span><span class="latest-badge">ゲーム・キャラ</span></div><h3>ポケモンセンターオンライン</h3><p>ポケモン公式通販で新商品、限定デザイン、ぬいぐるみ、文具などを直接確認。</p><div class="source-actions"><a class="primary" href="https://www.pokemoncenter-online.com/" target="_blank" rel="noopener noreferrer">公式通販</a></div></article>
-
-      <article class="official-source-card" data-category="anime" data-priority="9"><div class="source-logo">JJK</div><div class="source-meta"><span class="latest-badge official">公式</span><span class="latest-badge">アニメ</span></div><h3>TVアニメ『呪術廻戦』</h3><p>公式NEWSで描き下ろしグッズ、POP UP、フェア、コラボの発表を確認。</p><div class="source-actions"><a class="primary" href="https://jujutsukaisen.jp/news/" target="_blank" rel="noopener noreferrer">公式NEWS</a><a href="https://x.com/animejujutsu" target="_blank" rel="noopener noreferrer">公式X</a></div></article>
-      <article class="official-source-card" data-category="anime" data-priority="7"><div class="source-logo">BL</div><div class="source-meta"><span class="latest-badge official">公式</span><span class="latest-badge">アニメ</span></div><h3>TVアニメ『ブルーロック』</h3><p>公式NEWS・GOODS導線からアニメ関連イベント、展覧会、商品情報を確認。</p><div class="source-actions"><a class="primary" href="https://tv.bluelock-pr.com/news/" target="_blank" rel="noopener noreferrer">公式NEWS</a><a href="https://x.com/BLUELOCK_PR" target="_blank" rel="noopener noreferrer">公式X</a></div></article>
-
-      <article class="official-source-card" data-category="character" data-priority="9"><div class="source-logo">SAN</div><div class="source-meta"><span class="latest-badge official">公式</span><span class="latest-badge">キャラクター</span></div><h3>サンリオ</h3><p>公式ニュースのグッズ・ショップ・コラボ情報とオンラインショップの新商品を確認。</p><div class="source-actions"><a class="primary" href="https://www.sanrio.co.jp/news/list/" target="_blank" rel="noopener noreferrer">公式NEWS</a><a href="https://shop.sanrio.co.jp/" target="_blank" rel="noopener noreferrer">公式通販</a></div></article>
-
-      <article class="official-source-card" data-category="music" data-priority="8"><div class="source-logo">SKZ</div><div class="source-meta"><span class="latest-badge official">公式</span><span class="latest-badge">K-POP</span></div><h3>Stray Kids Japan</h3><p>日本公式サイトからリリース、ツアー、イベント、goods特設ページを確認。</p><div class="source-actions"><a class="primary" href="https://www.straykidsjapan.com/" target="_blank" rel="noopener noreferrer">日本公式</a><a href="https://x.com/Stray_Kids_JP" target="_blank" rel="noopener noreferrer">公式X</a></div></article>
-      <article class="official-source-card" data-category="music" data-priority="8"><div class="source-logo">BTS</div><div class="source-meta"><span class="latest-badge official">公式</span><span class="latest-badge">K-POP</span></div><h3>BTS JAPAN OFFICIAL</h3><p>日本公式NEWSからPOP-UP、イベント、ショップ関連案内を確認。</p><div class="source-actions"><a class="primary" href="https://bts-official.jp/" target="_blank" rel="noopener noreferrer">日本公式</a></div></article>
-      <article class="official-source-card" data-category="music" data-priority="7"><div class="source-logo">AR</div><div class="source-meta"><span class="latest-badge official">公式</span><span class="latest-badge">アイドル</span></div><h3>ARASHI / STARTO ENTERTAINMENT</h3><p>STARTO公式のARASHIページと最新情報一覧からSHOP・CONCERT・RELEASE等を確認。</p><div class="source-actions"><a class="primary" href="https://starto.jp/s/p/artist/10" target="_blank" rel="noopener noreferrer">公式ページ</a><a href="https://starto.jp/s/p/news/list?list%5B%5D=10&page=1&tag=10" target="_blank" rel="noopener noreferrer">最新情報</a></div></article>
+  <section class="latest-section" aria-labelledby="officialSourcesTitle">
+    <div class="section-head"><div><h2 id="officialSourcesTitle">カテゴリ別 公式情報ソース</h2><p>特定の作品だけに限定せず、公式サイトを追加・更新しやすい構造にしています。</p></div></div>
+    <div class="category-tabs" aria-label="公式ソースのカテゴリ絞り込み"><button class="category-tab active" data-category-filter="all">すべて</button><button class="category-tab" data-category-filter="vtuber">VTuber</button><button class="category-tab" data-category-filter="games">ゲーム</button><button class="category-tab" data-category-filter="anime">アニメ・漫画</button><button class="category-tab" data-category-filter="character">キャラクター</button><button class="category-tab" data-category-filter="music">アイドル・K-POP</button></div>
+    <div class="source-directory" style="margin-top:10px">
+      <article class="official-source-card" data-category="vtuber"><div class="source-logo">NIJI</div><div class="source-meta"><span class="latest-badge official">公式</span><span class="latest-badge">VTuber</span></div><h3>にじさんじ</h3><p>公式ストアと公式X。新着、誕生日、ライブ・イベントグッズ等。</p><div class="source-actions"><a class="primary" href="https://shop.nijisanji.jp/" target="_blank" rel="noopener noreferrer">ストア ↗</a><a href="https://x.com/nijisanji_app" target="_blank" rel="noopener noreferrer">公式X ↗</a></div></article>
+      <article class="official-source-card" data-category="vtuber"><div class="source-logo">HOLO</div><div class="source-meta"><span class="latest-badge official">公式</span><span class="latest-badge">VTuber</span></div><h3>hololive production</h3><p>公式ショップ、タレント別・イベント別グッズ。</p><div class="source-actions"><a class="primary" href="https://shop.hololivepro.com/" target="_blank" rel="noopener noreferrer">ショップ ↗</a><a href="https://x.com/hololivetv" target="_blank" rel="noopener noreferrer">公式X ↗</a></div></article>
+      <article class="official-source-card" data-category="vtuber"><div class="source-logo">VSPO</div><div class="source-meta"><span class="latest-badge official">公式</span><span class="latest-badge">VTuber</span></div><h3>ぶいすぽっ！</h3><p>公式サイトからニュース・イベント・関連導線を確認。</p><div class="source-actions"><a class="primary" href="https://vspo.jp/" target="_blank" rel="noopener noreferrer">公式サイト ↗</a></div></article>
+      <article class="official-source-card" data-category="games"><div class="source-logo">APEX</div><div class="source-meta"><span class="latest-badge official">公式</span><span class="latest-badge">ゲーム</span></div><h3>Apex Legends</h3><p>EA公式ニュース。アップデート、イベント等を確認。</p><div class="source-actions"><a class="primary" href="https://www.ea.com/ja/games/apex-legends/apex-legends/news" target="_blank" rel="noopener noreferrer">公式NEWS ↗</a></div></article>
+      <article class="official-source-card" data-category="games"><div class="source-logo">SEKA</div><div class="source-meta"><span class="latest-badge official">公式</span><span class="latest-badge">ゲーム</span></div><h3>プロジェクトセカイ</h3><p>公式NEWS、イベント特設、グッズ情報。</p><div class="source-actions"><a class="primary" href="https://pjsekai.sega.jp/" target="_blank" rel="noopener noreferrer">公式サイト ↗</a></div></article>
+      <article class="official-source-card" data-category="games character"><div class="source-logo">PKMN</div><div class="source-meta"><span class="latest-badge official">公式</span><span class="latest-badge">ゲーム</span></div><h3>ポケモンセンターオンライン</h3><p>ポケモン公式グッズ通販。</p><div class="source-actions"><a class="primary" href="https://www.pokemoncenter-online.com/" target="_blank" rel="noopener noreferrer">公式通販 ↗</a></div></article>
+      <article class="official-source-card" data-category="anime"><div class="source-logo">JJK</div><div class="source-meta"><span class="latest-badge official">公式</span><span class="latest-badge">アニメ</span></div><h3>TVアニメ 呪術廻戦</h3><p>公式NEWS、GOODS、イベント情報。</p><div class="source-actions"><a class="primary" href="https://jujutsukaisen.jp/news/" target="_blank" rel="noopener noreferrer">公式NEWS ↗</a><a href="https://x.com/animejujutsu" target="_blank" rel="noopener noreferrer">公式X ↗</a></div></article>
+      <article class="official-source-card" data-category="anime"><div class="source-logo">BL</div><div class="source-meta"><span class="latest-badge official">公式</span><span class="latest-badge">アニメ</span></div><h3>ブルーロック</h3><p>TVアニメ公式NEWSからイベント・商品関連情報を確認。</p><div class="source-actions"><a class="primary" href="https://tv.bluelock-pr.com/news/" target="_blank" rel="noopener noreferrer">公式NEWS ↗</a></div></article>
+      <article class="official-source-card" data-category="character"><div class="source-logo">SAN</div><div class="source-meta"><span class="latest-badge official">公式</span><span class="latest-badge">キャラ</span></div><h3>サンリオ</h3><p>公式ニュースから新商品・コラボ・オンラインショップ情報を確認。</p><div class="source-actions"><a class="primary" href="https://www.sanrio.co.jp/news/list/" target="_blank" rel="noopener noreferrer">公式NEWS ↗</a></div></article>
+      <article class="official-source-card" data-category="music"><div class="source-logo">SKZ</div><div class="source-meta"><span class="latest-badge official">公式</span><span class="latest-badge">K-POP</span></div><h3>Stray Kids Japan</h3><p>日本公式サイト、ツアー特設、goodsセクション。</p><div class="source-actions"><a class="primary" href="https://www.straykidsjapan.com/" target="_blank" rel="noopener noreferrer">公式サイト ↗</a><a href="https://www.straykidsjapan.com/runitjapan/#goods" target="_blank" rel="noopener noreferrer">goods ↗</a></div></article>
+      <article class="official-source-card" data-category="music"><div class="source-logo">BTS</div><div class="source-meta"><span class="latest-badge official">公式</span><span class="latest-badge">K-POP</span></div><h3>BTS JAPAN</h3><p>日本公式サイトのNEWS・イベント情報。</p><div class="source-actions"><a class="primary" href="https://bts-official.jp/" target="_blank" rel="noopener noreferrer">公式サイト ↗</a></div></article>
+      <article class="official-source-card" data-category="music"><div class="source-logo">ST</div><div class="source-meta"><span class="latest-badge official">公式</span><span class="latest-badge">アイドル</span></div><h3>STARTO ENTERTAINMENT</h3><p>所属アーティストの公式ページと最新情報。</p><div class="source-actions"><a class="primary" href="https://starto.jp/" target="_blank" rel="noopener noreferrer">公式サイト ↗</a></div></article>
     </div>
   </section>
 
-  <section class="latest-section" aria-labelledby="purposeTitle">
-    <div class="section-head"><div><h2 id="purposeTitle">「発表を見る」から「価格を比べる」までを一つの導線に</h2></div></div>
-    <div class="seo-explainer">
-      <article><h3>1. 公式発表を先に確認</h3><p>発売日、受注期間、開催場所、公式商品かどうかは発表元の情報が最優先です。OSHIRUは公式ページへの直接リンクを中心に整理します。</p></article>
-      <article><h3>2. 同じ名前で横断検索</h3><p>商品名や推し名が分かったらOSHIRUの横断検索へ移動し、取得できる販売サイトの商品画像・価格・出品元を一覧で比較します。</p></article>
-      <article><h3>3. 自分の推しを優先表示</h3><p>カテゴリ選択とOSHIRU内の検索傾向を端末内に保存し、次回から興味の高いカテゴリを先に表示します。ログインは不要です。</p></article>
-    </div>
+  <section class="latest-section seo-explainer" aria-label="OSHIRU最新情報ページの使い方">
+    <article><h3>1. 公式発表を見る</h3><p>発売・受注・イベントの一次情報は公式サイト・公式ショップ・公式Xで確認します。</p></article>
+    <article><h3>2. 欲しいグッズを検索</h3><p>公式情報で商品名や推し名を確認したら、OSHIRUの商品検索へ移動します。</p></article>
+    <article><h3>3. 販売元と価格を比較</h3><p>複数販売元から取得できた候補を画像中心に一覧化し、購入前に販売元で最新状態を確認します。</p></article>
   </section>
-
-  <p class="latest-footer-note">OSHIRUは各作品・企業・販売サイトの公式サービスではありません。公式サイトの内容、販売条件、在庫、開催期間は変更される場合があります。購入・予約・来場前に必ずリンク先の公式情報をご確認ください。</p>
+  <p class="latest-footer-note">OSHIRUは各作品・企業の公式サービスではありません。掲載する名称・画像等の権利は各権利者に帰属します。外部画像は公式ページへの案内用プレビューとして表示し、取得できない場合は固定サイズの代替表示へ切り替えます。</p>
 </main>
-<footer class="site-footer"><div class="footer-inner"><div><div class="footer-brand">OSHIRU</div><div class="footer-note">推し活グッズの検索・比較と公式情報確認を補助する非公式サービスです。</div></div><nav class="footer-links"><a href="/">商品検索</a><a href="/latest-goods">最新グッズ</a><a href="/guide/oshi-goods">比較ガイド</a><a href="/about.html">概要</a><a href="/privacy.html">プライバシー</a><a href="/disclaimer.html">免責</a></nav></div></footer>
-<script src="/latest-goods.js?v=20260821-1" defer></script>
+
+<footer class="site-footer"><div class="footer-inner"><div><div class="footer-brand">OSHIRU</div><div class="footer-note">推し活グッズの検索・比較を補助する非公式サービスです。</div></div><nav class="footer-links"><a href="/">商品検索</a><a href="/latest-goods">最新グッズ</a><a href="/privacy.html">プライバシー</a><a href="/disclaimer.html">免責</a></nav></div></footer>
+<script src="/navigation-v4.js?v=20260819-pcfix1"></script>
+<script src="/home-experience-v7.js?v=20260821-7"></script>
+<script src="/navigation-extra-v7.js?v=20260821-7"></script>
+<script src="/latest-goods.js?v=20260821-7"></script>
 </body>
 </html>
