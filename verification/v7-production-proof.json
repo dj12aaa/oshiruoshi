@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "checkedAt": "2026-08-21T11:40:11Z",
+  "production": "https://oshiruoshi.vercel.app",
+  "checks": [
+    "gallery-v7-8-and-3-column-css",
+    "gallery-price-and-square-image-layout",
+    "image-search-v7-client-optimization",
+    "taskbar-image-search-and-latest-goods",
+    "latest-goods-official-visual-rail",
+    "live-search-version-2026-08-21.7",
+    "live-search-query-variants-present"
+  ]
+}
