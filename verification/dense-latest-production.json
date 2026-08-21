@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "production": "https://oshiruoshi.vercel.app",
+  "checkedAt": "2026-08-21T10:50:35.114Z",
+  "workflowSha": "827025a1a3369b85b8a6b36d0490e3737c44abb2",
+  "checks": [
+    "latest-goods-200-and-canonical",
+    "official-source-links-present",
+    "sitemap-latest-goods",
+    "dense-grid-css-6-5-4-3-2-columns",
+    "source-and-price-css-visible",
+    "image-search-client-optimization-asset",
+    "privacy-local-personalization",
+    "empty-search-idle",
+    "nonempty-search-api-shape"
+  ]
+}
