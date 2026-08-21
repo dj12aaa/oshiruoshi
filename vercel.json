@@ -25,6 +25,8 @@
       {"key": "X-Frame-Options","value": "SAMEORIGIN"},
       {"key": "Cross-Origin-Opener-Policy","value": "same-origin"}
     ]},
+    {"source": "/","headers": [{"key":"Cache-Control","value":"no-store"}]},
+    {"source": "/seo-structured-data.js","headers": [{"key":"Cache-Control","value":"no-store"}]},
     {"source": "/(.*).html","headers": [{"key":"Cache-Control","value":"public, max-age=0, must-revalidate"}]},
     {"source": "/(.*).(css|js)","headers": [{"key":"Cache-Control","value":"public, max-age=0, must-revalidate"}]},
     {"source": "/(.*).(png|svg|webmanifest)","headers": [{"key":"Cache-Control","value":"public, max-age=3600, s-maxage=3600"}]}
