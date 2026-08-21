@@ -1,0 +1,99 @@
+name: Dense latest production smoke
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'verification/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dense-latest-production-smoke
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Verify live production
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://oshiruoshi.vercel.app'
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+
+          curl --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 3 "$base/latest-goods" -o "$tmp/latest.html"
+          grep -Fq '<link rel="canonical" href="https://oshiruoshi.vercel.app/latest-goods">' "$tmp/latest.html"
+          grep -Fq '最新グッズ情報' "$tmp/latest.html"
+          grep -Fq 'CollectionPage' "$tmp/latest.html"
+          for domain in shop.nijisanji.jp shop.hololivepro.com vspo.jp pjsekai.sega.jp jujutsukaisen.jp sanrio.co.jp pokemoncenter-online.com bts-official.jp straykidsjapan.com starto.jp; do
+            grep -Fq "$domain" "$tmp/latest.html"
+          done
+
+          curl --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 3 "$base/sitemap.xml" -o "$tmp/sitemap.xml"
+          grep -Fq '<loc>https://oshiruoshi.vercel.app/latest-goods</loc>' "$tmp/sitemap.xml"
+
+          curl --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 3 "$base/design-v3.css" -o "$tmp/design.css"
+          grep -Fq 'Dense comparison mode v6' "$tmp/design.css"
+          grep -Fq 'repeat(6,minmax(0,1fr))' "$tmp/design.css"
+          grep -Fq 'repeat(5,minmax(0,1fr))' "$tmp/design.css"
+          grep -Fq 'repeat(4,minmax(0,1fr))' "$tmp/design.css"
+          grep -Fq 'repeat(3,minmax(0,1fr))' "$tmp/design.css"
+          grep -Fq 'repeat(2,minmax(0,1fr))' "$tmp/design.css"
+          grep -Fq '.product-card .source-pill' "$tmp/design.css"
+          grep -Fq '.product-card .main-price' "$tmp/design.css"
+
+          curl --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 3 "$base/home-experience-v6.js" -o "$tmp/home.js"
+          grep -Fq 'oshiru-interest-signals-v1' "$tmp/home.js"
+          grep -Fq 'createImageBitmap' "$tmp/home.js"
+          grep -Fq '/api/vision-search' "$tmp/home.js"
+
+          curl --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 3 "$base/privacy.html" -o "$tmp/privacy.html"
+          grep -Fq '最新グッズページ' "$tmp/privacy.html"
+          grep -Fq 'localStorage' "$tmp/privacy.html"
+
+          curl --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 3 "$base/api/search?q=" -o "$tmp/idle.json"
+          node -e "const d=require(process.argv[1]); if(!d.idle||!Array.isArray(d.items)||d.items.length!==0) throw new Error('empty search is not idle')" "$tmp/idle.json"
+
+          curl --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 3 "$base/api/search?q=%E4%BA%94%E6%9D%A1%E6%82%9F" -o "$tmp/search.json"
+          node -e "const d=require(process.argv[1]); if(!Array.isArray(d.items)) throw new Error('search items missing')" "$tmp/search.json"
+
+      - name: Record successful verification
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          mkdir -p verification
+          node <<'NODE'
+          const fs=require('fs');
+          fs.writeFileSync('verification/dense-latest-production.json',JSON.stringify({
+            ok:true,
+            production:'https://oshiruoshi.vercel.app',
+            checkedAt:new Date().toISOString(),
+            workflowSha:process.env.GITHUB_SHA,
+            checks:[
+              'latest-goods-200-and-canonical',
+              'official-source-links-present',
+              'sitemap-latest-goods',
+              'dense-grid-css-6-5-4-3-2-columns',
+              'source-and-price-css-visible',
+              'image-search-client-optimization-asset',
+              'privacy-local-personalization',
+              'empty-search-idle',
+              'nonempty-search-api-shape'
+            ]
+          },null,2)+'\n');
+          NODE
+          git add verification/dense-latest-production.json
+          git commit -m 'Record dense latest production verification'
+          git push origin HEAD:main
