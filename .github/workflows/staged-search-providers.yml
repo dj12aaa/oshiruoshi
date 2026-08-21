@@ -46,12 +46,13 @@ jobs:
             'AMAZON_CREATORS_CLIENT_SECRET',
             'BRAVE_SEARCH_API_KEY',
             "phase=['fast','discovery','all']",
-            'https://creatorsapi.amazon/catalog/v1/searchItems',
+            "'/catalog/v1/searchItems'",
             'https://api.search.brave.com/res/v1/web/search',
             "price:null",
             "origin='public-page-live'"
           ];
           for(const token of requiredLive)if(!live.includes(token))throw new Error(`missing live-search invariant: ${token}`);
+          if(!live.includes('creatorsapi.amazon'))throw new Error('Amazon Creators API base URL missing');
           if(!perf.includes("u.searchParams.set('phase','fast')"))throw new Error('fast prefetch missing');
           if(!perf.includes('compositionstart')||!perf.includes('compositionend'))throw new Error('IME guard missing');
           if(!ui.includes("retailSources.includes('Amazon')")||!ui.includes("source==='Amazon'?'公式API'"))throw new Error('Amazon UI integration missing');
