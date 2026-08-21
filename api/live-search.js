@@ -17,12 +17,12 @@ const MAX_VARIANTS=5;
 const GENERIC=new Set(['グッズ','商品','通販','販売','公式','非公式','新品','中古','セット','限定','予約','goods','item']);
 const OSHI_MERCH_HINTS=[
   'アクスタ','アクリルスタンド','アクキー','アクリルキーホルダー','缶バッジ','缶バ','ぬい','ぬいぐるみ','マスコット',
-  'トレカ','トレーディングカード','カード','ブロマイド','チェキ','クリアファイル','ステッカー','シール','ラバスト',
-  'タペストリー','ペンライト','フィギュア','キーホルダー','キーチェーン','チャーム','タオル','色紙','ポスター','うちわ',
-  'ヘアピン','ヘアクリップ','アクセサリー','バッグ','ポーチ','tシャツ','パーカー','アパレル','マグカップ','タンブラー',
-  'スマホケース','cd','blu-ray','写真集','ボイス','公式グッズ','限定グッズ','記念グッズ','コラボグッズ'
+  'トレカ','トレーディングカード','ブロマイド','チェキ','クリアファイル','ステッカー','シール','ラバスト','ラバーストラップ',
+  'タペストリー','ペンライト','フィギュア','キーホルダー','キーチェーン','チャーム','色紙','ポスター','うちわ',
+  'アクリルパネル','アクリルボード','フォトカード','フォト風カード','ボイス','公式グッズ','限定グッズ','記念グッズ','コラボグッズ'
 ];
 const OSHI_CONTEXT_HINTS=['公式','限定','受注','予約','コラボ','周年','誕生日','イベント','ポップアップ','popup','特典','ランダム','トレーディング'];
+const GENERIC_RETAIL_HINTS=['レディース','メンズ','日用品','生活雑貨','収納','インテリア','工具','パーツ','互換','汎用','美容','コスメ','食品','家電'];
 const NON_MERCH_HINTS=['収納ケース','保護ケース','ディスプレイケース','台座のみ','パーツのみ','保護フィルム','空箱','互換','風','イメージ'];
 
 function distance(a='',b=''){
@@ -114,11 +114,13 @@ export function oshiMerchBias(item={},query=''){
   let score=0;
   const merchHits=OSHI_MERCH_HINTS.filter(term=>text.includes(normalizeFlexible(term))).length;
   const contextHits=OSHI_CONTEXT_HINTS.filter(term=>text.includes(normalizeFlexible(term))).length;
+  const genericHits=GENERIC_RETAIL_HINTS.filter(term=>text.includes(normalizeFlexible(term))).length;
   const nonMerchHits=NON_MERCH_HINTS.filter(term=>text.includes(normalizeFlexible(term))).length;
-  if(merchHits)score+=Math.min(150,90+(merchHits-1)*18);
-  if(contextHits)score+=Math.min(55,contextHits*18);
-  if(nonMerchHits)score-=Math.min(150,nonMerchHits*55);
-  if(!intent.merchGroups.length&&intent.entity&&merchHits===0)score-=35;
+  if(merchHits)score+=Math.min(165,100+(merchHits-1)*20);
+  if(contextHits)score+=Math.min(60,contextHits*20);
+  if(genericHits&&merchHits===0)score-=Math.min(100,genericHits*35);
+  if(nonMerchHits)score-=Math.min(165,nonMerchHits*60);
+  if(!intent.merchGroups.length&&merchHits===0)score-=45;
   return score;
 }
 function applyOshiMerchRanking(items=[],query=''){
