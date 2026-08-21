@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - work/dense-grid-latest-goods
+      - main
   pull_request:
     branches:
       - main
@@ -101,9 +102,9 @@ jobs:
           const latest=fs.readFileSync('latest-goods.js','utf8');
           const home=fs.readFileSync('home-experience-v6.js','utf8');
           const privacy=fs.readFileSync('privacy.html','utf8');
-          if(!latest.includes("localStorage")||/\bfetch\s*\(/.test(latest))throw new Error('latest personalization must remain local-only');
+          if(!latest.includes('localStorage')||/\bfetch\s*\(/.test(latest))throw new Error('latest personalization must remain local-only');
           for(const token of ['oshiru-interest-signals-v1','oshiru-latest-preferences-v1'])if(!latest.includes(token)&&!home.includes(token))throw new Error(`interest storage missing: ${token}`);
-          for(const token of ['createImageBitmap','MAX_DIMENSION=1600','toDataURL(\'image/jpeg\'','/api/vision-search','status?.vision'])if(!home.includes(token))throw new Error(`image-search optimization missing: ${token}`);
+          for(const token of ['createImageBitmap','MAX_DIMENSION=1600',"toDataURL('image/jpeg'",'/api/vision-search','status?.vision'])if(!home.includes(token))throw new Error(`image-search optimization missing: ${token}`);
           if(!privacy.includes('最新グッズページ')||!privacy.includes('localStorage')||!privacy.includes('外部サービスへ送信しません'))throw new Error('privacy disclosure for personalization missing');
           console.log('privacy and image-search checks ok');
           NODE
@@ -119,3 +120,44 @@ jobs:
           if(!fs.readFileSync('design-v3.css','utf8').includes('Dense comparison mode v6'))throw new Error('dense CSS not in first-paint stylesheet');
           console.log('homepage integration ok');
           NODE
+
+  production-smoke:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify live latest-goods page, assets and search APIs
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://oshiruoshi.vercel.app'
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+
+          curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 3 "$base/latest-goods" -o "$tmp/latest.html"
+          grep -Fq '<link rel="canonical" href="https://oshiruoshi.vercel.app/latest-goods">' "$tmp/latest.html"
+          grep -Fq '最新グッズ情報' "$tmp/latest.html"
+          grep -Fq 'CollectionPage' "$tmp/latest.html"
+          grep -Fq 'shop.nijisanji.jp' "$tmp/latest.html"
+          grep -Fq 'shop.hololivepro.com' "$tmp/latest.html"
+          grep -Fq 'bts-official.jp' "$tmp/latest.html"
+
+          curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 3 "$base/sitemap.xml" -o "$tmp/sitemap.xml"
+          grep -Fq '<loc>https://oshiruoshi.vercel.app/latest-goods</loc>' "$tmp/sitemap.xml"
+
+          curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 3 "$base/design-v3.css" -o "$tmp/design.css"
+          grep -Fq 'Dense comparison mode v6' "$tmp/design.css"
+          grep -Fq 'repeat(6,minmax(0,1fr))' "$tmp/design.css"
+          grep -Fq 'repeat(2,minmax(0,1fr))' "$tmp/design.css"
+
+          curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 3 "$base/home-experience-v6.js" -o "$tmp/home.js"
+          grep -Fq 'oshiru-interest-signals-v1' "$tmp/home.js"
+          grep -Fq 'createImageBitmap' "$tmp/home.js"
+
+          curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 3 "$base/api/search?q=" -o "$tmp/idle.json"
+          node -e "const d=require(process.argv[1]); if(!d.idle||!Array.isArray(d.items)||d.items.length!==0) process.exit(1)" "$tmp/idle.json"
+
+          curl --fail --silent --show-error --location --retry 4 --retry-all-errors --retry-delay 3 "$base/api/search?q=%E4%BA%94%E6%9D%A1%E6%82%9F" -o "$tmp/search.json"
+          node -e "const d=require(process.argv[1]); if(!Array.isArray(d.items)) process.exit(1)" "$tmp/search.json"
+
+          echo 'Production smoke checks passed.'
