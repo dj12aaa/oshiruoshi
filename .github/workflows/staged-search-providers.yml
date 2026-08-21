@@ -49,9 +49,9 @@ jobs:
             'AMAZON_CREATORS_CLIENT_SECRET',
             'BRAVE_SEARCH_API_KEY',
             "phase=['fast','discovery','all']",
-            "'/catalog/v1/searchItems'",
+            '/catalog/v1/searchItems',
             'https://api.search.brave.com/res/v1/web/search',
-            "price:null",
+            'price:null',
             "origin='public-page-live'"
           ];
           for(const token of requiredLive)if(!live.includes(token))throw new Error(`missing live-search invariant: ${token}`);
