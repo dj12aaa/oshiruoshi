@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-08-19T07:24:53.424Z",
+  "checkedAt": "2026-08-21T10:49:31.125Z",
   "navigationLoaded": true,
   "performanceLoaded": true,
   "affiliateLoaded": true,
@@ -16,53 +16,43 @@
     {
       "query": "星街すいせい アクスタ",
       "http": 200,
-      "count": 0,
-      "topRelated": 0,
-      "topTypes": [],
-      "topSources": [],
-      "firstTitle": "",
-      "firstScore": null,
-      "ranked": true
+      "count": 37,
+      "topRelated": 6,
+      "topTypes": [
+        "アクスタ",
+        "通販"
+      ],
+      "topSources": [
+        "メルカリ",
+        "Yahoo!フリマ",
+        "Yahoo!オークション",
+        "Yahoo!ショッピング"
+      ],
+      "firstTitle": "呪術廻戦 サンリオ 五条悟 シナモロール 伏黒恵 バッドばつ丸 アクリルスタンド",
+      "firstScore": -25.36,
+      "ranked": false
     },
     {
       "query": "五条悟 特典 カード",
       "http": 200,
-      "count": 0,
-      "topRelated": 0,
-      "topTypes": [],
-      "topSources": [],
-      "firstTitle": "",
-      "firstScore": null,
-      "ranked": true
-    },
-    {
-      "query": "初音ミク ぬい",
-      "http": 200,
-      "count": 0,
-      "topRelated": 0,
-      "topTypes": [],
-      "topSources": [],
-      "firstTitle": "",
-      "firstScore": null,
-      "ranked": true
-    },
-    {
-      "query": "ブルーロック コラボ カード",
-      "http": 200,
-      "count": 44,
+      "count": 37,
       "topRelated": 10,
       "topTypes": [
+        "アクスタ",
         "通販"
       ],
       "topSources": [
+        "メルカリ",
+        "Yahoo!フリマ",
+        "Yahoo!オークション",
         "Yahoo!ショッピング"
       ],
-      "firstTitle": "【馬狼照英/浦和レッズ】エポック 2025-26 Jリーグオフィシャルカード X-tra TIME [ブルーロックコラボ/MATCH UP] 20枚限定 (14/20)",
-      "firstScore": 747,
-      "ranked": true
+      "firstTitle": "呪術廻戦 サンリオ 五条悟 シナモロール 伏黒恵 バッドばつ丸 アクリルスタンド",
+      "firstScore": 29.16,
+      "ranked": false
     },
     {
-      "query": "アイドルマスター アクスタ",
+      "query": "初音ミク ぬい",
       "http": 200,
       "count": 30,
       "topRelated": 10,
@@ -72,9 +62,46 @@
       "topSources": [
         "Yahoo!ショッピング"
       ],
-      "firstTitle": "アイドルマスター シャイニーカラーズ ちびキャラ トレーディングアクスタ Part4 幽谷霧子 THE IDOLM＠STER IDOLMASTER",
-      "firstScore": 727,
+      "firstTitle": "中国 キャラクター グッズ『初音ミク ぬいぐるみ風 ミニ痛バッグ イヤホンポーチ』公式グッズ（bilibili公式）",
+      "firstScore": 804,
       "ranked": true
+    },
+    {
+      "query": "ブルーロック コラボ カード",
+      "http": 200,
+      "count": 32,
+      "topRelated": 10,
+      "topTypes": [
+        "アクスタ",
+        "通販"
+      ],
+      "topSources": [
+        "Yahoo!フリマ",
+        "Yahoo!オークション",
+        "Yahoo!ショッピング"
+      ],
+      "firstTitle": "呪術廻戦 懐玉・玉折 五条悟 アクスタ シナモロール サンリオコラボ",
+      "firstScore": 36.16,
+      "ranked": false
+    },
+    {
+      "query": "アイドルマスター アクスタ",
+      "http": 200,
+      "count": 37,
+      "topRelated": 6,
+      "topTypes": [
+        "アクスタ",
+        "通販"
+      ],
+      "topSources": [
+        "メルカリ",
+        "Yahoo!フリマ",
+        "Yahoo!オークション",
+        "Yahoo!ショッピング"
+      ],
+      "firstTitle": "呪術廻戦 サンリオ 五条悟 シナモロール 伏黒恵 バッドばつ丸 アクリルスタンド",
+      "firstScore": -25.36,
+      "ranked": false
     }
   ],
   "ok": false
