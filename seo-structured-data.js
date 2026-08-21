@@ -60,4 +60,21 @@
   script.type='application/ld+json';
   script.textContent=JSON.stringify({'@context':'https://schema.org','@graph':graph});
   document.head.appendChild(script);
+
+  /* Homepage-only dense comparison UI and local personalization helpers. */
+  if(location.pathname==='/'||location.pathname==='/index.html'){
+    if(!document.querySelector('link[data-dense-grid-v6]')){
+      const style=document.createElement('link');
+      style.rel='stylesheet';
+      style.href='/dense-grid-v6.css?v=20260821-1';
+      style.dataset.denseGridV6='1';
+      document.head.appendChild(style);
+    }
+    if(!document.querySelector('script[data-home-experience-v6]')){
+      const experience=document.createElement('script');
+      experience.src='/home-experience-v6.js?v=20260821-1';
+      experience.dataset.homeExperienceV6='1';
+      document.head.appendChild(experience);
+    }
+  }
 })();
