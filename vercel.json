@@ -16,8 +16,6 @@
     {"source": "/character/:slug","destination": "/api/seo-v2?section=character&slug=:slug"}
   ],
   "headers": [
-    {"source": "/","headers": [{"key":"Cache-Control","value":"no-store, max-age=0"}]},
-    {"source": "/latest-goods","headers": [{"key":"Cache-Control","value":"no-store, max-age=0"}]},
     {"source": "/(.*)","headers": [
       {"key": "Content-Security-Policy","value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; script-src 'self' https://xml.affiliate.rakuten.co.jp; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://xml.affiliate.rakuten.co.jp https://affiliate.rakuten.co.jp; frame-src 'self' https://xml.affiliate.rakuten.co.jp https://*.rakuten.co.jp; font-src 'self'; manifest-src 'self'; upgrade-insecure-requests"},
       {"key": "Strict-Transport-Security","value": "max-age=31536000; includeSubDomains"},
