@@ -1,12 +1,25 @@
 import { json, cleanQuery, liveSearch as coreLiveSearch, snapshotSearch } from './_core.mjs';
-import { MERCH_GROUPS, ENTITY_GROUPS, normalizeFlexible, compactFlexible, detectIntent, buildSearchVariants, rankSearchItems } from './search-language.mjs';
+import {
+  MERCH_GROUPS,
+  ENTITY_GROUPS,
+  normalizeFlexible,
+  compactFlexible,
+  detectIntent,
+  buildSearchVariants,
+  rankSearchItems
+} from './search-language.mjs';
 
-const SEARCH_ALIAS_VERSION='2026-08-21.1';
+const SEARCH_ALIAS_VERSION='2026-08-21.2-stage';
 const cache=new Map();
-const webCache=new Map();
+const discoveryCache=new Map();
+const amazonCache=new Map();
 const MAX_RESULTS=120;
 const GENERIC=new Set(['グッズ','商品','通販','販売','公式','非公式','新品','中古','セット','限定','予約','goods','item']);
-const MARKETPLACE_DOMAINS=['jp.mercari.com','paypayfleamarket.yahoo.co.jp','auctions.yahoo.co.jp'];
+const WEB_MARKETS=[
+  {key:'mercari',source:'メルカリ',domain:'jp.mercari.com',path:/^\/item\//},
+  {key:'yahooFlea',source:'Yahoo!フリマ',domain:'paypayfleamarket.yahoo.co.jp',path:/^\/item\//},
+  {key:'yahooAuction',source:'Yahoo!オークション',domain:'auctions.yahoo.co.jp',path:/(?:\/jp)?\/auction\//}
+];
 
 function distance(a='',b=''){
   const x=[...String(a)],y=[...String(b)],n=x.length,m=y.length;if(!n)return m;if(!m)return n;
@@ -38,56 +51,132 @@ function robustQuery(query){
   const preferred=variants.find(v=>/canonical/.test(v.reason))?.query||variants[0]?.query||seed||query;
   return{prefix,known,seed,providerQuery:normalizeFlexible(preferred)};
 }
-function send(res,status,data,cacheable=false){res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Cache-Control',cacheable?'public, max-age=15, s-maxage=45, stale-while-revalidate=180':'no-store');return res.status(status).json(data)}
-function dedupe(items=[]){const seen=new Set(),out=[];for(const item of items){const k=String(item?.url||`${item?.source}|${item?.title}|${item?.price}`).replace(/[?#].*$/,'');if(!k||seen.has(k))continue;seen.add(k);out.push(item)}return out}
-function sourceFromUrl(value=''){
-  try{const u=new URL(value);if(u.hostname==='jp.mercari.com'&&/^\/item\//.test(u.pathname))return'メルカリ';if(u.hostname==='paypayfleamarket.yahoo.co.jp'&&/^\/item\//.test(u.pathname))return'Yahoo!フリマ';if(u.hostname==='auctions.yahoo.co.jp'&&/(?:\/jp)?\/auction\//.test(u.pathname))return'Yahoo!オークション'}catch{}return'';
+function send(res,status,data,cacheable=false){res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Cache-Control',cacheable?'public, max-age=12, s-maxage=35, stale-while-revalidate=120':'no-store');return res.status(status).json(data)}
+function dedupe(items=[]){const seen=new Set(),out=[];for(const item of items){const k=String(item?.directUrl||item?.canonicalUrl||item?.url||`${item?.source}|${item?.title}|${item?.price}`).replace(/[?#].*$/,'');if(!k||seen.has(k))continue;seen.add(k);out.push(item)}return out}
+function mergeProviderState(target={},source={}){for(const [name,state] of Object.entries(source||{})){target[name]={ok:state?.ok===true,count:Number(state?.count||0),error:state?.error?String(state.error).slice(0,140):null,...(state?.skipped?{skipped:true}:{})}}return target}
+function settledValue(result,fallback){return result.status==='fulfilled'?result.value:fallback}
+
+async function fetchJson(url,opts={},timeoutMs=2200){
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeoutMs);
+  try{
+    const response=await fetch(url,{...opts,signal:controller.signal});
+    const text=await response.text();
+    if(text.length>2_000_000)throw new Error('response_too_large');
+    let data=null;try{data=text?JSON.parse(text):{}}catch{data={}}
+    if(!response.ok){const code=data?.error?.code||data?.code||data?.error_description||data?.message||`http_${response.status}`;throw new Error(String(code).slice(0,120))}
+    return data;
+  }catch(error){if(error?.name==='AbortError')throw new Error('timeout');throw error}finally{clearTimeout(timer)}
 }
-function parsePrice(value){if(value==null||value==='')return null;const digits=String(value).replace(/[^0-9]/g,'');if(!digits)return null;const n=Number(digits);return Number.isFinite(n)&&n>0?n:null}
-function extractOutputText(data){return(data?.output||[]).flatMap(x=>x?.content||[]).map(x=>x?.text||'').join('').trim()}
+
+let amazonTokenValue='';
+let amazonTokenExpiresAt=0;
+let amazonTokenPromise=null;
+function amazonReady(){return Boolean(process.env.AMAZON_CREATORS_CLIENT_ID&&process.env.AMAZON_CREATORS_CLIENT_SECRET&&process.env.AMAZON_PARTNER_TAG)}
+async function amazonAccessToken(){
+  if(!amazonReady())throw new Error('not_configured');
+  const now=Date.now();if(amazonTokenValue&&now<amazonTokenExpiresAt-60_000)return amazonTokenValue;if(amazonTokenPromise)return amazonTokenPromise;
+  const endpoint=process.env.AMAZON_TOKEN_ENDPOINT||'https://api.amazon.co.jp/auth/o2/token';
+  amazonTokenPromise=fetchJson(endpoint,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({grant_type:'client_credentials',client_id:process.env.AMAZON_CREATORS_CLIENT_ID,client_secret:process.env.AMAZON_CREATORS_CLIENT_SECRET,scope:'creatorsapi::default'})},1800).then(data=>{
+    const token=String(data?.access_token||'');if(!token)throw new Error('token_missing');amazonTokenValue=token;amazonTokenExpiresAt=Date.now()+Math.max(300,Number(data?.expires_in)||3600)*1000;return token;
+  }).finally(()=>{amazonTokenPromise=null});
+  return amazonTokenPromise;
+}
+function mapAmazonItem(item,i=0){
+  const listing=item?.offersV2?.listings?.[0]||{},money=listing?.price?.money||{},title=item?.itemInfo?.title?.displayValue||'',image=item?.images?.primary?.medium?.url||null;
+  const amount=Number(money?.amount),price=Number.isFinite(amount)?Math.round(amount):null,availability=String(listing?.availability?.type||'').toUpperCase();
+  return{id:`amazon-${item?.asin||i}`,source:'Amazon',title:title||'商品名不明',price,shipping:null,fee:0,status:availability==='OUT_OF_STOCK'?'在庫なし':'販売中候補',condition:listing?.condition?.value||'要確認',url:item?.detailPageURL||'#',image,type:'通販',shop:listing?.merchantInfo?.name||'Amazon',asin:item?.asin||'',verifiedAt:new Date().toISOString(),origin:'official-api',real:true,imageVerified:Boolean(image)};
+}
+async function amazonSearch(query){
+  const q=cleanQuery(query);if(!amazonReady()||!q)return{items:[],provider:{ok:false,count:0,error:null,skipped:true}};
+  const key=normalizeFlexible(q),hit=amazonCache.get(key);if(hit&&Date.now()-hit.at<60_000)return hit.value;
+  try{
+    const token=await amazonAccessToken(),base=(process.env.AMAZON_CREATORS_API_ENDPOINT||'https://creatorsapi.amazon').replace(/\/$/,''),marketplace=process.env.AMAZON_MARKETPLACE||'www.amazon.co.jp';
+    const data=await fetchJson(`${base}/catalog/v1/searchItems`,{method:'POST',headers:{authorization:`Bearer ${token}`,'content-type':'application/json','x-marketplace':marketplace},body:JSON.stringify({keywords:q,partnerTag:process.env.AMAZON_PARTNER_TAG,marketplace,searchIndex:'All',itemCount:10,resources:['images.primary.medium','itemInfo.title','offersV2.listings.availability','offersV2.listings.condition','offersV2.listings.merchantInfo','offersV2.listings.price']})},2200);
+    const items=(data?.searchResult?.items||[]).map(mapAmazonItem).filter(x=>x.url&&x.url!=='#');const value={items,provider:{ok:true,count:items.length,error:null}};amazonCache.set(key,{at:Date.now(),value});if(amazonCache.size>80)amazonCache.delete(amazonCache.keys().next().value);return value;
+  }catch(error){return{items:[],provider:{ok:false,count:0,error:String(error?.message||error).slice(0,120)}}}
+}
+
+function sourceFromUrl(value=''){
+  try{const u=new URL(value);for(const market of WEB_MARKETS)if(u.hostname===market.domain&&market.path.test(u.pathname))return market.source}catch{}return'';
+}
+function parseExplicitPrice(value=''){
+  const text=String(value||'').replace(/\s+/g,' ');let m=text.match(/[¥￥]\s*([0-9][0-9,]{1,8})/);if(!m)m=text.match(/(?:^|\s)([0-9][0-9,]{1,8})\s*円(?:\s|$|[（(])/);if(!m)return null;const n=Number(m[1].replace(/,/g,''));return Number.isFinite(n)&&n>0&&n<100_000_000?n:null;
+}
 function mapWebRows(rows=[],query=''){
   const now=new Date().toISOString(),intent=detectIntent(query),type=intent.merchGroups?.[0]?.canonical||'その他',out=[];
-  for(let i=0;i<rows.length&&out.length<24;i++){
+  for(let i=0;i<rows.length&&out.length<30;i++){
     const row=rows[i]||{},url=String(row.url||'').trim(),source=sourceFromUrl(url),title=String(row.title||'').replace(/\s+/g,' ').trim().slice(0,180);if(!source||!title)continue;
-    out.push({id:`web-${source}-${i}-${Buffer.from(url).toString('base64url').slice(-12)}`,source,title,price:parsePrice(row.price),shipping:null,fee:0,status:'販売中候補',condition:'要確認',url,image:null,type,shop:'',verifiedAt:now,origin:'openai-web-search',real:true,imageVerified:false,tags:[query,type].filter(Boolean)});
+    const snippet=String(row.description||row.snippet||'').replace(/\s+/g,' ').trim();
+    out.push({id:`web-${i}-${Buffer.from(url).toString('base64url').slice(-12)}`,source,title,description:snippet.slice(0,240),price:parseExplicitPrice(`${title} ${snippet}`),shipping:null,fee:0,status:'販売中候補',condition:'要確認',url,image:null,type,shop:'',verifiedAt:now,origin:'openai-web-search',real:true,imageVerified:false,tags:[query,type].filter(Boolean)});
   }
   return dedupe(out);
 }
+async function braveSearchOne(market,query){
+  const params=new URLSearchParams({q:`${query} site:${market.domain}`,count:'6',country:'JP',search_lang:'ja'});
+  const data=await fetchJson(`https://api.search.brave.com/res/v1/web/search?${params}`,{headers:{accept:'application/json','x-subscription-token':process.env.BRAVE_SEARCH_API_KEY}},1700);
+  const rows=(data?.web?.results||[]).map(x=>({title:x?.title||'',url:x?.url||'',description:x?.description||''}));
+  return mapWebRows(rows,query).filter(x=>x.source===market.source);
+}
+async function braveMarketplaceSearch(query=''){
+  const q=cleanQuery(query);if(!process.env.BRAVE_SEARCH_API_KEY||!q)return{items:[],ok:false,skipped:true,error:null,public:{ok:false,count:0,sources:{}}};
+  const key=`brave|${normalizeFlexible(q)}`,hit=discoveryCache.get(key);if(hit&&Date.now()-hit.at<45_000)return hit.value;
+  const settled=await Promise.allSettled(WEB_MARKETS.map(m=>braveSearchOne(m,q))),items=[],sources={};
+  settled.forEach((result,index)=>{const market=WEB_MARKETS[index],value=result.status==='fulfilled'?result.value:[];items.push(...value);sources[market.key]={ok:result.status==='fulfilled',count:value.length,error:result.status==='rejected'?String(result.reason?.message||result.reason).slice(0,100):null}});
+  const value={items:dedupe(items),ok:settled.some(x=>x.status==='fulfilled'),error:settled.every(x=>x.status==='rejected')?'brave_search_failed':null,public:{ok:settled.some(x=>x.status==='fulfilled'),count:items.length,sources}};discoveryCache.set(key,{at:Date.now(),value});if(discoveryCache.size>80)discoveryCache.delete(discoveryCache.keys().next().value);return value;
+}
+function extractOutputText(data){return(data?.output||[]).flatMap(x=>x?.content||[]).map(x=>x?.text||'').join('').trim()}
 async function openaiMarketplaceSearch(query=''){
-  const q=cleanQuery(query);if(!process.env.OPENAI_API_KEY||!q)return{items:[],ok:false,skipped:true,error:null};
-  const key=normalizeFlexible(q),hit=webCache.get(key),now=Date.now();if(hit&&now-hit.at<300_000)return hit.value;
-  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),3600);
+  const q=cleanQuery(query);if(process.env.BRAVE_SEARCH_API_KEY||!process.env.OPENAI_API_KEY||!q)return{items:[],ok:false,skipped:true,error:null,public:{ok:false,count:0,sources:{}}};
+  const key=`openai|${normalizeFlexible(q)}`,hit=discoveryCache.get(key);if(hit&&Date.now()-hit.at<45_000)return hit.value;
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),2400);
   try{
     const model=process.env.OPENAI_SEARCH_MODEL||process.env.OPENAI_MODEL||'gpt-5-mini';
-    const prompt=`日本の推し活グッズ検索サービス用です。検索語「${q}」に関連する、メルカリ・Yahoo!フリマ・Yahoo!オークションの公開されている個別商品/個別出品ページを探してください。検索結果ページやカテゴリページではなく個別ページだけにしてください。存在を確認できないURLは作らないでください。価格が検索結果上で明示されていなければpriceはnullにしてください。最大18件。必ずJSONだけで {"items":[{"title":"...","url":"https://...","price":1234}]} の形で返してください。`;
-    const r=await fetch('https://api.openai.com/v1/responses',{method:'POST',signal:controller.signal,headers:{'content-type':'application/json','authorization':`Bearer ${process.env.OPENAI_API_KEY}`},body:JSON.stringify({model,tools:[{type:'web_search',filters:{allowed_domains:MARKETPLACE_DOMAINS},search_context_size:'low'}],input:prompt,max_output_tokens:1800})});
-    if(!r.ok)throw new Error(`openai_${r.status}`);const data=await r.json();let text=extractOutputText(data).replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'').trim(),parsed={items:[]};try{parsed=JSON.parse(text)}catch{const m=text.match(/\{[\s\S]*\}/);if(m)parsed=JSON.parse(m[0])}
-    const value={items:mapWebRows(Array.isArray(parsed?.items)?parsed.items:[],q),ok:true,error:null};webCache.set(key,{at:Date.now(),value});if(webCache.size>80)webCache.delete(webCache.keys().next().value);return value;
-  }catch(e){return{items:[],ok:false,error:String(e?.name==='AbortError'?'timeout':e?.message||e).slice(0,120)}}finally{clearTimeout(timer)}
+    const prompt=`検索語「${q}」に関連するメルカリ・Yahoo!フリマ・Yahoo!オークションの公開中の個別商品/個別出品ページだけを探してください。検索結果ページやカテゴリページは除外し、存在を確認できないURLを作らないでください。最大18件。JSONだけで {"items":[{"title":"...","url":"https://...","price":1234}]} を返してください。価格が明示されていない場合はnull。`;
+    const response=await fetch('https://api.openai.com/v1/responses',{method:'POST',signal:controller.signal,headers:{'content-type':'application/json','authorization':`Bearer ${process.env.OPENAI_API_KEY}`},body:JSON.stringify({model,tools:[{type:'web_search',filters:{allowed_domains:WEB_MARKETS.map(x=>x.domain)},search_context_size:'low'}],input:prompt,max_output_tokens:1600})});
+    if(!response.ok)throw new Error(`openai_${response.status}`);const data=await response.json();let text=extractOutputText(data).replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'').trim(),parsed={items:[]};try{parsed=JSON.parse(text)}catch{const match=text.match(/\{[\s\S]*\}/);if(match)parsed=JSON.parse(match[0])}
+    const items=mapWebRows(Array.isArray(parsed?.items)?parsed.items:[],q),sources={};for(const market of WEB_MARKETS)sources[market.key]={ok:true,count:items.filter(x=>x.source===market.source).length,error:null};const value={items,ok:true,error:null,public:{ok:true,count:items.length,sources}};discoveryCache.set(key,{at:Date.now(),value});return value;
+  }catch(error){return{items:[],ok:false,error:String(error?.name==='AbortError'?'timeout':error?.message||error).slice(0,120),public:{ok:false,count:0,sources:{}}}}finally{clearTimeout(timer)}
+}
+async function discoverySearch(query){
+  const brave=await braveMarketplaceSearch(query);if(!brave.skipped)return{...brave,providerName:'brave'};const openai=await openaiMarketplaceSearch(query);return{...openai,providerName:'openai'};
 }
 function diversifySources(items=[],limit=MAX_RESULTS){
-  const ranked=dedupe(items),sources=['メルカリ','Yahoo!フリマ','Yahoo!オークション','Yahoo!ショッピング','楽天市場','X'],buckets=new Map(sources.map(s=>[s,ranked.filter(x=>x.source===s)])),chosen=[],used=new Set();
-  const lead=Math.min(30,ranked.length);let progressed=true;while(chosen.length<lead&&progressed){progressed=false;for(const source of sources){const bucket=buckets.get(source)||[];while(bucket.length&&used.has(bucket[0]?.url))bucket.shift();if(!bucket.length)continue;const item=bucket.shift();chosen.push(item);used.add(item.url);progressed=true;if(chosen.length>=lead)break}}
+  const ranked=dedupe(items),sources=['メルカリ','Yahoo!フリマ','Yahoo!オークション','Yahoo!ショッピング','楽天市場','Amazon','X'],buckets=new Map(sources.map(s=>[s,ranked.filter(x=>x.source===s)])),chosen=[],used=new Set();
+  const lead=Math.min(36,ranked.length);let progressed=true;while(chosen.length<lead&&progressed){progressed=false;for(const source of sources){const bucket=buckets.get(source)||[];while(bucket.length&&used.has(bucket[0]?.url))bucket.shift();if(!bucket.length)continue;const item=bucket.shift();chosen.push(item);used.add(item.url);progressed=true;if(chosen.length>=lead)break}}
   for(const item of ranked){if(chosen.length>=limit)break;if(used.has(item.url))continue;chosen.push(item);used.add(item.url)}return chosen.slice(0,limit);
 }
-function mergeProviderState(target={},source={}){for(const [name,state] of Object.entries(source||{})){target[name]={ok:state?.ok===true,count:Number(state?.count||0),error:state?.error?String(state.error).slice(0,120):null}}return target}
+
+async function fastPart(q,providerQuery){
+  const snapshotQueries=compactFlexible(providerQuery)===compactFlexible(q)?[q]:[q,providerQuery];
+  const snapshotPromise=Promise.all(snapshotQueries.map(x=>snapshotSearch(x))).then(parts=>dedupe(parts.flatMap(x=>x.items||[])));
+  const [snapResult,coreResult,amazonResult]=await Promise.allSettled([snapshotPromise,coreLiveSearch(providerQuery),amazonSearch(providerQuery)]);
+  const snapshotItems=settledValue(snapResult,[]),live=settledValue(coreResult,{items:[],providers:{search:{ok:false,count:0,error:'live_search_failed'}}}),amazon=settledValue(amazonResult,{items:[],provider:{ok:false,count:0,error:'amazon_search_failed'}}),providers={snapshot:{ok:true,count:snapshotItems.length,error:null}};
+  mergeProviderState(providers,live.providers);providers.amazon=amazon.provider;
+  const items=dedupe([...snapshotItems.map(x=>({...x,_variantWeight:8,_queryReason:'verified-snapshot'})),...(live.items||[]).map(x=>({...x,_variantWeight:6,_queryReason:'live-provider'})),...(amazon.items||[]).map(x=>({...x,_variantWeight:6,_queryReason:'amazon-creators-api'}))]);
+  return{items,providers};
+}
+async function discoveryPart(providerQuery){
+  const discovery=await discoverySearch(providerQuery),providers={};providers.public=discovery.public||{ok:false,count:0,sources:{}};providers[discovery.providerName||'web']={ok:discovery.ok===true,count:discovery.items?.length||0,error:discovery.error||null,skipped:discovery.skipped===true};return{items:discovery.items||[],providers};
+}
 
 export default async function handler(req,res){
   if(req.method!=='GET')return json(res,405,{error:'method_not_allowed'});
-  const u=new URL(req.url,'http://local'),q=cleanQuery(u.searchParams.get('q')||'');if(!q)return send(res,200,{query:'',items:[],providers:{},queryVariants:[],generatedAt:new Date().toISOString()},true);
-  const cacheKey=`${SEARCH_ALIAS_VERSION}|${normalizeFlexible(q)}`,existing=cache.get(cacheKey);if(existing&&Date.now()-existing.at<60_000)return send(res,200,existing.value,true);
+  const u=new URL(req.url,'http://local'),q=cleanQuery(u.searchParams.get('q')||''),rawPhase=String(u.searchParams.get('phase')||'all').toLowerCase(),phase=['fast','discovery','all'].includes(rawPhase)?rawPhase:'all';
+  if(!q)return send(res,200,{query:'',items:[],providers:{},queryVariants:[],phase,generatedAt:new Date().toISOString()},true);
+  const cacheKey=`${SEARCH_ALIAS_VERSION}|${phase}|${normalizeFlexible(q)}`,existing=cache.get(cacheKey);if(existing&&Date.now()-existing.at<45_000)return send(res,200,existing.value,true);
   const {prefix,known,seed,providerQuery}=robustQuery(q),scoringQuery=seed||q;
-  const snapshotQueries=compactFlexible(providerQuery)===compactFlexible(q)?[q]:[q,providerQuery];
-  const snapshotPromise=Promise.all(snapshotQueries.map(x=>snapshotSearch(x))).then(parts=>dedupe(parts.flatMap(x=>x.items||[])));
-  const [snapResult,liveResult,webResult]=await Promise.allSettled([snapshotPromise,coreLiveSearch(providerQuery),openaiMarketplaceSearch(providerQuery)]);
-  const snapshotItems=snapResult.status==='fulfilled'?snapResult.value:[];
-  const live=liveResult.status==='fulfilled'?liveResult.value:{items:[],providers:{search:{ok:false,count:0,error:String(liveResult.reason?.message||liveResult.reason||'live_search_failed').slice(0,120)}}};
-  const web=webResult.status==='fulfilled'?webResult.value:{items:[],ok:false,error:String(webResult.reason?.message||webResult.reason||'web_search_failed').slice(0,120)};
-  const providers={snapshot:{ok:true,count:snapshotItems.length,error:null}};mergeProviderState(providers,live.providers);providers.openai={ok:web.ok===true,count:web.items?.length||0,error:web.error||null,skipped:web.skipped===true};
-  let items=dedupe([...snapshotItems.map(x=>({...x,_variantWeight:8,_queryReason:'verified-snapshot'})),...(live.items||[]).map(x=>({...x,_variantWeight:6,_queryReason:'live-provider'})),...(web.items||[]).map(x=>({...x,_variantWeight:4,_queryReason:'public-web-search'}))]);
+  let items=[],providers={};
+  if(phase==='fast'){
+    const fast=await fastPart(q,providerQuery);items=fast.items;providers=fast.providers;
+  }else if(phase==='discovery'){
+    const discovery=await discoveryPart(providerQuery);items=discovery.items;providers=discovery.providers;
+  }else{
+    const [fastResult,discoveryResult]=await Promise.allSettled([fastPart(q,providerQuery),discoveryPart(providerQuery)]),fast=settledValue(fastResult,{items:[],providers:{}}),discovery=settledValue(discoveryResult,{items:[],providers:{}});items=dedupe([...fast.items,...discovery.items]);providers={...fast.providers,...discovery.providers};
+  }
   let ranked=rankSearchItems(items,scoringQuery);if(!known.changed)ranked=rerankFuzzy(ranked,q);ranked=diversifySources(ranked,MAX_RESULTS);
-  const bySource={yahooShopping:'Yahoo!ショッピング',rakuten:'楽天市場',x:'X'};for(const [name,source] of Object.entries(bySource))if(providers[name])providers[name].count=ranked.filter(item=>item.source===source).length;
-  providers.openai.count=ranked.filter(item=>item.origin==='openai-web-search').length;providers.snapshot.count=ranked.filter(item=>item.origin==='verified-snapshot'||item.origin==='web-index-snapshot').length;
-  const value={query:q,providerQuery,queryVariants:[{query:providerQuery,reason:'single-fast-provider-query'}],aliasVersion:SEARCH_ALIAS_VERSION,inputCompletion:prefix.changed?prefix:null,typoCorrection:known.changed?known:null,items:ranked,providers,generatedAt:new Date().toISOString()};
-  cache.set(cacheKey,{at:Date.now(),value});if(cache.size>120)cache.delete(cache.keys().next().value);return send(res,200,value,true);
+  const sourceCounts={yahooShopping:'Yahoo!ショッピング',rakuten:'楽天市場',amazon:'Amazon',x:'X'};for(const [name,source] of Object.entries(sourceCounts))if(providers[name])providers[name].count=ranked.filter(item=>item.source===source).length;
+  if(providers.snapshot)providers.snapshot.count=ranked.filter(item=>item.origin==='verified-snapshot'||item.origin==='web-index-snapshot').length;
+  if(providers.public){providers.public.count=ranked.filter(item=>['メルカリ','Yahoo!フリマ','Yahoo!オークション'].includes(item.source)&&item.origin==='openai-web-search').length;for(const market of WEB_MARKETS)if(providers.public.sources?.[market.key])providers.public.sources[market.key].count=ranked.filter(item=>item.source===market.source&&item.origin==='openai-web-search').length}
+  const value={query:q,providerQuery,queryVariants:[{query:providerQuery,reason:'single-fast-provider-query'}],aliasVersion:SEARCH_ALIAS_VERSION,inputCompletion:prefix.changed?prefix:null,typoCorrection:known.changed?known:null,phase,items:ranked,providers,generatedAt:new Date().toISOString()};
+  cache.set(cacheKey,{at:Date.now(),value});if(cache.size>160)cache.delete(cache.keys().next().value);return send(res,200,value,true);
 }
