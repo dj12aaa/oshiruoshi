@@ -51,24 +51,30 @@
     if(!rail||cards.length<2)return;
     const dots=[...document.querySelectorAll('[data-rail-dot]')];
     const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let timer=null,paused=false;
+    const toggle=document.getElementById('railToggle'),stateLabel=document.getElementById('railState');
+    let timer=null,manualPaused=reduced,interacting=false;
     const nearestIndex=()=>{
       const left=rail.scrollLeft;let best=0,delta=Infinity;
       cards.forEach((card,index)=>{const d=Math.abs(card.offsetLeft-left);if(d<delta){delta=d;best=index}});return best;
     };
     const paint=()=>{const index=nearestIndex();dots.forEach((dot,i)=>dot.classList.toggle('active',i===index))};
+    const syncState=()=>{
+      if(toggle){toggle.textContent=manualPaused?'再生':'停止';toggle.setAttribute('aria-pressed',manualPaused?'true':'false')}
+      if(stateLabel)stateLabel.textContent=manualPaused?(reduced?'動きを抑える設定により停止中':'自動スライド停止中'):interacting?'操作中は一時停止':'自動スライド中';
+    };
     const advance=()=>{
-      if(paused||document.hidden||reduced)return;
+      if(manualPaused||interacting||document.hidden)return;
       const index=nearestIndex(),next=index>=cards.length-1?0:index+1;
       rail.scrollTo({left:cards[next].offsetLeft,behavior:'smooth'});setTimeout(paint,480);
     };
-    const start=()=>{if(reduced)return;clearInterval(timer);timer=setInterval(advance,4200)};
-    const pause=()=>{paused=true};const resume=()=>{paused=false;start()};
+    const start=()=>{clearInterval(timer);if(!manualPaused)timer=setInterval(advance,4200);syncState()};
+    const pause=()=>{interacting=true;syncState()};const resume=()=>{interacting=false;start()};
     rail.addEventListener('scroll',()=>requestAnimationFrame(paint),{passive:true});
     rail.addEventListener('pointerenter',pause);rail.addEventListener('pointerleave',resume);
     rail.addEventListener('pointerdown',pause,{passive:true});rail.addEventListener('pointerup',()=>setTimeout(resume,1000),{passive:true});
     rail.addEventListener('focusin',pause);rail.addEventListener('focusout',resume);
-    document.addEventListener('visibilitychange',()=>{if(!document.hidden)start()});
+    toggle?.addEventListener('click',()=>{manualPaused=!manualPaused;start()});
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)clearInterval(timer);else start()});
     cards.forEach(card=>card.querySelector('img')?.addEventListener('error',event=>{event.currentTarget.classList.add('is-failed');card.classList.add('image-failed')},{once:true}));
     paint();start();
   }

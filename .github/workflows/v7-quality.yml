@@ -1,9 +1,9 @@
-name: V8 search and layout quality
+name: V9 search and layout quality
 
 on:
   push:
     branches:
-      - work/fix-grid-search-v7
+      - 'work/**'
   pull_request:
     branches:
       - main
@@ -33,6 +33,9 @@ jobs:
           node --check seo-structured-data.js
           node --check app.js
           node --check performance-v3.js
+
+      - name: Unit and regression tests
+        run: npm test
 
       - name: Search relevance regression cases
         run: |
@@ -69,11 +72,11 @@ jobs:
           const live=fs.readFileSync('api/live-search.js','utf8');
           for(const token of ['MAX_VARIANTS=5','countStrongMatches','robustVariants','oshiMerchBias','SEARCH_ALIAS_VERSION=\'2026-08-21.7\''])if(!live.includes(token))throw new Error(`search invariant missing: ${token}`);
           const v8=fs.readFileSync('api/live-search-v8.js','utf8');
-          for(const token of ["VERSION='2026-08-21.8'",'GENERIC_RETAIL_NOISE','effectiveQuery','precisionVersion','originalIntent.entity'])if(!v8.includes(token))throw new Error(`v8 precision invariant missing: ${token}`);
+          for(const token of ["VERSION='2026-08-22.9'",'GENERIC_RETAIL_NOISE','effectiveQuery','precisionVersion','snapshotSearch','strictVerified'])if(!v8.includes(token))throw new Error(`v9 precision invariant missing: ${token}`);
           const perf=fs.readFileSync('performance-v3.js','utf8');
           if(!perf.includes("PRECISION_ENDPOINT='/api/live-search-v8'"))throw new Error('client live search is not routed through v8 precision endpoint');
           const search=fs.readFileSync('api/search.js','utf8');
-          if(!search.includes('idle:true')||!search.includes('items:[]'))throw new Error('empty search idle guard missing');
+          if(!search.includes('idle:true')||!search.includes('items:[]')||!search.includes('precisionSearch'))throw new Error('primary search is not precision-first');
           NODE
 
       - name: Validate stable gallery and image-search geometry
@@ -99,7 +102,7 @@ jobs:
           for(const token of ['data-official-rail','official-preview-card','shop.nijisanji.jp/on/demandware.static','shop.hololivepro.com/cdn/shop','jujutsukaisen.jp/news/images','straykidsjapan.com/runitjapan/img','CollectionPage','ItemList','navigation-extra-v7.js'])if(!html.includes(token))throw new Error(`latest hub invariant missing: ${token}`);
           if(/"@type":"(?:Product|MerchantListing)"/.test(html))throw new Error('merchant schema must not be used on latest hub');
           for(const token of ['scroll-snap-type:x mandatory','height:220px','overflow-x:auto','image-failed'])if(!css.includes(token))throw new Error(`rail layout invariant missing: ${token}`);
-          for(const token of ['setInterval(advance,4200)','pointerdown','prefers-reduced-motion','is-failed'])if(!js.includes(token))throw new Error(`rail behavior invariant missing: ${token}`);
+          for(const token of ['setInterval(advance,4200)','pointerdown','prefers-reduced-motion','is-failed','manualPaused','railToggle'])if(!js.includes(token))throw new Error(`rail behavior invariant missing: ${token}`);
           NODE
 
       - name: Validate taskbar, bootstrap and function budget
@@ -108,9 +111,9 @@ jobs:
           const fs=require('fs');
           const nav=fs.readFileSync('navigation-extra-v7.js','utf8');
           for(const token of ['画像検索','最新グッズ','data-open-image-search','/latest-goods'])if(!nav.includes(token))throw new Error(`dock extension missing: ${token}`);
-          const seo=fs.readFileSync('seo-structured-data.js','utf8');
-          for(const token of ['/gallery-v8.css?v=20260821-8','/home-experience-v8.js?v=20260821-8','/navigation-extra-v7.js?v=20260821-7'])if(!seo.includes(token))throw new Error(`home bootstrap missing: ${token}`);
-          if(seo.includes('/gallery-v7.css')||seo.includes('/home-experience-v7.js'))throw new Error('v7 homepage assets are still bootstrapped');
+          const html=fs.readFileSync('index.html','utf8'),seo=fs.readFileSync('seo-structured-data.js','utf8');
+          for(const token of ['/gallery-v8.css?v=20260822-9','/home-experience-v8.js?v=20260822-9','/navigation-extra-v7.js?v=20260822-9'])if(!html.includes(token))throw new Error(`critical home asset missing: ${token}`);
+          if(/loadScript|data-gallery-v8|home-experience-v8/.test(seo))throw new Error('critical assets must not be dynamically bootstrapped');
           const funcs=fs.readdirSync('api').filter(f=>f.endsWith('.js')&&!f.startsWith('_'));
           if(funcs.length>12)throw new Error(`Vercel function budget exceeded: ${funcs.length}`);
           console.log({apiFunctions:funcs.length});
