@@ -1,0 +1,86 @@
+name: V7 production proof
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/v7-production-proof.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify production v7 assets and behavior
+        shell: bash
+        run: |
+          set -euo pipefail
+          base='https://oshiruoshi.vercel.app'
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "$tmp"' EXIT
+
+          curl --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 3 "$base/gallery-v7.css?v=20260821-7" -o "$tmp/gallery.css"
+          grep -Fq 'repeat(8,minmax(0,1fr))' "$tmp/gallery.css"
+          grep -Fq 'repeat(3,minmax(0,1fr))' "$tmp/gallery.css"
+          grep -Fq '.gallery-price' "$tmp/gallery.css"
+          grep -Fq 'aspect-ratio:1/1!important' "$tmp/gallery.css"
+
+          curl --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 3 "$base/home-experience-v7.js?v=20260821-7" -o "$tmp/home.js"
+          grep -Fq 'createImageBitmap' "$tmp/home.js"
+          grep -Fq 'MAX_DIMENSION=1600' "$tmp/home.js"
+          grep -Fq 'gallery-price' "$tmp/home.js"
+
+          curl --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 3 "$base/navigation-extra-v7.js?v=20260821-7" -o "$tmp/nav.js"
+          grep -Fq '画像検索' "$tmp/nav.js"
+          grep -Fq '最新グッズ' "$tmp/nav.js"
+          grep -Fq '/latest-goods' "$tmp/nav.js"
+
+          curl --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 3 "$base/latest-goods" -o "$tmp/latest.html"
+          grep -Fq 'data-official-rail' "$tmp/latest.html"
+          grep -Fq 'CollectionPage' "$tmp/latest.html"
+          grep -Fq 'shop.nijisanji.jp' "$tmp/latest.html"
+          grep -Fq 'shop.hololivepro.com' "$tmp/latest.html"
+
+          curl --fail --silent --show-error --location --retry 5 --retry-all-errors --retry-delay 3 "$base/api/live-search?q=%E4%BA%94%E6%9D%A1%E6%82%9F%20%E3%82%A2%E3%82%AF%E3%82%B9%E3%82%BF" -o "$tmp/search.json"
+          node <<'NODE' "$tmp/search.json"
+          const fs=require('fs');
+          const p=process.argv[2];
+          const d=JSON.parse(fs.readFileSync(p,'utf8'));
+          if(d.aliasVersion!=='2026-08-21.7')throw new Error(`unexpected search version: ${d.aliasVersion}`);
+          if(!Array.isArray(d.items)||d.items.length<1)throw new Error('no search items');
+          if(!Array.isArray(d.queryVariants)||d.queryVariants.length<1)throw new Error('query variants missing');
+          NODE
+
+          mkdir -p verification
+          CHECKED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)" node <<'NODE'
+          const fs=require('fs');
+          fs.writeFileSync('verification/v7-production-proof.json',JSON.stringify({
+            ok:true,
+            checkedAt:process.env.CHECKED_AT,
+            production:'https://oshiruoshi.vercel.app',
+            checks:[
+              'gallery-v7-8-and-3-column-css',
+              'gallery-price-and-square-image-layout',
+              'image-search-v7-client-optimization',
+              'taskbar-image-search-and-latest-goods',
+              'latest-goods-official-visual-rail',
+              'live-search-version-2026-08-21.7',
+              'live-search-query-variants-present'
+            ]
+          },null,2)+'\n');
+          NODE
+
+      - name: Record proof
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add verification/v7-production-proof.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Record v7 production proof'
+          git push
