@@ -9,11 +9,12 @@ import {
   rankSearchItems
 } from './search-language.mjs';
 
-const SEARCH_ALIAS_VERSION='2026-08-21.4-stage';
+const SEARCH_ALIAS_VERSION='2026-08-21.5-stage';
 const cache=new Map();
 const discoveryCache=new Map();
 const amazonCache=new Map();
 const MAX_RESULTS=120;
+const AMAZON_RESULT_TTL_MS=300_000;
 const GENERIC=new Set(['グッズ','商品','通販','販売','公式','非公式','新品','中古','セット','限定','予約','goods','item']);
 const WEB_MARKETS=[
   {key:'mercari',source:'メルカリ',domain:'jp.mercari.com',path:/^\/item\//},
@@ -88,7 +89,7 @@ function mapAmazonItem(item,i=0){
 }
 async function amazonSearch(query){
   const q=cleanQuery(query);if(!amazonReady()||!q)return{items:[],provider:{ok:false,count:0,error:null,skipped:true}};
-  const key=normalizeFlexible(q),hit=amazonCache.get(key);if(hit&&Date.now()-hit.at<60_000)return hit.value;
+  const key=normalizeFlexible(q),hit=amazonCache.get(key);if(hit&&Date.now()-hit.at<AMAZON_RESULT_TTL_MS)return hit.value;
   try{
     const token=await amazonAccessToken(),base=(process.env.AMAZON_CREATORS_API_ENDPOINT||'https://creatorsapi.amazon').replace(/\/$/,''),marketplace=process.env.AMAZON_MARKETPLACE||'www.amazon.co.jp';
     const data=await fetchJson(`${base}/catalog/v1/searchItems`,{method:'POST',headers:{authorization:`Bearer ${token}`,'content-type':'application/json','x-marketplace':marketplace},body:JSON.stringify({keywords:q,partnerTag:process.env.AMAZON_PARTNER_TAG,marketplace,searchIndex:'All',itemCount:10,resources:['images.primary.medium','itemInfo.title','offersV2.listings.availability','offersV2.listings.condition','offersV2.listings.merchantInfo','offersV2.listings.price']})},2200);
