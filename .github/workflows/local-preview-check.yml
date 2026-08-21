@@ -1,0 +1,54 @@
+name: Local preview check
+
+on:
+  push:
+    branches: [local-preview-all-visible-20260822]
+    paths:
+      - 'local-server.mjs'
+      - 'local-all-visible.js'
+      - 'local-preview.css'
+      - 'local-preview.html'
+      - 'package.json'
+      - '.github/workflows/local-preview-check.yml'
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax check
+        run: |
+          node --check local-server.mjs
+          node --check local-all-visible.js
+      - name: Start local preview
+        run: |
+          node local-server.mjs > /tmp/oshiru-local.log 2>&1 &
+          echo $! > /tmp/oshiru-local.pid
+          for i in $(seq 1 20); do
+            if curl -fsS http://127.0.0.1:4173/api/status >/tmp/status.json; then break; fi
+            sleep 0.5
+          done
+      - name: Verify all-visible endpoints
+        run: |
+          set -euo pipefail
+          curl -fsS http://127.0.0.1:4173/ | grep -Fq 'local-all-visible.js'
+          curl -fsS http://127.0.0.1:4173/__local | grep -Fq 'OSHIRU 全画面ローカル確認'
+          curl -fsS 'http://127.0.0.1:4173/api/search?q=%E4%BA%94%E6%9D%A1%E6%82%9F%20%E3%82%A2%E3%82%AF%E3%82%B9%E3%82%BF' >/tmp/search.json
+          node - <<'NODE'
+          const fs=require('fs');
+          const d=JSON.parse(fs.readFileSync('/tmp/search.json','utf8'));
+          const sources=new Set((d.items||[]).map(x=>x.source));
+          if(!sources.has('Yahoo!ショッピング'))throw new Error('Yahoo preview missing');
+          if(!sources.has('楽天市場'))throw new Error('Rakuten preview missing');
+          if(!d.providers?.localPreview)throw new Error('localPreview flag missing');
+          NODE
+          curl -fsS 'http://127.0.0.1:4173/api/image-proxy?source=yahoo&url=x' | grep -Fq 'LOCAL PREVIEW'
+          curl -fsS http://127.0.0.1:4173/latest-goods | grep -Fq 'local-all-visible.js'
+      - name: Show server log on failure
+        if: failure()
+        run: cat /tmp/oshiru-local.log || true
