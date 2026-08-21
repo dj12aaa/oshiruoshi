@@ -34,6 +34,8 @@
     };
 
     hydrateFilters();
+    const amazon=document.querySelector('.source-check[value="Amazon"]');
+    if(amazon)amazon.checked=true;
   }
 
   install();
