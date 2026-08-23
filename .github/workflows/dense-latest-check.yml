@@ -91,10 +91,19 @@ jobs:
           set -euo pipefail
           base='https://oshiruoshi.vercel.app'
           tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
+          ready=0
+          for attempt in $(seq 1 36); do
+            if curl --fail --silent --show-error --location "$base/gallery-v8.css?v=$attempt-${GITHUB_SHA}" -o "$tmp/gallery.css" \
+              && grep -Fq 'OSHIRU gallery v9' "$tmp/gallery.css"; then
+              ready=1
+              break
+            fi
+            sleep 5
+          done
+          test "$ready" = 1
           curl --fail --silent --show-error --location --retry 8 --retry-all-errors --retry-delay 4 "$base/latest-goods" -o "$tmp/latest.html"
           grep -Fq 'data-official-rail' "$tmp/latest.html"
           grep -Fq 'CollectionPage' "$tmp/latest.html"
-          curl --fail --silent --show-error --location --retry 8 --retry-all-errors --retry-delay 4 "$base/gallery-v8.css" -o "$tmp/gallery.css"
           grep -Fq 'repeat(8,minmax(0,1fr))' "$tmp/gallery.css"
           grep -Fq 'repeat(3,minmax(0,1fr))' "$tmp/gallery.css"
           grep -Fq '#sourceAccessPanel{display:none!important}' "$tmp/gallery.css"

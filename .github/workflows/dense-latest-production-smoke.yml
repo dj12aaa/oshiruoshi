@@ -11,8 +11,8 @@ permissions:
   contents: write
 
 concurrency:
-  group: v9-production-browser-verification
-  cancel-in-progress: true
+  group: oshiru-production-verification-writers
+  cancel-in-progress: false
 
 jobs:
   smoke:
@@ -99,21 +99,24 @@ jobs:
             const context=await browser.newContext({viewport,locale:'ja-JP',isMobile:viewport.width<600,hasTouch:viewport.width<600});
             const page=await context.newPage();
             await page.goto(`${base}/?q=${encodeURIComponent('五条悟 アクスタ')}&verify=${Date.now()}`,{waitUntil:'domcontentloaded',timeout:45000});
-            await page.waitForSelector('#productGrid .product-card',{state:'visible',timeout:45000});
-            await page.waitForFunction(()=>document.querySelectorAll('#productGrid .product-card').length>=2,null,{timeout:45000});
+            await page.waitForSelector('#productGrid .product-card[data-card-id]',{state:'visible',timeout:45000});
+            await page.waitForFunction(()=>document.querySelectorAll('#productGrid .product-card[data-card-id]').length>=2,null,{timeout:45000});
             await page.waitForTimeout(1200);
 
             const metrics=await page.evaluate(()=>{
-              const grid=document.querySelector('#productGrid'),cards=[...document.querySelectorAll('#productGrid .product-card')],card=cards[0];
+              const grid=document.querySelector('#productGrid'),cards=[...document.querySelectorAll('#productGrid .product-card[data-card-id]')],card=cards[0];
+              const visual=card?.querySelector('.visual');
               const source=card?.querySelector('.source-pill'),price=card?.querySelector('.gallery-price'),heart=card?.querySelector('.heart'),compare=card?.querySelector('.gallery-compare');
               const rect=el=>el?Object.fromEntries(['left','right','top','bottom','width','height'].map(k=>[k,el.getBoundingClientRect()[k]])):null;
               const visible=el=>!!el&&getComputedStyle(el).display!=='none'&&getComputedStyle(el).visibility!=='hidden'&&el.getBoundingClientRect().width>0&&el.getBoundingClientRect().height>0;
+              const inside=(child,parent)=>{const c=child?.getBoundingClientRect(),p=parent?.getBoundingClientRect();return!!c&&!!p&&c.left>=p.left-1&&c.right<=p.right+1&&c.top>=p.top-1&&c.bottom<=p.bottom+1};
               const gridStyle=grid?getComputedStyle(grid):null;
               const search=document.querySelector('.search-panel')?.getBoundingClientRect(),gridRect=grid?.getBoundingClientRect();
               return{
                 cards:cards.length,
                 columns:gridStyle?.gridTemplateColumns?.split(/\s+/).filter(Boolean).length||0,
                 sourceVisible:visible(source),priceVisible:visible(price),heartVisible:visible(heart),compareVisible:visible(compare),
+                controlsInsideVisual:[source,price,heart,compare].every(control=>inside(control,visual)),
                 heartText:heart?.textContent?.trim()||'',compareText:compare?.textContent?.trim()||'',
                 heartRect:rect(heart),compareRect:rect(compare),sourceRect:rect(source),priceRect:rect(price),
                 sourcePanelPresent:!!document.getElementById('sourceAccessPanel'),
@@ -124,16 +127,17 @@ jobs:
                 searchToGridGap:search&&gridRect?gridRect.top-search.bottom:null
               };
             });
+            console.log(name,JSON.stringify(metrics));
+            await page.screenshot({path:`verification/screenshots/${name}-search.png`,fullPage:false});
             if(metrics.columns!==expectedColumns)throw new Error(`${name}: expected ${expectedColumns} columns, got ${metrics.columns}`);
             if(metrics.cards<2||!metrics.sourceVisible||!metrics.priceVisible||!metrics.heartVisible||!metrics.compareVisible)throw new Error(`${name}: card controls/source/price missing`);
+            if(!metrics.controlsInsideVisual)throw new Error(`${name}: card overlays escaped the image area`);
             if(!['♡','♥'].includes(metrics.heartText))throw new Error(`${name}: heart text broken: ${metrics.heartText}`);
             if(metrics.compareText!=='＋')throw new Error(`${name}: compare text broken: ${metrics.compareText}`);
             if(metrics.heartRect.width<27||metrics.heartRect.height<27||metrics.compareRect.width<27||metrics.compareRect.height<27)throw new Error(`${name}: tap targets too small`);
             if(metrics.sourcePanelPresent||metrics.sourceStripVisible||metrics.betaVisible)throw new Error(`${name}: legacy source panels remain visible`);
             if(metrics.bodyOverflow||!metrics.gridInsideViewport)throw new Error(`${name}: horizontal layout overflow`);
             if(viewport.width<600&&Number(metrics.searchToGridGap)>140)throw new Error(`${name}: merchandise grid is too far below search (${metrics.searchToGridGap}px)`);
-
-            await page.screenshot({path:`verification/screenshots/${name}-search.png`,fullPage:false});
 
             await page.locator('#imageSearchBtn').click({force:true});
             await page.waitForSelector('.modal.image-search-open',{state:'visible',timeout:10000});
@@ -159,8 +163,9 @@ jobs:
               autoMoved:document.querySelector('[data-official-rail]')?.scrollLeft>initialRailLeft+2,
               overflow:document.documentElement.scrollWidth>innerWidth+2
             }),initialRailLeft);
-            if(latest.previewCards<3||latest.sourceCards<10||latest.sourceLabels<3||!latest.railToggleVisible||!latest.autoMoved||latest.overflow)throw new Error(`${name}: latest-goods layout/source/rotation regression`);
+            console.log(`${name}-latest`,JSON.stringify(latest));
             await page.screenshot({path:`verification/screenshots/${name}-latest.png`,fullPage:false});
+            if(latest.previewCards<3||latest.sourceCards<10||latest.sourceLabels<3||!latest.railToggleVisible||!latest.autoMoved||latest.overflow)throw new Error(`${name}: latest-goods layout/source/rotation regression`);
             await context.close();
             return{...metrics,imageSearch:modal,latest};
           }
@@ -176,10 +181,11 @@ jobs:
           NODE
 
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: v9-production-screenshots
           path: verification/screenshots/*.png
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 7
 
       - name: Record successful v9 verification
@@ -196,10 +202,4 @@ jobs:
           },null,2)+'\n');
           NODE
           git add verification/v9-production.json verification/v9-ui-metrics.json
-          git commit -m 'Record v9 production browser verification'
-          for attempt in 1 2 3; do
-            if git push origin HEAD:main; then exit 0; fi
-            git pull --rebase origin main
-            sleep 2
-          done
-          exit 1
+          bash .github/scripts/push-verification.sh 'Record v9 production browser verification'
