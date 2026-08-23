@@ -129,6 +129,14 @@
 - 自動検査: `tests/layout-v9.test.mjs`がidempotent更新関数、直下だけのobserver、旧`subtree/characterData`設定の不在、home版markerを固定する。2本のquality workflowも同じ不変条件を検査し、本番Playwrightは390px/1440pxで初回カード描画、「なると」のlive商品描画、その後の画像検索と最新情報まで操作する。
 - 本番証拠: 正規ドメインでhome版`2026-08-23.14`を確認し、実ブラウザworkflowがDOM診断・モバイル・PCの全工程を終了して成功すること。成功前は解決済みとしない。
 
+### QL-015 workflow内の別Node heredocにある変数を参照してCIを失敗させる
+
+- 症状: V14の単体検査とVercel previewは成功したが、V9 quality workflowのtaskbar検査で`ReferenceError: home is not defined`となった。
+- 根本原因: 同じworkflow step内でも複数の`node <<'NODE'`は別プロセス・別scopeである。前のheredocで定義した`home`を後のheredocでも参照できると見誤り、新しいobserver検査だけを後段へ追加した。
+- 恒久対策: 各heredocを自己完結させ、使用するファイルと変数はそのブロック内で必ず定義する。検査追加時は対象stepをCIで再実行し、製品テスト成功とworkflow成功を区別する。
+- 自動検査: `tests/process-guard-v9.test.mjs`がtaskbar検査ブロック内の`home=fs.readFileSync('home-experience-v8.js'`とobserver検査の両方を固定する。
+- 本番証拠: PRのV9 search and layout qualityが再実行で成功すること。成功前はmainへ統合しない。
+
 ## リリース前チェックリスト
 
 - [ ] 今回のユーザー指摘を本台帳へ追記した
@@ -154,3 +162,4 @@
 - 2026-08-23 21:19 JST: モバイル本番で検索中表示とスケルトンが終了しない症状を確認。初回snapshot即時応答、live取得期限、UI終了保証をV11候補へ追加。本番反映前のため、この時点では解決済みとしない。
 - 2026-08-23: 初回成功後にだけlive検索を始める直列依存と、release固有でないproduction待機markerを追加原因として特定。並行検索・結果統合・独立watchdog・UI版`2026-08-23.12`・「なると」実商品描画検査をV12候補へ追加。本番browser検査成功前のため、この時点では解決済みとしない。
 - 2026-08-23: API成功後もPlaywrightがDOMへ応答できない本番証拠から、カード補正observerの無条件`textContent`更新によるmicrotask自己再発火を特定。idempotent更新・grid直下だけの監視・home版`2026-08-23.14`をV14候補へ追加。本番browser検査成功前のため、この時点では解決済みとしない。
+- 2026-08-23: V14 PRのquality検査で、別Node heredocの変数を参照するscope漏れを確認。各検査ブロックを自己完結させ、QL-015として再発防止条件へ追加。
