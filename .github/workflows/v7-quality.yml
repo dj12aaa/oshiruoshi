@@ -113,7 +113,8 @@ jobs:
           const nav=fs.readFileSync('navigation-extra-v7.js','utf8');
           for(const token of ['画像検索','最新グッズ','data-open-image-search','/latest-goods'])if(!nav.includes(token))throw new Error(`dock extension missing: ${token}`);
           const html=fs.readFileSync('index.html','utf8'),seo=fs.readFileSync('seo-structured-data.js','utf8');
-          for(const token of ['/gallery-v8.css?v=20260822-9','/home-experience-v8.js?v=20260822-9','/navigation-extra-v7.js?v=20260822-9'])if(!html.includes(token))throw new Error(`critical home asset missing: ${token}`);
+          for(const token of ['/gallery-v8.css?v=20260822-9','/home-experience-v8.js?v=20260823-14','/navigation-extra-v7.js?v=20260822-9'])if(!html.includes(token))throw new Error(`critical home asset missing: ${token}`);
+          if(!home.includes("HOME_EXPERIENCE_VERSION='2026-08-23.14'")||home.includes('observe(grid,{childList:true,subtree:true,characterData:true})'))throw new Error('self-triggering gallery observer remains');
           if(/loadScript|data-gallery-v8|home-experience-v8/.test(seo))throw new Error('critical assets must not be dynamically bootstrapped');
           const config=JSON.parse(fs.readFileSync('vercel.json','utf8'));
           if(!(config.rewrites||[]).some(x=>x.source==='/api/live-search-v8'&&x.destination==='/api/search'))throw new Error('live-search-v8 compatibility rewrite missing');

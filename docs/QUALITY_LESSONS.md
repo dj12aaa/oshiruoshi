@@ -121,6 +121,14 @@
 - 自動検査: `tests/layout-v9.test.mjs`がlive検索を初回awaitより前に開始すること、統合処理、12秒上限、watchdog、UI版markerを固定する。本番Playwrightは実際の「なると」で検索中表示の解除だけでなく6件以上の商品描画と一般小売ノイズ除外まで確認する。HTTP検査もUI版markerと`app.js`版の一致を待つ。
 - 本番証拠: 正規ドメインの390px/1440px実ブラウザで「なると」のlive商品描画、検索ボタン復元、skeleton 0件、UI版`2026-08-23.12`を確認する。workflow成功前は解決済みとしない。
 
+### QL-014 商品カード描画直後にMutationObserverが自己再発火して画面を停止する
+
+- 症状: 本番APIは商品を返し、検索UI版も一致しているのに、実ブラウザでは商品カードへ切り替わる直前のskeletonが残った。Playwrightもページ内JavaScriptへ応答を求める操作から戻らず、ジョブ終了時まで診断DOMを取得できなかった。
+- 根本原因: `home-experience-v8.js`が商品grid配下の`childList`・`subtree`・`characterData`を監視し、observer callback内でお気に入り・比較ボタンへ毎回無条件に`textContent`を書き込んでいた。`textContent`更新が新しいmutationを発生させ、そのcallbackがpaint前のmicrotaskで自己再発火し続けたため、API成功後にメインスレッドが描画へ戻れなかった。
+- 恒久対策: DOM値は現在値と異なる場合だけ更新するidempotentな関数へ統一する。商品一覧はカードが直接子として置換されるため、observer対象をgrid直下の`childList`だけに限定し、子孫の文字変更を監視しない。HTMLとscriptにhome体験版`2026-08-23.14`を明示して旧script cacheを排除する。
+- 自動検査: `tests/layout-v9.test.mjs`がidempotent更新関数、直下だけのobserver、旧`subtree/characterData`設定の不在、home版markerを固定する。2本のquality workflowも同じ不変条件を検査し、本番Playwrightは390px/1440pxで初回カード描画、「なると」のlive商品描画、その後の画像検索と最新情報まで操作する。
+- 本番証拠: 正規ドメインでhome版`2026-08-23.14`を確認し、実ブラウザworkflowがDOM診断・モバイル・PCの全工程を終了して成功すること。成功前は解決済みとしない。
+
 ## リリース前チェックリスト
 
 - [ ] 今回のユーザー指摘を本台帳へ追記した
@@ -145,3 +153,4 @@
 - 2026-08-23: Felix／キリコの本番誤検索と別名の連鎖置換を特定。複合文脈必須filter、正規provider query、誤商品回帰testをV10候補へ追加。本番反映前のため、この時点では精度改善を確認済みとしない。
 - 2026-08-23 21:19 JST: モバイル本番で検索中表示とスケルトンが終了しない症状を確認。初回snapshot即時応答、live取得期限、UI終了保証をV11候補へ追加。本番反映前のため、この時点では解決済みとしない。
 - 2026-08-23: 初回成功後にだけlive検索を始める直列依存と、release固有でないproduction待機markerを追加原因として特定。並行検索・結果統合・独立watchdog・UI版`2026-08-23.12`・「なると」実商品描画検査をV12候補へ追加。本番browser検査成功前のため、この時点では解決済みとしない。
+- 2026-08-23: API成功後もPlaywrightがDOMへ応答できない本番証拠から、カード補正observerの無条件`textContent`更新によるmicrotask自己再発火を特定。idempotent更新・grid直下だけの監視・home版`2026-08-23.14`をV14候補へ追加。本番browser検査成功前のため、この時点では解決済みとしない。
