@@ -1,0 +1,120 @@
+name: V9 search and layout quality
+
+on:
+  push:
+    branches:
+      - 'work/**'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: JavaScript syntax
+        run: |
+          node --check api/live-search.js
+          node --check api/live-search-v8.js
+          node --check api/search-language.mjs
+          node --check home-experience-v8.js
+          node --check navigation-extra-v7.js
+          node --check latest-goods.js
+          node --check seo-structured-data.js
+          node --check app.js
+          node --check performance-v3.js
+
+      - name: Unit and regression tests
+        run: npm test
+
+      - name: Search relevance regression cases
+        run: |
+          node --input-type=module <<'NODE'
+          import {buildSearchVariants,detectIntent} from './api/search-language.mjs';
+          import {oshiMerchBias} from './api/live-search.js';
+          import {effectiveQuery,relevant} from './api/live-search-v8.js';
+
+          const cases=['五条悟 アクスタ','Felix ボイスキーホルダー','キリコ ぬい','ローレン・イロアス アクキー'];
+          for(const q of cases){
+            const variants=buildSearchVariants(q,5);
+            if(!variants.length)throw new Error(`no search variants: ${q}`);
+            if(!variants.some(v=>String(v.query).trim()))throw new Error(`blank variants: ${q}`);
+          }
+          const merch={title:'五条悟 公式 アクリルスタンド 限定グッズ',type:'アクスタ',tags:['五条悟','呪術廻戦']};
+          const generic={title:'なると ヘアピン 2個セット レディース 日用品',type:'通販',tags:['ヘアピン']};
+          const manga={title:'漫画 なると! 7巻 コミック',type:'通販',tags:['コミック']};
+          const narutoMerch={title:'NARUTO ナルト 疾風伝 公式 アクリルスタンド',type:'アクスタ',tags:['NARUTO','ナルト','グッズ']};
+          if(!relevant(merch,'五条悟'))throw new Error('valid Gojo merchandise rejected');
+          if(!relevant(narutoMerch,'ナルト'))throw new Error('valid NARUTO merchandise rejected');
+          if(relevant(generic,'ナルト'))throw new Error('ordinary naruto hairpin passed precision filter');
+          if(relevant(manga,'ナルト'))throw new Error('unrelated manga passed precision filter');
+          if(!/NARUTO/.test(effectiveQuery('ナルト'))||!/グッズ/.test(effectiveQuery('ナルト')))throw new Error(`NARUTO disambiguation failed: ${effectiveQuery('ナルト')}`);
+          const merchBias=oshiMerchBias(merch,'五条悟'),noiseBias=oshiMerchBias(generic,'五条悟');
+          if(merchBias-noiseBias<60)throw new Error(`oshi merchandise separation too weak: ${merchBias}/${noiseBias}`);
+          if(!detectIntent('Felix ボイスキーホルダー').merchGroups.length)throw new Error('voice-keyholder intent missing');
+          console.log({cases:'ok',merchBias,noiseBias,naruto:effectiveQuery('ナルト')});
+          NODE
+
+      - name: Ensure precision-first live search architecture
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const live=fs.readFileSync('api/live-search.js','utf8');
+          for(const token of ['MAX_VARIANTS=5','countStrongMatches','robustVariants','oshiMerchBias','SEARCH_ALIAS_VERSION=\'2026-08-21.7\''])if(!live.includes(token))throw new Error(`search invariant missing: ${token}`);
+          const v8=fs.readFileSync('api/live-search-v8.js','utf8');
+          for(const token of ["VERSION='2026-08-22.9'",'GENERIC_RETAIL_NOISE','effectiveQuery','precisionVersion','snapshotSearch','strictVerified'])if(!v8.includes(token))throw new Error(`v9 precision invariant missing: ${token}`);
+          const perf=fs.readFileSync('performance-v3.js','utf8');
+          if(!perf.includes("PRECISION_ENDPOINT='/api/live-search-v8'"))throw new Error('client live search is not routed through v8 precision endpoint');
+          const search=fs.readFileSync('api/search.js','utf8');
+          if(!search.includes('idle:true')||!search.includes('items:[]')||!search.includes('precisionSearch'))throw new Error('primary search is not precision-first');
+          NODE
+
+      - name: Validate stable gallery and image-search geometry
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const css=fs.readFileSync('gallery-v8.css','utf8');
+          for(const token of [
+            'repeat(8,minmax(0,1fr))','repeat(7,minmax(0,1fr))','repeat(6,minmax(0,1fr))','repeat(5,minmax(0,1fr))','repeat(4,minmax(0,1fr))','repeat(3,minmax(0,1fr))',
+            '.gallery-price','.gallery-compare','aspect-ratio:1/1!important','overflow-x:hidden','#sourceAccessPanel{display:none!important}',
+            '.gallery-compare::before','content:none!important','.image-search-head{min-height:48px;padding-right:58px','width:42px!important;height:42px!important'
+          ])if(!css.includes(token))throw new Error(`gallery v8 invariant missing: ${token}`);
+          const open=(css.match(/\{/g)||[]).length,close=(css.match(/\}/g)||[]).length;if(open!==close)throw new Error(`gallery CSS braces ${open}/${close}`);
+          const home=fs.readFileSync('home-experience-v8.js','utf8');
+          for(const token of ['removeLegacySourcePanel','createImageBitmap','fetchPriority','gallery-price','gallery-compare','/api/vision-search','OPENAI_API_KEY'])if(!home.includes(token))throw new Error(`home v8 invariant missing: ${token}`);
+          NODE
+
+      - name: Validate latest goods visual rail and SEO
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const html=fs.readFileSync('latest-goods.html','utf8'),css=fs.readFileSync('latest-goods.css','utf8'),js=fs.readFileSync('latest-goods.js','utf8');
+          for(const token of ['data-official-rail','official-preview-card','data-live-until','data-checked-at','SOLD OUT 8/23','shop.nijisanji.jp/on/demandware.static','shop.hololivepro.com/cdn/shop','jujutsukaisen.jp/news/images','straykidsjapan.com/runitjapan/img','CollectionPage','ItemList','navigation-extra-v7.js'])if(!html.includes(token))throw new Error(`latest hub invariant missing: ${token}`);
+          if(/"@type":"(?:Product|MerchantListing)"/.test(html))throw new Error('merchant schema must not be used on latest hub');
+          for(const token of ['scroll-snap-type:x mandatory','height:220px','overflow-x:auto','image-failed'])if(!css.includes(token))throw new Error(`rail layout invariant missing: ${token}`);
+          for(const token of ['pruneExpired','Date.parse(el.dataset.liveUntil','filter(card=>!card.hidden)','setInterval(advance,4200)','pointerdown','prefers-reduced-motion','is-failed','manualPaused','railToggle'])if(!js.includes(token))throw new Error(`rail behavior invariant missing: ${token}`);
+          NODE
+
+      - name: Validate taskbar, bootstrap and function budget
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const nav=fs.readFileSync('navigation-extra-v7.js','utf8');
+          for(const token of ['画像検索','最新グッズ','data-open-image-search','/latest-goods'])if(!nav.includes(token))throw new Error(`dock extension missing: ${token}`);
+          const html=fs.readFileSync('index.html','utf8'),seo=fs.readFileSync('seo-structured-data.js','utf8');
+          for(const token of ['/gallery-v8.css?v=20260822-9','/home-experience-v8.js?v=20260822-9','/navigation-extra-v7.js?v=20260822-9'])if(!html.includes(token))throw new Error(`critical home asset missing: ${token}`);
+          if(/loadScript|data-gallery-v8|home-experience-v8/.test(seo))throw new Error('critical assets must not be dynamically bootstrapped');
+          const funcs=fs.readdirSync('api').filter(f=>f.endsWith('.js')&&!f.startsWith('_'));
+          if(funcs.length>12)throw new Error(`Vercel function budget exceeded: ${funcs.length}`);
+          console.log({apiFunctions:funcs.length});
+          NODE

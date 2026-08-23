@@ -7,7 +7,7 @@
   <title>OSHIRU | 推し活グッズを横断検索・価格比較</title>
   <meta name="description" content="OSHIRUは推し活グッズを複数の販売サイトから横断検索し、商品価格・送料・販売状況を比較できる検索サービスです。">
   <meta name="robots" content="index,follow,max-image-preview:large">
-  <meta name="last-modified" content="2026-08-19">
+  <meta name="last-modified" content="2026-08-22">
   <link rel="canonical" href="https://oshiruoshi.vercel.app/">
   <link rel="sitemap" type="application/xml" href="/sitemap.xml">
   <meta property="og:type" content="website">
@@ -25,6 +25,8 @@
   <link rel="stylesheet" href="/navigation-v4.css?v=20260819-pcfix1">
   <link rel="stylesheet" href="/affiliate-widget.css?v=20260819-pcfix1">
   <link rel="stylesheet" href="/predictive-mobile.css?v=20260819-searchmode1">
+  <!-- Critical gallery geometry is loaded directly and last so legacy card CSS can never win. -->
+  <link rel="stylesheet" href="/gallery-v8.css?v=20260822-9">
   <link rel="manifest" href="/manifest.webmanifest">
   <script src="/seo-structured-data.js?v=20260819-seo2" defer></script>
 </head>
@@ -149,13 +151,16 @@
 <div id="compareTray" class="compare-tray hidden"><div><b><span id="compareCount">0</span>件を比較</b><small>最大4件</small></div><div><button id="clearCompare">クリア</button><button id="openCompare" class="primary-small">比較表を開く</button></div></div>
 <div id="modal" class="modal hidden" role="dialog" aria-modal="true"><div class="modal-card"><button id="modalClose" class="modal-close" aria-label="閉じる">×</button><div id="modalContent"></div></div></div>
 <div id="toast" class="toast"></div>
-<script src="/performance-v3.js?v=20260819-pcfix1"></script>
+<script src="/performance-v3.js?v=20260822-9"></script>
 <script src="/seo-query-bridge.js?v=20260819-seo1"></script>
-<script src="/app.js?v=20260819-pcfix1"></script>
+<script src="/app.js?v=20260822-9"></script>
 <script src="/ui-v2.js?v=20260819-pcfix1"></script>
 <script src="/predictive-mobile.js?v=20260819-searchmode1"></script>
 <script src="/enhancements.js?v=20260819-pcfix1"></script>
 <script src="/navigation-v4.js?v=20260819-pcfix1"></script>
 <script src="/affiliate-widget.js?v=20260819-pcfix1"></script>
+<!-- These enhancements depend on the base app/navigation and are intentionally explicit. -->
+<script src="/home-experience-v8.js?v=20260822-9"></script>
+<script src="/navigation-extra-v7.js?v=20260822-9"></script>
 </body>
 </html>
