@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-08-21T10:52:27.120Z",
+  "checkedAt": "2026-08-23T11:18:37.892Z",
   "url": "https://oshiruoshi.vercel.app/",
   "homeHttp": 200,
   "homeHasOshiru": true,
@@ -93,7 +93,7 @@
       "rakuten": {
         "ok": false,
         "count": 0,
-        "error": "upstream_429"
+        "error": "upstream_403"
       },
       "sources": [
         "Yahoo!ショッピング"
