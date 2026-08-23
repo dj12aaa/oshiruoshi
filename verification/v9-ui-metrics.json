@@ -1,0 +1,283 @@
+{
+  "checkedAt": "2026-08-23T13:45:59.047Z",
+  "mobile": {
+    "uiVersion": "2026-08-23.17",
+    "homeVersion": "2026-08-23.14",
+    "affiliateVersion": "2026-08-23.16",
+    "diagnostics": {
+      "version": "2026-08-23.17",
+      "phase": "results",
+      "query": "五条悟 アクスタ",
+      "initial": "complete",
+      "live": "complete",
+      "initialQuery": "五条悟 アクスタ",
+      "liveQuery": "五条悟 アクスタ",
+      "initialItems": 7,
+      "liveItems": 33,
+      "updatedAt": "2026-08-23T13:45:39.874Z"
+    },
+    "cards": 30,
+    "columns": 3,
+    "sourceVisible": true,
+    "priceVisible": true,
+    "heartVisible": true,
+    "compareVisible": true,
+    "controlsInsideVisual": true,
+    "heartText": "♡",
+    "compareText": "＋",
+    "heartRect": {
+      "left": 96.65625,
+      "right": 124.65625,
+      "top": 288.34375,
+      "bottom": 316.34375,
+      "width": 28,
+      "height": 28
+    },
+    "compareRect": {
+      "left": 96.65625,
+      "right": 124.65625,
+      "top": 377,
+      "bottom": 405,
+      "width": 28,
+      "height": 28
+    },
+    "sourceRect": {
+      "left": 8,
+      "right": 92.65625,
+      "top": 288.34375,
+      "bottom": 308.34375,
+      "width": 84.65625,
+      "height": 20
+    },
+    "priceRect": {
+      "left": 8,
+      "right": 48.125,
+      "top": 387.453125,
+      "bottom": 405,
+      "width": 40.125,
+      "height": 17.546875
+    },
+    "sourcePanelPresent": false,
+    "sourceStripVisible": false,
+    "betaVisible": false,
+    "gridInsideViewport": true,
+    "bodyOverflow": false,
+    "searchToGridGap": 10,
+    "searchSettlement": {
+      "elapsedMs": 2930,
+      "buttonText": "横断検索",
+      "skeletons": 0,
+      "cards": 28,
+      "emptyVisible": false,
+      "diagnostics": {
+        "version": "2026-08-23.17",
+        "phase": "results",
+        "query": "なると",
+        "initial": "complete",
+        "live": "complete",
+        "initialQuery": "なると",
+        "liveQuery": "なると",
+        "initialItems": 0,
+        "liveItems": 28,
+        "updatedAt": "2026-08-23T13:45:45.560Z"
+      },
+      "titles": [
+        "NARUTO ナルト グッズ ビッグシール 少年ジャンプ アニメキャラクター ダイカットビニールステッカー プレゼント 男の子 女の子 バレンタ 爆買",
+        "NARUTO-ナルト- 疾風伝 ダイカットビニールステッカー うちはイタチ アニメ 漫画 少年ジャンプ 忍者 人気 キャラクター gs 公式グッズ NRT008",
+        "一番くじ NARUTO-ナルト- NARUTOP99 -豪華絢爛忍絵巻- D賞 うちはイタチ フィギュア (NARUTO99記念 岸本斉史描き下ろしイ",
+        "大人用 パーカースウェットトップスNARUTO -ナルト- グッズ ゲーム プレゼント メンズ　レディース薄め仕様、厚め仕様",
+        "中国 グッズ『NARUTO -ナルト- 疾風伝 かえる がま口財布 なるとさいふ』公式グッズ",
+        "【送料無料】2026/09発売 [グッズ]/NARUTO -ナルト- 疾風伝 トレーディング 缶バッジ 描き下ろし パジャマ Ver. BOX【MAW】",
+        "NARUTO ナルト 疾風伝 VIBRATION STARS DEIDARA デイダラ フィギュア ナルト アニメ キャラ バンプレスト グッズ",
+        "【送料無料】2026/11発売 [グッズ]/TVアニメ NARUTO -ナルト- 疾風伝 おなまえぴたんコ アクリルキーホルダー BOX【ジーベック】",
+        "G.E.M.シリーズ 『NARUTO-ナルト- 疾風伝』 てのひらミナト (塗装済み完成品フィギュア)",
+        "NARUTO ナルト 疾風伝 VIBRATION STARS ROCK LEE ロック・リー フィギュア アニメ プライズ バンプレスト グッズ",
+        "【Naruto ナルト コスプレ グッズ】木ノ葉隠れの里 鉢金額当て コスプレ 小道具 グッズ アニメ cosplay",
+        "NARUTO -ナルト- コスプレ コスチューム グッズ 額当て 木ノ葉隠れ 砂隠れ 霧隠れ 雨隠れ 忍連合軍イタチ 我愛羅ペイン大蛇丸 暁 　アニメ周辺",
+        "【Naruto ナルト コスプレ グッズ】自来也眼帯 コスプレ 小道具 グッズ アニメ cosplay",
+        "NARUTO-ナルト- 我愛羅 3Dプリント パーカー スウエット アニメグッズ 春秋用  ハロウィン クリスマス イベンド 変装 仮装  プレゼント 男女兼用",
+        "送料無料◆新品 NARUTO -ナルト-  リュック 夜光 USB リュックサック グッズ ヴェノム ファッション  大容量 通学 防水 遠足 旅行リュック 耐久性 学校",
+        "送料無料◆新品 NARUTO -ナルト-  リュック 夜光 USB リュックサック グッズ ヴェノム ファッション  大容量 通学 防水 遠足 旅行リュック 耐久性 学校",
+        "2026新品 成人服 長袖 パーカー NARUTO -ナルト- 風 秋冬 アイテム トップス 男の子 女の子 可愛い グッズ 成人服 誕生日 グッズ プレゼント",
+        "新品 NARUTO -ナルト- 風 暁組織 半袖 Tシャツ 大人子供気 キャラクターグッズ 周辺 通気 吸汗 速乾",
+        "NARUTO -ナルト- 風 コスプレ衣装  親子服 上下セット半袖 Tシャツ ズボン 春夏秋パジャマグッズグッズ 子供 成人 スウェット",
+        "送料無料◆新品 NARUTO -ナルト- 風  暁組織 半袖  Tシャツ 大人気 キャラクターグッズ  周辺 通気 吸汗 速乾",
+        "NARUTO - ナルト - 疾風伝 暁（あかつき）グッズ 風 ジャケット 春秋 男女兼用 パーカー コート着 周辺",
+        "NARUTO - ナルト - 疾風伝 暁（あかつき）グッズ 風 ジャケット 春秋 男女兼用 パーカー コート着 周辺",
+        "【送料無料】2026/09発売 [グッズ]/NARUTO -ナルト- 疾風伝 トレーディング クリアプレート 描き下ろし パジャマ Ver. BOX【MAW】",
+        "【送料無料】2026/11発売 [グッズ]/MEGA CAT PROJECT NARUTO -ナルト- 疾風伝 ニャルト!少しむかしむかしの 木ノ葉隠れの里だってばよ! BOX【メガハウス",
+        "【送料無料】2027/02発売 [グッズ]/G.E.M.シリーズ NARUTO-ナルト- 疾風伝 てのひらミナト【メガハウス】",
+        "【送料無料】2026/11発売 [グッズ]/G.E.M.シリーズ NARUTO-ナルト- 疾風伝 てのひらイタチ【メガハウス】",
+        "【送料無料】2025/12発売 [グッズ]/MEGA CAT PROJECT NARUTO-ナルト- 疾風伝 おやすみニャルト! BOX【メガハウス】",
+        "NARUTO ナルト 疾風伝 モノクロ うずまきナルト うちはサスケ プリント 半袖 Tシャツ メンズ 紳士 M L LL 春 夏 アニメ キャラクター グッズ 部屋着 パジャマ"
+      ]
+    },
+    "imageSearch": {
+      "heading": {
+        "left": 34,
+        "right": 328,
+        "top": 273.25,
+        "bottom": 332.125,
+        "width": 294,
+        "height": 58.875
+      },
+      "close": {
+        "left": 346,
+        "right": 386,
+        "top": 249.25,
+        "bottom": 289.25,
+        "width": 40,
+        "height": 40
+      },
+      "closeText": "×"
+    },
+    "latest": {
+      "previewCards": 4,
+      "sourceCards": 12,
+      "sourceLabels": 4,
+      "railToggleVisible": true,
+      "autoMoved": true,
+      "overflow": false
+    }
+  },
+  "desktop": {
+    "uiVersion": "2026-08-23.17",
+    "homeVersion": "2026-08-23.14",
+    "affiliateVersion": "2026-08-23.16",
+    "diagnostics": {
+      "version": "2026-08-23.17",
+      "phase": "results",
+      "query": "五条悟 アクスタ",
+      "initial": "complete",
+      "live": "complete",
+      "initialQuery": "五条悟 アクスタ",
+      "liveQuery": "五条悟 アクスタ",
+      "initialItems": 7,
+      "liveItems": 33,
+      "updatedAt": "2026-08-23T13:45:51.094Z"
+    },
+    "cards": 30,
+    "columns": 7,
+    "sourceVisible": true,
+    "priceVisible": true,
+    "heartVisible": true,
+    "compareVisible": true,
+    "controlsInsideVisual": true,
+    "heartText": "♡",
+    "compareText": "＋",
+    "heartRect": {
+      "left": 412.28125,
+      "right": 442.28125,
+      "top": 730.4375,
+      "bottom": 760.4375,
+      "width": 30,
+      "height": 30
+    },
+    "compareRect": {
+      "left": 412.28125,
+      "right": 442.28125,
+      "top": 842.71875,
+      "bottom": 872.71875,
+      "width": 30,
+      "height": 30
+    },
+    "sourceRect": {
+      "left": 301,
+      "right": 405.34375,
+      "top": 730.4375,
+      "bottom": 750.4375,
+      "width": 104.34375,
+      "height": 20
+    },
+    "priceRect": {
+      "left": 301,
+      "right": 349.703125,
+      "top": 851.53125,
+      "bottom": 872.71875,
+      "width": 48.703125,
+      "height": 21.1875
+    },
+    "sourcePanelPresent": false,
+    "sourceStripVisible": false,
+    "betaVisible": false,
+    "gridInsideViewport": true,
+    "bodyOverflow": false,
+    "searchToGridGap": 288.546875,
+    "searchSettlement": {
+      "elapsedMs": 158,
+      "buttonText": "横断検索",
+      "skeletons": 0,
+      "cards": 28,
+      "emptyVisible": false,
+      "diagnostics": {
+        "version": "2026-08-23.17",
+        "phase": "results",
+        "query": "なると",
+        "initial": "complete",
+        "live": "complete",
+        "initialQuery": "なると",
+        "liveQuery": "なると",
+        "initialItems": 0,
+        "liveItems": 28,
+        "updatedAt": "2026-08-23T13:45:53.745Z"
+      },
+      "titles": [
+        "NARUTO ナルト グッズ ビッグシール 少年ジャンプ アニメキャラクター ダイカットビニールステッカー プレゼント 男の子 女の子 バレンタ 爆買",
+        "NARUTO-ナルト- 疾風伝 ダイカットビニールステッカー うちはイタチ アニメ 漫画 少年ジャンプ 忍者 人気 キャラクター gs 公式グッズ NRT008",
+        "一番くじ NARUTO-ナルト- NARUTOP99 -豪華絢爛忍絵巻- D賞 うちはイタチ フィギュア (NARUTO99記念 岸本斉史描き下ろしイ",
+        "大人用 パーカースウェットトップスNARUTO -ナルト- グッズ ゲーム プレゼント メンズ　レディース薄め仕様、厚め仕様",
+        "中国 グッズ『NARUTO -ナルト- 疾風伝 かえる がま口財布 なるとさいふ』公式グッズ",
+        "【送料無料】2026/09発売 [グッズ]/NARUTO -ナルト- 疾風伝 トレーディング 缶バッジ 描き下ろし パジャマ Ver. BOX【MAW】",
+        "NARUTO ナルト 疾風伝 VIBRATION STARS DEIDARA デイダラ フィギュア ナルト アニメ キャラ バンプレスト グッズ",
+        "【送料無料】2026/11発売 [グッズ]/TVアニメ NARUTO -ナルト- 疾風伝 おなまえぴたんコ アクリルキーホルダー BOX【ジーベック】",
+        "G.E.M.シリーズ 『NARUTO-ナルト- 疾風伝』 てのひらミナト (塗装済み完成品フィギュア)",
+        "NARUTO ナルト 疾風伝 VIBRATION STARS ROCK LEE ロック・リー フィギュア アニメ プライズ バンプレスト グッズ",
+        "【Naruto ナルト コスプレ グッズ】木ノ葉隠れの里 鉢金額当て コスプレ 小道具 グッズ アニメ cosplay",
+        "NARUTO -ナルト- コスプレ コスチューム グッズ 額当て 木ノ葉隠れ 砂隠れ 霧隠れ 雨隠れ 忍連合軍イタチ 我愛羅ペイン大蛇丸 暁 　アニメ周辺",
+        "【Naruto ナルト コスプレ グッズ】自来也眼帯 コスプレ 小道具 グッズ アニメ cosplay",
+        "NARUTO-ナルト- 我愛羅 3Dプリント パーカー スウエット アニメグッズ 春秋用  ハロウィン クリスマス イベンド 変装 仮装  プレゼント 男女兼用",
+        "送料無料◆新品 NARUTO -ナルト-  リュック 夜光 USB リュックサック グッズ ヴェノム ファッション  大容量 通学 防水 遠足 旅行リュック 耐久性 学校",
+        "送料無料◆新品 NARUTO -ナルト-  リュック 夜光 USB リュックサック グッズ ヴェノム ファッション  大容量 通学 防水 遠足 旅行リュック 耐久性 学校",
+        "2026新品 成人服 長袖 パーカー NARUTO -ナルト- 風 秋冬 アイテム トップス 男の子 女の子 可愛い グッズ 成人服 誕生日 グッズ プレゼント",
+        "新品 NARUTO -ナルト- 風 暁組織 半袖 Tシャツ 大人子供気 キャラクターグッズ 周辺 通気 吸汗 速乾",
+        "NARUTO -ナルト- 風 コスプレ衣装  親子服 上下セット半袖 Tシャツ ズボン 春夏秋パジャマグッズグッズ 子供 成人 スウェット",
+        "送料無料◆新品 NARUTO -ナルト- 風  暁組織 半袖  Tシャツ 大人気 キャラクターグッズ  周辺 通気 吸汗 速乾",
+        "NARUTO - ナルト - 疾風伝 暁（あかつき）グッズ 風 ジャケット 春秋 男女兼用 パーカー コート着 周辺",
+        "NARUTO - ナルト - 疾風伝 暁（あかつき）グッズ 風 ジャケット 春秋 男女兼用 パーカー コート着 周辺",
+        "【送料無料】2026/09発売 [グッズ]/NARUTO -ナルト- 疾風伝 トレーディング クリアプレート 描き下ろし パジャマ Ver. BOX【MAW】",
+        "【送料無料】2026/11発売 [グッズ]/MEGA CAT PROJECT NARUTO -ナルト- 疾風伝 ニャルト!少しむかしむかしの 木ノ葉隠れの里だってばよ! BOX【メガハウス",
+        "【送料無料】2027/02発売 [グッズ]/G.E.M.シリーズ NARUTO-ナルト- 疾風伝 てのひらミナト【メガハウス】",
+        "【送料無料】2026/11発売 [グッズ]/G.E.M.シリーズ NARUTO-ナルト- 疾風伝 てのひらイタチ【メガハウス】",
+        "【送料無料】2025/12発売 [グッズ]/MEGA CAT PROJECT NARUTO-ナルト- 疾風伝 おやすみニャルト! BOX【メガハウス】",
+        "NARUTO ナルト 疾風伝 モノクロ うずまきナルト うちはサスケ プリント 半袖 Tシャツ メンズ 紳士 M L LL 春 夏 アニメ キャラクター グッズ 部屋着 パジャマ"
+      ]
+    },
+    "imageSearch": {
+      "heading": {
+        "left": 360,
+        "right": 1022,
+        "top": 313.0625,
+        "bottom": 353.0625,
+        "width": 662,
+        "height": 40
+      },
+      "close": {
+        "left": 1044,
+        "right": 1086,
+        "top": 287.0625,
+        "bottom": 329.0625,
+        "width": 42,
+        "height": 42
+      },
+      "closeText": "×"
+    },
+    "latest": {
+      "previewCards": 4,
+      "sourceCards": 12,
+      "sourceLabels": 4,
+      "railToggleVisible": true,
+      "autoMoved": true,
+      "overflow": false
+    }
+  }
+}
