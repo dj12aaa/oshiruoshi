@@ -2,7 +2,7 @@ import { suggest as entitySuggest } from './_core.mjs';
 import { MERCH_GROUPS, ENTITY_GROUPS, detectIntent, detectMerchLabel, normalizeFlexible, compactFlexible } from './_search-language.mjs';
 
 const cache=new Map();
-const SUGGEST_ENGINE_VERSION='2026-08-19.5';
+const SUGGEST_ENGINE_VERSION='2026-08-23.10';
 let yahooLastAt=0;
 let yahooGate=Promise.resolve();
 const GENERIC=new Set(['グッズ','商品','通販','販売','公式','非公式','新品','中古','セット','限定','予約','goods','item']);

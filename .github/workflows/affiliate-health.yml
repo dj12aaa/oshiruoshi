@@ -13,6 +13,7 @@ permissions:
 concurrency:
   group: oshiru-production-verification-writers
   cancel-in-progress: false
+  queue: max
 
 jobs:
   check:

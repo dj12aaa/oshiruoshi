@@ -18,7 +18,7 @@ test('project instructions force correction logging and exact production verific
 
 test('quality ledger keeps every known root cause and release gate',()=>{
   const lessons=read('docs/QUALITY_LESSONS.md');
-  for(const id of ['QL-001','QL-002','QL-003','QL-004','QL-005','QL-006','QL-007','QL-008','QL-009'])assert.ok(lessons.includes(id),id);
+  for(const id of ['QL-001','QL-002','QL-003','QL-004','QL-005','QL-006','QL-007','QL-008','QL-009','QL-010','QL-011','QL-012'])assert.ok(lessons.includes(id),id);
   for(const token of [
     '動的挿入',
     '一般小売ノイズ除外',
@@ -28,6 +28,8 @@ test('quality ledger keeps every known root cause and release gate',()=>{
     '全品SOLD OUT',
     'production alias',
     '390pxと1440px',
+    '文脈必須の複合entity',
+    'スケルトンが終了せず',
     'oshiruoshi.vercel.app',
     'V9の本番反映と実ブラウザ検査は未完了'
   ])assert.ok(lessons.includes(token),token);
@@ -42,6 +44,7 @@ test('production verification waits for real cards and serializes result writers
   for(const workflow of writers){
     const source=read(`.github/workflows/${workflow}`);
     assert.ok(source.includes('group: oshiru-production-verification-writers'),workflow);
+    assert.ok(source.includes('queue: max'),workflow);
     assert.ok(source.includes("bash .github/scripts/push-verification.sh"),workflow);
   }
   const affiliate=read('.github/workflows/affiliate-health.yml');

@@ -22,6 +22,7 @@
     });
   }
   function precisionUrl(q){const u=new URL(PRECISION_ENDPOINT,location.href);u.searchParams.set('q',q);return u}
+  function initialUrl(q){const u=new URL('/api/search',location.href);u.searchParams.set('q',q);u.searchParams.set('initial','1');return u}
 
   const idleUi={active:false,hint:null};
   function ensureIdleUi(){
@@ -67,7 +68,7 @@
     if(!u||u.origin!==location.origin||method!=='GET')return nativeFetch(input,init);
     if(u.pathname==='/api/search'){
       const q=(u.searchParams.get('q')||'').trim();if(!q){enterIdle();return Promise.resolve(idleResponse())}
-      leaveIdle();return precisionResponse(q,init);
+      leaveIdle();return nativeFetch(initialUrl(q).href,init);
     }
     if(u.pathname==='/api/live-search'){
       const q=(u.searchParams.get('q')||'').trim();if(!q)return Promise.resolve(idleResponse());

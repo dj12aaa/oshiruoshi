@@ -12,6 +12,7 @@ permissions:
 concurrency:
   group: oshiru-production-verification-writers
   cancel-in-progress: false
+  queue: max
 
 jobs:
   quality:
@@ -49,7 +50,7 @@ jobs:
             '3DS本体'
           )
           for n in "${!QUERIES[@]}"; do
-            curl --max-time 40 -fsSL --get --data-urlencode "q=${QUERIES[$n]}" https://oshiruoshi.vercel.app/api/live-search > "/tmp/oshiru-quality/q${n}.json"
+            curl --max-time 40 -fsSL --get --data-urlencode "q=${QUERIES[$n]}" https://oshiruoshi.vercel.app/api/live-search-v8 > "/tmp/oshiru-quality/q${n}.json"
             sleep 2
           done
           SUGGEST=('3DS' 'owキリコ' 'ボイスキーホルダーFelix' 'felix ボイス キーホルダー ホルダー スキズ')
@@ -64,40 +65,45 @@ jobs:
           node - <<'NODE'
           const fs=require('fs');
           const specs=[
-            {query:'星街すいせい アクスタ'},
-            {query:'五条悟 缶バッジ'},
-            {query:'初音ミク ぬい'},
-            {query:'ローレンイロアスアクキー',mustInclude:'アクリルキーホルダー'},
-            {query:'ボイスキーホルダーFelix',mustInclude:'ボイスキーホルダー'},
-            {query:'Felix ボイスキーホルダー',mustInclude:'ボイスキーホルダー'},
-            {query:'owキリコぬいぐるみ',mustInclude:'オーバーウォッチ',alsoInclude:'ぬいぐるみ'},
-            {query:'OW キリコ ぬい',mustInclude:'オーバーウォッチ',alsoInclude:'ぬいぐるみ'},
-            {query:'3DS本体',mustInclude:'3ds 本体'}
+            {query:'星街すいせい アクスタ',baseline:true},
+            {query:'五条悟 缶バッジ',baseline:true},
+            {query:'初音ミク ぬい',baseline:true},
+            {query:'ローレンイロアスアクキー',mustInclude:['アクリルキーホルダー']},
+            {query:'ボイスキーホルダーFelix',kind:'felix',mustInclude:['stray kids','フィリックス','ボイスキーホルダー']},
+            {query:'Felix ボイスキーホルダー',kind:'felix',mustInclude:['stray kids','フィリックス','ボイスキーホルダー']},
+            {query:'owキリコぬいぐるみ',kind:'kiriko',mustInclude:['オーバーウォッチ','キリコ','ぬいぐるみ']},
+            {query:'OW キリコ ぬい',kind:'kiriko',mustInclude:['オーバーウォッチ','キリコ','ぬいぐるみ']},
+            {query:'3DS本体',mustInclude:['3ds 本体']}
           ];
           const norm=v=>String(v||'').normalize('NFKC').toLowerCase().replace(/[・･·／/|｜,，。｡()（）【】\[\]「」『』〈〉《》:_＿\-—–+＋]+/g,' ').replace(/([a-z0-9])([ぁ-んァ-ヶ一-龯々ー])/gi,'$1 $2').replace(/([ぁ-んァ-ヶ一-龯々ー])([a-z0-9])/gi,'$1 $2').replace(/\s+/g,' ').trim();
           const results=specs.map((spec,n)=>{
             const d=JSON.parse(fs.readFileSync(`/tmp/oshiru-quality/q${n}.json`,'utf8'));
             const items=Array.isArray(d.items)?d.items:[];
             const variants=(d.queryVariants||[]).map(v=>typeof v==='string'?v:v?.query).filter(Boolean);
-            const hay=variants.map(norm).join(' | ');
-            const expansionOk=(!spec.mustInclude||hay.includes(norm(spec.mustInclude)))&&(!spec.alsoInclude||hay.includes(norm(spec.alsoInclude)));
+            const hay=[d.effectiveQuery,...variants].map(norm).join(' | ');
+            const expansionOk=(spec.mustInclude||[]).every(value=>hay.includes(norm(value)));
             const scores=items.slice(0,5).map(x=>x._score);
-            return{query:spec.query,count:items.length,queryVariants:variants,expansionOk,topTitles:items.slice(0,3).map(x=>x.title),topScores:scores,aliasVersion:d.aliasVersion||null};
+            const text=item=>norm([item.title,item.description,item.series,item.character,item.type,item.collab,item.shop,...(item.tags||[])].filter(Boolean).join(' '));
+            const felixOk=item=>/(stray\s*kids|straykids|skz|スキズ)/i.test(text(item))&&/(felix|フィリックス|ピリ|bbokari|bokari|ボッカリ)/i.test(text(item))&&/(ボイス\s*キー|voice\s*key)/i.test(text(item));
+            const kirikoOk=item=>/(overwatch|オーバーウォッチ|\bow2?\b)/i.test(text(item))&&/(kiriko|キリコ)/i.test(text(item))&&/(ぬい|マスコット|plush)/i.test(text(item));
+            const relevanceOk=spec.kind==='felix'?items.every(felixOk):spec.kind==='kiriko'?items.every(kirikoOk):true;
+            return{query:spec.query,count:items.length,effectiveQuery:d.effectiveQuery||null,precisionVersion:d.precisionVersion||null,queryVariants:variants,expansionOk,relevanceOk,topTitles:items.slice(0,3).map(x=>x.title),topScores:scores,aliasVersion:d.aliasVersion||null};
           });
           const suggestQueries=['3DS','owキリコ','ボイスキーホルダーFelix','felix ボイス キーホルダー ホルダー スキズ'];
           const suggestions=suggestQueries.map((query,n)=>{
             const d=JSON.parse(fs.readFileSync(`/tmp/oshiru-quality/s${n}.json`,'utf8'));
             return{query,count:Array.isArray(d.items)?d.items.length:0,items:(d.items||[]).slice(0,8).map(x=>({name:x.name,kind:x.kind,label:x.label,detail:x.detail})),providerQuery:d.providerQuery||null,signals:d.signals||null};
           });
-          const expansionOk=results.every(x=>x.expansionOk&&x.topScores.every(Number.isFinite));
-          const baselineOk=results.slice(0,3).every(x=>x.count>0);
+          const expansionOk=results.every(x=>x.expansionOk&&x.precisionVersion==='2026-08-23.10');
+          const baselineOk=specs.every((spec,index)=>!spec.baseline||results[index].count>0);
+          const relevanceOk=results.every(x=>x.relevanceOk);
           const generated=suggestions.flatMap(x=>x.items).filter(x=>x.label!=='このまま検索');
           const duplicatePattern=/(キーホルダー\s*ホルダー|ホルダー\s*キーホルダー|ボイス\s*キーホルダー\s*ホルダー)/i;
           const duplicateFree=generated.every(x=>!duplicatePattern.test(norm(x.name)));
           const malformed=suggestions.find(x=>x.query.startsWith('felix ボイス'));
-          const cleanupPresent=Boolean(malformed?.items?.some(x=>x.label==='重複・表記整理'&&norm(x.name).includes(norm('felix スキズ ボイスキーホルダー'))));
+          const cleanupPresent=Boolean(malformed?.items?.some(x=>x.label==='表記を整理'&&norm(x.name).includes(norm('stray kids フィリックス'))&&norm(x.name).includes(norm('ボイスキーホルダー'))));
           const predictiveOk=suggestions.every(x=>x.count>0)&&duplicateFree&&cleanupPresent;
-          const out={checkedAt:new Date().toISOString(),ok:expansionOk&&baselineOk&&predictiveOk,expansionOk,baselineOk,predictiveOk,duplicateFree,cleanupPresent,results,suggestions};
+          const out={checkedAt:new Date().toISOString(),ok:expansionOk&&baselineOk&&relevanceOk&&predictiveOk,expansionOk,baselineOk,relevanceOk,predictiveOk,duplicateFree,cleanupPresent,results,suggestions};
           fs.writeFileSync('verification/search-quality.json',JSON.stringify(out,null,2)+'\n');
           console.log(JSON.stringify(out,null,2));
           if(!out.ok)process.exitCode=1;

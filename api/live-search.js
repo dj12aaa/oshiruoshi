@@ -10,7 +10,7 @@ import {
   countStrongMatches
 } from './_search-language.mjs';
 
-const SEARCH_ALIAS_VERSION='2026-08-21.7';
+const SEARCH_ALIAS_VERSION='2026-08-23.10';
 const cache=new Map();
 const MAX_RESULTS=120;
 const MAX_VARIANTS=5;
@@ -146,8 +146,10 @@ function mergeProviderState(target={},source={},variant){
   }
   return target;
 }
-async function runVariant(variant,index){
-  const data=await coreLiveSearch(variant.query);
+async function runVariant(variant,index,timeoutMs=6500){
+  let timer;
+  const timeout=new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error('provider_timeout')),timeoutMs)});
+  const data=await Promise.race([coreLiveSearch(variant.query),timeout]).finally(()=>clearTimeout(timer));
   return{variant,index,data,items:(data.items||[]).map(item=>({...item,_queryVariant:variant.query,_queryReason:variant.reason,_variantWeight:Number(variant.weight||0)-index*2}))};
 }
 function send(res,status,data,cacheable=false){
@@ -172,19 +174,19 @@ function robustVariants(query){
 
 export default async function handler(req,res){
   if(req.method!=='GET')return json(res,405,{error:'method_not_allowed'});
-  const u=new URL(req.url,'http://local'),q=cleanQuery(u.searchParams.get('q')||'');
+  const u=new URL(req.url,'http://local'),q=cleanQuery(u.searchParams.get('q')||''),fast=u.searchParams.get('fast')==='1',runCap=fast?1:4;
   if(!q)return send(res,200,{query:'',items:[],providers:{},queryVariants:[],idle:true,generatedAt:new Date().toISOString()},true);
   const cacheKey=`${SEARCH_ALIAS_VERSION}|${normalizeFlexible(q)}`,existing=cache.get(cacheKey);
   if(existing&&Date.now()-existing.at<30_000)return send(res,200,existing.value,true);
 
   const {prefix,known,seed,variants}=robustVariants(q),runs=[],scoringQuery=seed||q;
   try{
-    for(let i=0;i<variants.length&&runs.length<4;i++){
+    for(let i=0;i<variants.length&&runs.length<runCap;i++){
       if(i>=2&&countStrongMatches(runs.flatMap(run=>run.items),scoringQuery)>=10)break;
-      runs.push(await runVariant(variants[i],i));
+      runs.push(await runVariant(variants[i],i,fast?5500:6500));
     }
     const current=runs.flatMap(run=>run.items);
-    if(countStrongMatches(current,scoringQuery)<6&&runs.length<MAX_VARIANTS){
+    if(!fast&&countStrongMatches(current,scoringQuery)<6&&runs.length<MAX_VARIANTS){
       for(const v of fallbackVariants(scoringQuery)){
         if(runs.length>=MAX_VARIANTS)break;
         if(runs.some(run=>normalizeFlexible(run.variant.query)===normalizeFlexible(v.query)))continue;
