@@ -1,3 +1,4 @@
+const SEARCH_UI_VERSION='2026-08-23.12';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const storage={get(k,f='[]'){try{return localStorage.getItem(k)||f}catch{return f}},set(k,v){try{localStorage.setItem(k,v)}catch{}}};
 const state={all:[],shown:[],direct:[],providers:{},query:'',favorites:new Set(JSON.parse(storage.get('oshiru-v5-favs'))),compare:new Map(),broken:new Set(),loaded:new Set(),searchSeq:0};
@@ -21,27 +22,35 @@ function officialImageProvider(i){if(i?.origin!=='official-api')return'';if(i.so
 function imageSrc(i){const raw=i.image||'';if(!raw)return'';const provider=officialImageProvider(i);return provider?`/api/image-proxy?source=${provider}&url=${encodeURIComponent(raw)}`:raw}
 function itemLive(i){return liveStatuses.has(i.status)}
 let primarySearchController=null,liveSearchController=null;
+const searchDiagnostics={version:SEARCH_UI_VERSION,phase:'idle',query:'',initial:'idle',live:'idle',updatedAt:new Date().toISOString()};
+window.__OSHIRU_SEARCH_DIAGNOSTICS__=searchDiagnostics;
+function markSearch(patch={}){Object.assign(searchDiagnostics,patch,{updatedAt:new Date().toISOString()})}
+function mergeItems(...groups){const seen=new Set(),merged=[];for(const item of groups.flat()){const key=String(item?.url||`${item?.source}|${item?.title}|${item?.price}`).replace(/[?#].*$/,'');if(!key||seen.has(key))continue;seen.add(key);merged.push(item)}return merged}
+function finishSearchUi(seq,phase='settled'){if(seq!==state.searchSeq)return;const btn=$('#searchBtn');btn.classList.remove('loading');btn.textContent='横断検索';markSearch({phase})}
 async function runSearch(){
   const q=$('#q').value.trim(); const seq=++state.searchSeq; state.query=q; state.broken.clear(); state.loaded.clear();state.direct=directLinks(q);
   primarySearchController?.abort();liveSearchController?.abort();const controller=new AbortController();primarySearchController=controller;
+  markSearch({phase:'loading',query:q,initial:'loading',live:q?'loading':'idle'});
   $('#queryBadge').textContent=q?`「${q}」`:'すべて'; $('#resultMeta').textContent='個別出品を検索しています…'; $('#productGrid').innerHTML=loadingCards(); $('#emptyState').classList.add('hidden'); $('#providerNotice').classList.add('hidden');
   const btn=$('#searchBtn');btn.classList.add('loading');btn.textContent='検索中…';
+  const watchdog=setTimeout(()=>{if(seq!==state.searchSeq)return;finishSearchUi(seq,'watchdog-settled');if($('#productGrid .skeleton')){if(state.all.length)applyFilters();else renderEmpty('検索に時間がかかっています','検索中表示は終了しました。追加の商品はバックグラウンドで取得し、届き次第表示します。販売サイトへの直接検索も利用できます。')}},7500);
+  const livePromise=refreshLive(q,seq);
   try{
     const data=await json(`/api/search?initial=1&q=${encodeURIComponent(q)}`,{signal:controller.signal,timeoutMs:6000});if(seq!==state.searchSeq)return;
-    state.all=data.items||[];state.direct=directLinks(q);state.providers=data.providers||{};
-    hydrateFilters();applyFilters();renderProviderNotice(true);refreshLive(q,seq);
+    state.all=mergeItems(state.all,data.items||[]);state.direct=directLinks(q);state.providers={...(data.providers||{}),...state.providers};markSearch({initial:'complete'});
+    hydrateFilters();applyFilters();renderProviderNotice(Boolean(q)&&searchDiagnostics.live==='loading');
   }catch(e){
-    if(seq!==state.searchSeq)return;state.all=[];state.direct=directLinks(q);hydrateFilters();renderEmpty(e?.name==='AbortError'?'検索の応答が時間内に返りませんでした':'検索サーバーに接続できませんでした','検索中表示は終了しました。販売サイトへの直接検索リンクも利用できます。');console.error(e);
-  }finally{if(primarySearchController===controller)primarySearchController=null;if(seq===state.searchSeq){btn.classList.remove('loading');btn.textContent='横断検索'}}
+    if(seq!==state.searchSeq)return;state.direct=directLinks(q);markSearch({initial:e?.name==='AbortError'?'timeout':'error'});if(!state.all.length){hydrateFilters();renderEmpty(e?.name==='AbortError'?'検索の応答が時間内に返りませんでした':'検索サーバーに接続できませんでした','検索中表示は終了しました。追加の商品はバックグラウンドで取得中です。販売サイトへの直接検索リンクも利用できます。')}console.error(e);
+  }finally{clearTimeout(watchdog);if(primarySearchController===controller)primarySearchController=null;if(seq===state.searchSeq)finishSearchUi(seq,state.all.length?'results':'settled')}
+  void livePromise;
 }
 async function refreshLive(q,seq){
-  if(!q)return;
+  if(!q){markSearch({live:'idle'});return}
   liveSearchController?.abort();const controller=new AbortController();liveSearchController=controller;
   try{
-    const live=await json(`/api/live-search-v8?q=${encodeURIComponent(q)}`,{signal:controller.signal,timeoutMs:8000});if(seq!==state.searchSeq)return;
-    const seen=new Set(),merged=[];for(const i of [...(live.items||[]),...state.all]){const k=(i.url||`${i.source}|${i.title}|${i.price}`).replace(/[?#].*$/,'');if(seen.has(k))continue;seen.add(k);merged.push(i)}
-    state.all=merged;state.providers={...state.providers,...(live.providers||{})};hydrateFilters();applyFilters();renderProviderNotice(false);
-  }catch(e){if(seq===state.searchSeq){state.providers.liveError=e?.name==='AbortError'?'timeout':String(e.message||e);renderProviderNotice(false)}}finally{if(liveSearchController===controller)liveSearchController=null}
+    const live=await json(`/api/live-search-v8?q=${encodeURIComponent(q)}`,{signal:controller.signal,timeoutMs:12000});if(seq!==state.searchSeq)return;
+    state.all=mergeItems(live.items||[],state.all);state.providers={...state.providers,...(live.providers||{})};markSearch({live:'complete',liveItems:(live.items||[]).length});hydrateFilters();applyFilters();renderProviderNotice(false);finishSearchUi(seq,state.all.length?'results':'settled');
+  }catch(e){if(seq===state.searchSeq){state.providers.liveError=e?.name==='AbortError'?'timeout':String(e.message||e);markSearch({live:e?.name==='AbortError'?'timeout':'error'});renderProviderNotice(false)}}finally{if(liveSearchController===controller)liveSearchController=null}
 }
 function loadingCards(){return Array.from({length:8},()=>`<div class="product-card"><div class="visual skeleton"></div><div class="card-body"><div class="skeleton line"></div><div class="skeleton line short"></div><div class="skeleton price-sk"></div></div></div>`).join('')}
 function hydrateFilters(){
