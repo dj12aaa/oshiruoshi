@@ -18,7 +18,7 @@ test('project instructions force correction logging and exact production verific
 
 test('quality ledger keeps every known root cause and release gate',()=>{
   const lessons=read('docs/QUALITY_LESSONS.md');
-  for(const id of ['QL-001','QL-002','QL-003','QL-004','QL-005','QL-006','QL-007','QL-008','QL-009','QL-010','QL-011','QL-012'])assert.ok(lessons.includes(id),id);
+  for(const id of ['QL-001','QL-002','QL-003','QL-004','QL-005','QL-006','QL-007','QL-008','QL-009','QL-010','QL-011','QL-012','QL-013'])assert.ok(lessons.includes(id),id);
   for(const token of [
     '動的挿入',
     '一般小売ノイズ除外',
@@ -30,6 +30,8 @@ test('quality ledger keeps every known root cause and release gate',()=>{
     '390pxと1440px',
     '文脈必須の複合entity',
     'スケルトンが終了せず',
+    'live検索を並行開始',
+    'UI版marker',
     'oshiruoshi.vercel.app',
     'V9の本番反映と実ブラウザ検査は未完了'
   ])assert.ok(lessons.includes(token),token);
@@ -37,9 +39,9 @@ test('quality ledger keeps every known root cause and release gate',()=>{
 
 test('production verification waits for real cards and serializes result writers',()=>{
   const browser=read('.github/workflows/dense-latest-production-smoke.yml');
-  for(const token of ['.product-card[data-card-id]','controlsInsideVisual','card overlays escaped the image area','console.log(name,JSON.stringify(metrics))','if: always()','if-no-files-found: warn'])assert.ok(browser.includes(token),token);
+  for(const token of ['.product-card[data-card-id]','controlsInsideVisual','card overlays escaped the image area',"q.value='なると'",'search did not return live merchandise','SEARCH_UI_VERSION',"oshiru-search-ui-version\" content=\"2026-08-23.12",'console.log(name,JSON.stringify(metrics))','if: always()','if-no-files-found: warn'])assert.ok(browser.includes(token),token);
   const http=read('.github/workflows/dense-latest-check.yml');
-  for(const token of ['ready=0','OSHIRU gallery v9','test "$ready" = 1'])assert.ok(http.includes(token),token);
+  for(const token of ['ready=0','OSHIRU gallery v9',"SEARCH_UI_VERSION='2026-08-23.12'",'oshiru-search-ui-version','test "$ready" = 1'])assert.ok(http.includes(token),token);
   const writers=['affiliate-health.yml','dense-latest-production-smoke.yml','public-smoke.yml','search-quality.yml','ux-smoke.yml'];
   for(const workflow of writers){
     const source=read(`.github/workflows/${workflow}`);

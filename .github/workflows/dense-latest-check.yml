@@ -93,7 +93,12 @@ jobs:
           tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
           ready=0
           for attempt in $(seq 1 36); do
-            if curl --fail --silent --show-error --location "$base/gallery-v8.css?v=$attempt-${GITHUB_SHA}" -o "$tmp/gallery.css" \
+            if curl --fail --silent --show-error --location "$base/?ready=$attempt-${GITHUB_SHA}" -o "$tmp/index.html" \
+              && grep -Fq 'oshiru-search-ui-version" content="2026-08-23.12' "$tmp/index.html" \
+              && grep -Fq '/app.js?v=20260823-12' "$tmp/index.html" \
+              && curl --fail --silent --show-error --location "$base/app.js?v=20260823-12-$attempt" -o "$tmp/app.js" \
+              && grep -Fq "SEARCH_UI_VERSION='2026-08-23.12'" "$tmp/app.js" \
+              && curl --fail --silent --show-error --location "$base/gallery-v8.css?v=$attempt-${GITHUB_SHA}" -o "$tmp/gallery.css" \
               && grep -Fq 'OSHIRU gallery v9' "$tmp/gallery.css"; then
               ready=1
               break

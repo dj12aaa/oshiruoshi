@@ -113,6 +113,14 @@
 - 自動検査: `tests/layout-v9.test.mjs`が初回/追加URL、AbortController期限、`finally`、server fast mode、asset versionを固定する。`tests/search-precision-v9.test.mjs`が初回snapshotを1秒未満で返し、精度filterを維持することを検査する。本番browser検査は実商品selectorまたは明示的な0件/エラー状態まで待ち、スケルトン残存を失敗にする。
 - 本番証拠: 正規ドメインのモバイルで「なると」と代表的な推しグッズ語を検索し、検索ボタンが8秒以内に戻ること、スケルトンが消えること、取得済み商品または0件/直接検索案内が表示されることを確認する。
 
+### QL-013 初回検索の失敗で正常なlive検索まで開始されない
+
+- 症状: 本番APIへ直接「なると」を送ると商品が返る一方、画面では初回検索が遅れた際に商品が表示されず、検索中または0件案内のままになった。さらに本番browser検査が旧画面assetを読んでもV9の共通markerだけで配信準備完了と誤判定した。
+- 根本原因: 画面側が初回snapshotの成功後にだけlive検索を開始する直列構成だったため、初回Functionのcold start・timeout・一時失敗がlive検索の開始条件になっていた。検証側もリリース間で変わらないCSS/JS文字列を待機条件にしており、現行HTML・現行`app.js`・APIが同じ版へ切り替わったことを確認していなかった。
+- 恒久対策: 初回snapshotとlive検索を並行開始し、どちらが先に返っても既存結果を上書きせず重複排除して統合する。初回失敗時もlive検索を継続し、独立watchdogで検索ボタンとskeletonを必ず解除する。現行HTMLにUI版marker、`app.js`に同じ`SEARCH_UI_VERSION`を置き、production検査は両方の完全一致後にだけ実ブラウザ検査を始める。
+- 自動検査: `tests/layout-v9.test.mjs`がlive検索を初回awaitより前に開始すること、統合処理、12秒上限、watchdog、UI版markerを固定する。本番Playwrightは実際の「なると」で検索中表示の解除だけでなく6件以上の商品描画と一般小売ノイズ除外まで確認する。HTTP検査もUI版markerと`app.js`版の一致を待つ。
+- 本番証拠: 正規ドメインの390px/1440px実ブラウザで「なると」のlive商品描画、検索ボタン復元、skeleton 0件、UI版`2026-08-23.12`を確認する。workflow成功前は解決済みとしない。
+
 ## リリース前チェックリスト
 
 - [ ] 今回のユーザー指摘を本台帳へ追記した
@@ -136,3 +144,4 @@
 - 2026-08-23 20:57 JST: Vercel本番deploymentと正規URLのV9 asset/APIを確認。browser検査のskeleton誤判定とverification push raceを特定し、再検証用の恒久対策を追加。
 - 2026-08-23: Felix／キリコの本番誤検索と別名の連鎖置換を特定。複合文脈必須filter、正規provider query、誤商品回帰testをV10候補へ追加。本番反映前のため、この時点では精度改善を確認済みとしない。
 - 2026-08-23 21:19 JST: モバイル本番で検索中表示とスケルトンが終了しない症状を確認。初回snapshot即時応答、live取得期限、UI終了保証をV11候補へ追加。本番反映前のため、この時点では解決済みとしない。
+- 2026-08-23: 初回成功後にだけlive検索を始める直列依存と、release固有でないproduction待機markerを追加原因として特定。並行検索・結果統合・独立watchdog・UI版`2026-08-23.12`・「なると」実商品描画検査をV12候補へ追加。本番browser検査成功前のため、この時点では解決済みとしない。
