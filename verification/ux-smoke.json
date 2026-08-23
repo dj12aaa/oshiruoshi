@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-08-23T11:41:09.721Z",
+  "checkedAt": "2026-08-23T12:34:39.214Z",
   "navigationLoaded": true,
   "performanceLoaded": true,
   "affiliateLoaded": true,
@@ -16,45 +16,37 @@
     {
       "query": "星街すいせい アクスタ",
       "http": 200,
-      "count": 37,
-      "topRelated": 6,
+      "count": 33,
+      "topRelated": 10,
       "topTypes": [
-        "アクスタ",
         "通販"
       ],
       "topSources": [
-        "メルカリ",
-        "Yahoo!フリマ",
-        "Yahoo!オークション",
         "Yahoo!ショッピング"
       ],
-      "firstTitle": "呪術廻戦 サンリオ 五条悟 シナモロール 伏黒恵 バッドばつ丸 アクリルスタンド",
-      "firstScore": -25.36,
-      "ranked": false
+      "firstTitle": "中古フォトフレーム・アルバム 星街すいせい アクスタ付きカードスタンド 「バーチャルYouTuber ホロライブ」 Tファン",
+      "firstScore": 932,
+      "ranked": true
     },
     {
       "query": "五条悟 特典 カード",
       "http": 200,
-      "count": 37,
+      "count": 43,
       "topRelated": 10,
       "topTypes": [
-        "アクスタ",
         "通販"
       ],
       "topSources": [
-        "メルカリ",
-        "Yahoo!フリマ",
-        "Yahoo!オークション",
         "Yahoo!ショッピング"
       ],
-      "firstTitle": "呪術廻戦 サンリオ 五条悟 シナモロール 伏黒恵 バッドばつ丸 アクリルスタンド",
-      "firstScore": 29.16,
-      "ranked": false
+      "firstTitle": "中古キャラカード 五条悟 特典カード 「呪術廻戦 第2期×TOWER RECORDS CAFE 第1弾 懐玉・玉",
+      "firstScore": 602,
+      "ranked": true
     },
     {
       "query": "初音ミク ぬい",
       "http": 200,
-      "count": 30,
+      "count": 60,
       "topRelated": 10,
       "topTypes": [
         "通販"
@@ -62,8 +54,8 @@
       "topSources": [
         "Yahoo!ショッピング"
       ],
-      "firstTitle": "中国 キャラクター グッズ『初音ミク ぬいぐるみ風 ミニ痛バッグ イヤホンポーチ』公式グッズ（bilibili公式）",
-      "firstScore": 804,
+      "firstTitle": "初音ミク ぬいぐるみ ピアプロキャラクターズ ぬいコロン アイアップ",
+      "firstScore": 952,
       "ranked": true
     },
     {
@@ -97,5 +89,5 @@
       "ranked": true
     }
   ],
-  "ok": false
+  "ok": true
 }
