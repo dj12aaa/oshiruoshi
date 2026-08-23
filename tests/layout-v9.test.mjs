@@ -19,6 +19,14 @@ test('gallery enhancer cannot retrigger itself while normalizing controls',()=>{
   assert.doesNotMatch(home,/observe\(grid,\{childList:true,subtree:true(?:,characterData:true)?\}\)/);
 });
 
+test('compact compare overlay is never expanded into a text button',()=>{
+  const html=read('index.html'),affiliate=read('affiliate-widget.js');
+  assert.ok(html.includes('oshiru-affiliate-ui-version" content="2026-08-23.16'));
+  assert.ok(html.includes('/affiliate-widget.js?v=20260823-16'));
+  for(const token of ["AFFILIATE_UI_VERSION='2026-08-23.16'","const compact=btn.classList.contains('gallery-compare')","const glyph=selected?'✓':'＋'",'if(btn.textContent!==glyph)btn.textContent=glyph'])assert.ok(affiliate.includes(token),token);
+  assert.ok(affiliate.indexOf('if(compact){')<affiliate.indexOf('btn.innerHTML=`<span class="compare-action-icon"'));
+});
+
 test('dense grid has deterministic widths and controls are born inside the image',()=>{
   const css=read('gallery-v8.css'),app=read('app.js');
   for(const token of ['repeat(8,minmax(0,1fr))','repeat(7,minmax(0,1fr))','repeat(3,minmax(0,1fr))','aspect-ratio:1/1!important','overflow-x:hidden'])assert.ok(css.includes(token),token);

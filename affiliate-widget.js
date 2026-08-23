@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+  const AFFILIATE_UI_VERSION='2026-08-23.16';
 
   // Desktop stability guard: Chromium/Edge can become unresponsive when many
   // product cards, sticky bars, backdrop blurs and forced GPU layers are
@@ -119,10 +120,16 @@
     const id=String(btn.dataset.compare||'');
     const selected=compareIds.has(id);
     const state=selected?'selected':'idle';
+    const compact=btn.classList.contains('gallery-compare')||Boolean(btn.closest('.visual'));
     btn.classList.toggle('is-selected',selected);
     btn.setAttribute('aria-pressed',String(selected));
-    btn.setAttribute('aria-label',selected?'比較から外す':'比較に追加する');
+    btn.setAttribute('aria-label',selected?'比較から外す':'比較に追加');
     btn.title=selected?'比較から外す':'比較に追加';
+    if(compact){
+      const glyph=selected?'✓':'＋';btn.dataset.oshiruCompareState=state;
+      if(btn.textContent!==glyph)btn.textContent=glyph;
+      return;
+    }
     if(btn.dataset.oshiruCompareState===state)return;
     btn.dataset.oshiruCompareState=state;
     btn.innerHTML=`<span class="compare-action-icon" aria-hidden="true">${selected?'✓':'＋'}</span><span>${selected?'比較中':'比較に追加'}</span>`;

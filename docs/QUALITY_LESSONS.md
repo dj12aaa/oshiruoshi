@@ -137,6 +137,14 @@
 - 自動検査: `tests/process-guard-v9.test.mjs`がtaskbar検査ブロック内の`home=fs.readFileSync('home-experience-v8.js'`とobserver検査の両方を固定する。
 - 本番証拠: PRのV9 search and layout qualityが再実行で成功すること。成功前はmainへ統合しない。
 
+### QL-016 コンパクト比較ボタンを別scriptが長文ボタンへ再装飾する
+
+- 症状: 検索停止修正後、本番モバイルは30件・3列・overlay境界内・横overflowなしで描画できたが、画像上の丸い比較ボタンの内容が`＋比較に追加`となり、固定幅28pxに長文が入った。
+- 根本原因: 商品カード本体とhome補正はコンパクト比較ボタンを記号だけで生成していた一方、後続の`affiliate-widget.js`がすべての`[data-compare]`を大型カード下部ボタンと同じ`icon＋説明文`DOMへ再装飾していた。同じ要素の表示内容を複数scriptが別仕様で所有していた。
+- 恒久対策: `gallery-compare`または画像領域内の比較ボタンを明示的にcompact modeと判定し、選択前は`＋`、選択後は`✓`だけをidempotentに設定する。説明は`aria-label`と`title`へ保持し、視覚テキストには追加しない。大型比較ボタンにだけ従来の説明文DOMを使う。asset版`2026-08-23.16`で旧装飾scriptを排除する。
+- 自動検査: `tests/layout-v9.test.mjs`と2本のquality workflowがcompact分岐が大型ボタン`innerHTML`より先にreturnすること、記号だけの更新、asset版markerを固定する。本番Playwrightが`compareText==='＋'`、28px以上のtap target、画像領域内配置を390px/1440pxで測る。
+- 本番証拠: 正規ドメインでaffiliate UI版`2026-08-23.16`と、モバイル・PC双方の比較ボタン文字・位置・サイズを確認する。workflow成功前は解決済みとしない。
+
 ## リリース前チェックリスト
 
 - [ ] 今回のユーザー指摘を本台帳へ追記した
@@ -163,3 +171,4 @@
 - 2026-08-23: 初回成功後にだけlive検索を始める直列依存と、release固有でないproduction待機markerを追加原因として特定。並行検索・結果統合・独立watchdog・UI版`2026-08-23.12`・「なると」実商品描画検査をV12候補へ追加。本番browser検査成功前のため、この時点では解決済みとしない。
 - 2026-08-23: API成功後もPlaywrightがDOMへ応答できない本番証拠から、カード補正observerの無条件`textContent`更新によるmicrotask自己再発火を特定。idempotent更新・grid直下だけの監視・home版`2026-08-23.14`をV14候補へ追加。本番browser検査成功前のため、この時点では解決済みとしない。
 - 2026-08-23: V14 PRのquality検査で、別Node heredocの変数を参照するscope漏れを確認。各検査ブロックを自己完結させ、QL-015として再発防止条件へ追加。
+- 2026-08-23: V14本番browserで検索結果30件・モバイル3列・overflowなしを確認後、旧affiliate装飾がコンパクト比較ボタンへ長文を再挿入する競合を検出。compact modeの表示所有を記号だけに固定し、V16候補へ追加。

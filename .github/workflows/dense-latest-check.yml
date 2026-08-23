@@ -70,12 +70,13 @@ jobs:
         run: |
           node <<'NODE'
           const fs=require('fs');
-          const latest=fs.readFileSync('latest-goods.js','utf8'),home=fs.readFileSync('home-experience-v8.js','utf8'),privacy=fs.readFileSync('privacy.html','utf8'),nav=fs.readFileSync('navigation-extra-v7.js','utf8'),html=fs.readFileSync('index.html','utf8'),seo=fs.readFileSync('seo-structured-data.js','utf8'),perf=fs.readFileSync('performance-v3.js','utf8');
+          const latest=fs.readFileSync('latest-goods.js','utf8'),home=fs.readFileSync('home-experience-v8.js','utf8'),affiliate=fs.readFileSync('affiliate-widget.js','utf8'),privacy=fs.readFileSync('privacy.html','utf8'),nav=fs.readFileSync('navigation-extra-v7.js','utf8'),html=fs.readFileSync('index.html','utf8'),seo=fs.readFileSync('seo-structured-data.js','utf8'),perf=fs.readFileSync('performance-v3.js','utf8');
           if(!latest.includes('localStorage'))throw new Error('local personalization missing');
           for(const token of ['createImageBitmap','MAX_DIMENSION=1600','/api/vision-search','removeLegacySourcePanel'])if(!home.includes(token))throw new Error(`image/search optimization missing: ${token}`);
           for(const token of ['画像検索','最新グッズ','/latest-goods'])if(!nav.includes(token))throw new Error(`taskbar item missing: ${token}`);
-          for(const token of ['/gallery-v8.css?v=20260822-9','/home-experience-v8.js?v=20260823-14','/navigation-extra-v7.js?v=20260822-9'])if(!html.includes(token))throw new Error(`critical asset missing: ${token}`);
+          for(const token of ['/gallery-v8.css?v=20260822-9','/home-experience-v8.js?v=20260823-14','/affiliate-widget.js?v=20260823-16','/navigation-extra-v7.js?v=20260822-9'])if(!html.includes(token))throw new Error(`critical asset missing: ${token}`);
           if(!home.includes("HOME_EXPERIENCE_VERSION='2026-08-23.14'")||home.includes('observe(grid,{childList:true,subtree:true,characterData:true})'))throw new Error('self-triggering gallery observer remains');
+          for(const token of ["AFFILIATE_UI_VERSION='2026-08-23.16'","const compact=btn.classList.contains('gallery-compare')","if(btn.textContent!==glyph)btn.textContent=glyph"])if(!affiliate.includes(token))throw new Error(`compact compare invariant missing: ${token}`);
           if(/loadScript|data-gallery-v8|home-experience-v8/.test(seo))throw new Error('dynamic critical-asset bootstrap remains');
           if(!privacy.includes('最新グッズページ')||!privacy.includes('localStorage'))throw new Error('privacy disclosure missing');
           if(!perf.includes('idleResponse')||!perf.includes('enterIdle')||!perf.includes('/api/live-search-v8'))throw new Error('idle/precision routing protection missing');
@@ -103,6 +104,10 @@ jobs:
               && grep -Fq '/home-experience-v8.js?v=20260823-14' "$tmp/index.html" \
               && curl --fail --silent --show-error --location "$base/home-experience-v8.js?v=20260823-14-$attempt" -o "$tmp/home.js" \
               && grep -Fq "HOME_EXPERIENCE_VERSION='2026-08-23.14'" "$tmp/home.js" \
+              && grep -Fq 'oshiru-affiliate-ui-version" content="2026-08-23.16' "$tmp/index.html" \
+              && grep -Fq '/affiliate-widget.js?v=20260823-16' "$tmp/index.html" \
+              && curl --fail --silent --show-error --location "$base/affiliate-widget.js?v=20260823-16-$attempt" -o "$tmp/affiliate.js" \
+              && grep -Fq "AFFILIATE_UI_VERSION='2026-08-23.16'" "$tmp/affiliate.js" \
               && curl --fail --silent --show-error --location "$base/gallery-v8.css?v=$attempt-${GITHUB_SHA}" -o "$tmp/gallery.css" \
               && grep -Fq 'OSHIRU gallery v9' "$tmp/gallery.css"; then
               ready=1
