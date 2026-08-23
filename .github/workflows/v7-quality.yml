@@ -99,10 +99,10 @@ jobs:
           node <<'NODE'
           const fs=require('fs');
           const html=fs.readFileSync('latest-goods.html','utf8'),css=fs.readFileSync('latest-goods.css','utf8'),js=fs.readFileSync('latest-goods.js','utf8');
-          for(const token of ['data-official-rail','official-preview-card','shop.nijisanji.jp/on/demandware.static','shop.hololivepro.com/cdn/shop','jujutsukaisen.jp/news/images','straykidsjapan.com/runitjapan/img','CollectionPage','ItemList','navigation-extra-v7.js'])if(!html.includes(token))throw new Error(`latest hub invariant missing: ${token}`);
+          for(const token of ['data-official-rail','official-preview-card','data-live-until','data-checked-at','SOLD OUT 8/23','shop.nijisanji.jp/on/demandware.static','shop.hololivepro.com/cdn/shop','jujutsukaisen.jp/news/images','straykidsjapan.com/runitjapan/img','CollectionPage','ItemList','navigation-extra-v7.js'])if(!html.includes(token))throw new Error(`latest hub invariant missing: ${token}`);
           if(/"@type":"(?:Product|MerchantListing)"/.test(html))throw new Error('merchant schema must not be used on latest hub');
           for(const token of ['scroll-snap-type:x mandatory','height:220px','overflow-x:auto','image-failed'])if(!css.includes(token))throw new Error(`rail layout invariant missing: ${token}`);
-          for(const token of ['setInterval(advance,4200)','pointerdown','prefers-reduced-motion','is-failed','manualPaused','railToggle'])if(!js.includes(token))throw new Error(`rail behavior invariant missing: ${token}`);
+          for(const token of ['pruneExpired','Date.parse(el.dataset.liveUntil','filter(card=>!card.hidden)','setInterval(advance,4200)','pointerdown','prefers-reduced-motion','is-failed','manualPaused','railToggle'])if(!js.includes(token))throw new Error(`rail behavior invariant missing: ${token}`);
           NODE
 
       - name: Validate taskbar, bootstrap and function budget

@@ -60,7 +60,7 @@ jobs:
           node <<'NODE'
           const fs=require('fs');
           const html=fs.readFileSync('latest-goods.html','utf8'),sitemap=fs.readFileSync('api/sitemap.js','utf8');
-          const required=['<link rel="canonical" href="https://oshiruoshi.vercel.app/latest-goods">','"@type":"CollectionPage"','"@type":"ItemList"','shop.nijisanji.jp','shop.hololivepro.com','vspo.jp','games/apex-legends/apex-legends/news','pjsekai.sega.jp','jujutsukaisen.jp/news','tv.bluelock-pr.com/news','sanrio.co.jp/news','pokemoncenter-online.com','bts-official.jp','straykidsjapan.com','starto.jp','data-official-rail'];
+          const required=['<link rel="canonical" href="https://oshiruoshi.vercel.app/latest-goods">','"@type":"CollectionPage"','"@type":"ItemList"','shop.nijisanji.jp','shop.hololivepro.com','vspo.jp','games/apex-legends/apex-legends/news','pjsekai.sega.jp','jujutsukaisen.jp/news','tv.bluelock-pr.com/news','sanrio.co.jp/news','pokemoncenter-online.com','bts-official.jp','straykidsjapan.com','starto.jp','data-official-rail','data-live-until','SOLD OUT 8/23'];
           for(const token of required)if(!html.includes(token))throw new Error(`latest goods requirement missing: ${token}`);
           if(/"@type":"(?:Product|MerchantListing)"/.test(html))throw new Error('Product/MerchantListing must not be used on collection hub');
           if(!sitemap.includes("'/latest-goods'"))throw new Error('latest-goods missing from sitemap');

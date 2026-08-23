@@ -7,6 +7,12 @@
   const writeJson=(key,value)=>{try{localStorage.setItem(key,JSON.stringify(value))}catch{}};
   const selectedPrefs=()=>{const value=readJson(PREF_KEY,[]);return Array.isArray(value)?value.filter(x=>categories.includes(x)):[]};
   const setPrefs=value=>writeJson(PREF_KEY,[...new Set(value.filter(x=>categories.includes(x)))]);
+  const isCurrent=(el,now=Date.now())=>{const until=Date.parse(el.dataset.liveUntil||'');return !Number.isFinite(until)||now<=until};
+
+  function pruneExpired(){
+    const now=Date.now();
+    document.querySelectorAll('[data-live-until]').forEach(el=>{const current=isCurrent(el,now);el.hidden=!current;el.setAttribute('aria-hidden',current?'false':'true')});
+  }
 
   function scores(){
     const signals=readJson(SIGNAL_KEY,{}),prefs=selectedPrefs(),out={};
@@ -16,7 +22,7 @@
   function scoreElement(el,map){const cats=String(el.dataset.category||'').split(/\s+/).filter(Boolean);return cats.reduce((sum,c)=>sum+(map[c]||0),0)+Number(el.dataset.priority||0)}
   function renderForYou(){
     const host=document.getElementById('forYouGrid');if(!host)return;
-    const map=scores(),candidates=[...document.querySelectorAll('#latestHighlights .latest-card')];
+    const map=scores(),candidates=[...document.querySelectorAll('#latestHighlights .latest-card')].filter(card=>!card.hidden);
     candidates.sort((a,b)=>scoreElement(b,map)-scoreElement(a,map));host.replaceChildren(...candidates.slice(0,4).map(card=>card.cloneNode(true)));
     const hasSignals=Object.values(map).some(v=>v>0),label=document.getElementById('forYouState');
     if(label)label.textContent=hasSignals?'この端末の興味傾向を反映しています':'初回はカテゴリを横断して表示しています';
@@ -47,11 +53,13 @@
   }
 
   function installOfficialRail(){
-    const rail=document.querySelector('[data-official-rail]'),cards=rail?[...rail.querySelectorAll('.official-preview-card')]:[];
-    if(!rail||cards.length<2)return;
+    const rail=document.querySelector('[data-official-rail]'),cards=rail?[...rail.querySelectorAll('.official-preview-card')].filter(card=>!card.hidden):[];
+    if(!rail)return;
     const dots=[...document.querySelectorAll('[data-rail-dot]')];
-    const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    dots.forEach((dot,index)=>{dot.hidden=index>=cards.length});
     const toggle=document.getElementById('railToggle'),stateLabel=document.getElementById('railState');
+    if(cards.length<2){if(toggle)toggle.hidden=true;if(stateLabel)stateLabel.textContent=cards.length?'最新情報1件を表示中':'掲載期間内の最新情報はありません';return}
+    const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
     let timer=null,manualPaused=reduced,interacting=false;
     const nearestIndex=()=>{
       const left=rail.scrollLeft;let best=0,delta=Infinity;
@@ -79,6 +87,6 @@
     paint();start();
   }
 
-  function init(){installPreferences();installFilters();installSourceLearning();renderForYou();installOfficialRail()}
+  function init(){pruneExpired();installPreferences();installFilters();installSourceLearning();renderForYou();installOfficialRail()}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
