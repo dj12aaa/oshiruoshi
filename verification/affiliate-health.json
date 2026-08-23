@@ -1,17 +1,17 @@
 {
-  "checkedAt": "2026-08-19T03:41:14.543Z",
-  "found": true,
-  "hasAffiliate": true,
-  "hasDirect": true,
+  "checkedAt": "2026-08-23T12:01:40.894Z",
+  "found": false,
+  "hasAffiliate": false,
+  "hasDirect": false,
   "affiliate": {
-    "http": 302,
-    "finalHost": "item.rakuten.co.jp",
+    "http": 0,
+    "finalHost": "",
     "errorPage": false,
-    "ok": true
+    "ok": false
   },
   "direct": {
     "http": 0,
-    "finalHost": "item.rakuten.co.jp",
+    "finalHost": "",
     "ok": false
   }
 }
