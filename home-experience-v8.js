@@ -1,5 +1,6 @@
 (() => {
   'use strict';
+  const HOME_EXPERIENCE_VERSION='2026-08-23.14';
   const INTEREST_KEY='oshiru-interest-signals-v1';
   const MAX_DIMENSION=1600;
   const MAX_UPLOAD_CHARS=5_400_000;
@@ -27,21 +28,18 @@
     new MutationObserver(purge).observe(host,{childList:true});
   }
 
+  function setTextIfChanged(element,value){if(element&&element.textContent!==value)element.textContent=value}
+  function setAttributeIfChanged(element,name,value){if(element&&element.getAttribute(name)!==value)element.setAttribute(name,value)}
   function normalizeControls(card){
     const heart=card.querySelector('.heart[data-fav]');
     if(heart){
-      const active=heart.classList.contains('on');
-      heart.textContent=active?'♥':'♡';
-      heart.setAttribute('aria-label',active?'お気に入りから外す':'お気に入りに追加');
-      heart.title=active?'お気に入りから外す':'お気に入りに追加';
+      const active=heart.classList.contains('on'),text=active?'♥':'♡',label=active?'お気に入りから外す':'お気に入りに追加';
+      setTextIfChanged(heart,text);setAttributeIfChanged(heart,'aria-label',label);setAttributeIfChanged(heart,'title',label);
     }
     const compare=card.querySelector('[data-compare]');
     if(compare){
-      const active=compare.classList.contains('is-selected')||compare.getAttribute('aria-pressed')==='true';
-      compare.textContent=active?'✓':'＋';
-      compare.setAttribute('aria-label',active?'比較から外す':'比較に追加');
-      compare.setAttribute('aria-pressed',active?'true':'false');
-      compare.title=active?'比較から外す':'比較に追加';
+      const active=compare.classList.contains('is-selected')||compare.getAttribute('aria-pressed')==='true',text=active?'✓':'＋',label=active?'比較から外す':'比較に追加';
+      setTextIfChanged(compare,text);setAttributeIfChanged(compare,'aria-label',label);setAttributeIfChanged(compare,'aria-pressed',active?'true':'false');setAttributeIfChanged(compare,'title',label);
     }
   }
   function enhanceCard(card,index=0){
@@ -63,7 +61,7 @@
       }
       let price=visual.querySelector('.gallery-price');
       if(!price&&mainPrice){price=document.createElement('span');price.className='gallery-price';visual.appendChild(price)}
-      if(price&&mainPrice)price.textContent=(mainPrice.textContent||'価格不明').trim()||'価格不明';
+      if(price&&mainPrice)setTextIfChanged(price,(mainPrice.textContent||'価格不明').trim()||'価格不明');
       if(compare){compare.classList.add('gallery-compare');if(compare.parentElement!==visual)visual.appendChild(compare)}
     }
     if(title&&productLink&&!title.dataset.galleryV8){
@@ -79,7 +77,9 @@
   function optimizeGallery(){
     const grid=document.getElementById('productGrid');if(!grid)return;
     const tune=()=>[...grid.querySelectorAll('.product-card')].forEach(enhanceCard);
-    new MutationObserver(tune).observe(grid,{childList:true,subtree:true,characterData:true});tune();
+    // Product cards are replaced as direct grid children. Observing descendants here
+    // makes our own control normalization re-trigger this observer before the next paint.
+    new MutationObserver(tune).observe(grid,{childList:true});tune();
   }
 
   async function decodeImage(file){

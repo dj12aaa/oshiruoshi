@@ -7,9 +7,16 @@ const read=file=>fs.readFileSync(new URL(`../${file}`,import.meta.url),'utf8');
 test('homepage directly loads critical gallery, image search and taskbar assets',()=>{
   const html=read('index.html'),seo=read('seo-structured-data.js');
   assert.match(html,/gallery-v8\.css\?v=20260822-9/);
-  assert.match(html,/home-experience-v8\.js\?v=20260822-9/);
+  assert.match(html,/home-experience-v8\.js\?v=20260823-14/);
   assert.match(html,/navigation-extra-v7\.js\?v=20260822-9/);
   assert.doesNotMatch(seo,/loadScript|data-gallery-v8|home-experience-v8/);
+});
+
+test('gallery enhancer cannot retrigger itself while normalizing controls',()=>{
+  const html=read('index.html'),home=read('home-experience-v8.js');
+  assert.ok(html.includes('oshiru-home-version" content="2026-08-23.14'));
+  for(const token of ["HOME_EXPERIENCE_VERSION='2026-08-23.14'",'setTextIfChanged','setAttributeIfChanged','observe(grid,{childList:true})'])assert.ok(home.includes(token),token);
+  assert.doesNotMatch(home,/observe\(grid,\{childList:true,subtree:true(?:,characterData:true)?\}\)/);
 });
 
 test('dense grid has deterministic widths and controls are born inside the image',()=>{
