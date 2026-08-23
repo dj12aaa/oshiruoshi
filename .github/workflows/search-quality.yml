@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Search JavaScript syntax
         run: |
-          node --check api/search-language.mjs
+          node --check api/_search-language.mjs
           node --check api/live-search.js
           node --check api/suggest.js
           node --check app.js

@@ -1,5 +1,5 @@
 import { suggest as entitySuggest } from './_core.mjs';
-import { MERCH_GROUPS, ENTITY_GROUPS, detectIntent, detectMerchLabel, normalizeFlexible, compactFlexible } from './search-language.mjs';
+import { MERCH_GROUPS, ENTITY_GROUPS, detectIntent, detectMerchLabel, normalizeFlexible, compactFlexible } from './_search-language.mjs';
 
 const cache=new Map();
 const SUGGEST_ENGINE_VERSION='2026-08-19.5';

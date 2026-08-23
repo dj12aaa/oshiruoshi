@@ -73,6 +73,14 @@
 - 自動検査: V9 layout/search testsおよびGitHub workflowsが上記条件を横断検査する。
 - 本番証拠: 正規ドメインのモバイル/PC測定が全条件を満たすことを確認する。
 
+### QL-008 Vercel Function数を少なく数えてproductionを失敗させる
+
+- 症状: GitHub ActionsのV9品質検査は成功したが、Vercel deploymentが作成直後に失敗し、正規URLは旧版のままになった。
+- 根本原因: Function予算検査が`.js`だけを数え、`api/search-language.mjs`を数えていなかった。Vercelは`api/`直下の非`_` runtime fileをFunction化するため、V8精度API追加後はHobby上限12に対して実数13だった。
+- 恒久対策: 共有moduleを`api/_search-language.mjs`へ移し、精度handlerも`api/_live-search-v8.js`へ統合する。公開URL`/api/live-search-v8`は`/api/search`へのrewriteで維持し、Vercel公式仕様に従って補助moduleのFunction化を防ぐ。予算検査は`.js/.mjs/.cjs/.ts/.mts/.cts`を数え、`_`または`.`始まりと`.d.ts`だけを補助fileとして除外する。
+- 自動検査: `scripts/check-vercel-function-budget.mjs`が`api/`を再帰走査してNode/Python/Ruby/Go runtimeを数え、2本のV9 workflowと`tests/process-guard-v9.test.mjs`がFunction数11、上限まで1枠の余裕、両共有moduleの`_`接頭辞、互換rewriteを検査する。
+- 本番証拠: 修正後deploymentの成功と正規URLのV9 asset/API/browser検査が必要。成功前は本番反映済みと扱わない。
+
 ## リリース前チェックリスト
 
 - [ ] 今回のユーザー指摘を本台帳へ追記した
@@ -88,7 +96,8 @@
 
 ## 今回リリースの検証状態
 
-- 2026-08-23: 回帰テスト21件成功。
+- 2026-08-23: 回帰テスト22件成功（Function予算・互換rewrite検査を追加）。
 - 2026-08-23: 変更対象JavaScriptの構文確認と`git diff --check`成功。
 - 2026-08-23: 掲載中の4件を公式一次ページで再確認。hololive商品は期間内だが全品SOLD OUTのため表示を訂正。
 - 2026-08-23 20:08 JST: 正規本番URLは旧assetのまま。V9の本番反映と実ブラウザ検査は未完了。
+- 2026-08-23 20:32 JST: 失敗原因をFunction実数13（Hobby上限12）と特定。CIの`.mjs`数え漏れを修正し、互換URLを維持したまま実数11へ削減。

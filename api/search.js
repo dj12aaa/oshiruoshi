@@ -1,4 +1,4 @@
-import precisionSearch from './live-search-v8.js';
+import precisionSearch from './_live-search-v8.js';
 import { json } from './_core.mjs';
 // Empty queries are an idle UI state. They must never seed default merchandise.
 export default async function handler(req,res){

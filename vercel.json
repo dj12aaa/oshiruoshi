@@ -7,6 +7,7 @@
     "deploymentEnabled": true
   },
   "rewrites": [
+    {"source": "/api/live-search-v8","destination": "/api/search"},
     {"source": "/robots.txt","destination": "/api/robots"},
     {"source": "/sitemap.xml","destination": "/api/sitemap"},
     {"source": "/latest-goods","destination": "/latest-goods.html"},

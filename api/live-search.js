@@ -8,7 +8,7 @@ import {
   buildSearchVariants,
   rankSearchItems,
   countStrongMatches
-} from './search-language.mjs';
+} from './_search-language.mjs';
 
 const SEARCH_ALIAS_VERSION='2026-08-21.7';
 const cache=new Map();
