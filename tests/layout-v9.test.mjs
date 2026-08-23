@@ -40,8 +40,10 @@ test('dense grid has deterministic widths and controls are born inside the image
 
 test('search returns an immediate precision snapshot and always leaves the loading state',()=>{
   const html=read('index.html'),app=read('app.js'),performance=read('performance-v3.js'),precision=read('api/_live-search-v8.js'),live=read('api/live-search.js');
-  for(const token of ['oshiru-search-ui-version" content="2026-08-23.12','/performance-v3.js?v=20260823-12','/app.js?v=20260823-12'])assert.ok(html.includes(token),token);
-  for(const token of ["SEARCH_UI_VERSION='2026-08-23.12'",'timeoutMs=10000','initial=1','timeoutMs:6000','const livePromise=refreshLive(q,seq)','timeoutMs:12000','setTimeout(()=>{if(seq!==state.searchSeq)return','finishSearchUi','mergeItems(state.all,data.items||[])','finally{clearTimeout(watchdog)','検索中表示は終了しました'])assert.ok(app.includes(token),token);
+  for(const token of ['oshiru-search-ui-version" content="2026-08-23.17','/performance-v3.js?v=20260823-12','/app.js?v=20260823-17'])assert.ok(html.includes(token),token);
+  for(const token of ["SEARCH_UI_VERSION='2026-08-23.17'",'timeoutMs=10000','initial=1','timeoutMs:6000','const livePromise=refreshLive(q,seq)','timeoutMs:12000','setTimeout(()=>{if(seq!==state.searchSeq)return','finishSearchUi','state.all=[]; state.shown=[]; state.providers={}'])assert.ok(app.includes(token),token);
+  for(const token of ['mergeItems(state.all,data.items||[])','liveQuery:q','initialQuery:q','finally{clearTimeout(watchdog)','検索中表示は終了しました'])assert.ok(app.includes(token),token);
+  assert.ok(app.indexOf('state.all=[]; state.shown=[]; state.providers={}')<app.indexOf('const livePromise=refreshLive(q,seq)'));
   assert.ok(app.indexOf('const livePromise=refreshLive(q,seq)')<app.indexOf('const data=await json(`/api/search?initial=1'));
   for(const token of ["function initialUrl(q)","u.searchParams.set('initial','1')","nativeFetch(initialUrl(q).href,init)"])assert.ok(performance.includes(token),token);
   for(const token of ["u.searchParams.get('initial')==='1'","initial:true","fast=1"])assert.ok(precision.includes(token),token);

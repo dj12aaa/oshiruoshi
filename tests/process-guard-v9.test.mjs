@@ -18,7 +18,7 @@ test('project instructions force correction logging and exact production verific
 
 test('quality ledger keeps every known root cause and release gate',()=>{
   const lessons=read('docs/QUALITY_LESSONS.md');
-  for(const id of ['QL-001','QL-002','QL-003','QL-004','QL-005','QL-006','QL-007','QL-008','QL-009','QL-010','QL-011','QL-012','QL-013','QL-014','QL-015','QL-016'])assert.ok(lessons.includes(id),id);
+  for(const id of ['QL-001','QL-002','QL-003','QL-004','QL-005','QL-006','QL-007','QL-008','QL-009','QL-010','QL-011','QL-012','QL-013','QL-014','QL-015','QL-016','QL-017'])assert.ok(lessons.includes(id),id);
   for(const token of [
     '動的挿入',
     '一般小売ノイズ除外',
@@ -35,6 +35,7 @@ test('quality ledger keeps every known root cause and release gate',()=>{
     '自己再発火',
     '別Node heredoc',
     'コンパクト比較ボタン',
+    '前回検索の商品集合',
     'oshiruoshi.vercel.app',
     'V9の本番反映と実ブラウザ検査は未完了'
   ])assert.ok(lessons.includes(token),token);
@@ -42,9 +43,9 @@ test('quality ledger keeps every known root cause and release gate',()=>{
 
 test('production verification waits for real cards and serializes result writers',()=>{
   const browser=read('.github/workflows/dense-latest-production-smoke.yml');
-  for(const token of ['.product-card[data-card-id]','startup-diagnostics','requestfailed','startup search did not render merchandise','controlsInsideVisual','card overlays escaped the image area',"q.value='なると'",'search did not return live merchandise','SEARCH_UI_VERSION','HOME_EXPERIENCE_VERSION','AFFILIATE_UI_VERSION',"oshiru-search-ui-version\" content=\"2026-08-23.12",'oshiru-home-version','oshiru-affiliate-ui-version','console.log(name,JSON.stringify(metrics))','if: always()','if-no-files-found: warn'])assert.ok(browser.includes(token),token);
+  for(const token of ['.product-card[data-card-id]','startup-diagnostics','requestfailed','startup search did not render merchandise','controlsInsideVisual','card overlays escaped the image area',"q.value='なると'",'diagnostics?.liveQuery===expectedQuery','search did not return live merchandise','SEARCH_UI_VERSION','HOME_EXPERIENCE_VERSION','AFFILIATE_UI_VERSION',"oshiru-search-ui-version\" content=\"2026-08-23.17",'oshiru-home-version','oshiru-affiliate-ui-version','console.log(name,JSON.stringify(metrics))','if: always()','if-no-files-found: warn'])assert.ok(browser.includes(token),token);
   const http=read('.github/workflows/dense-latest-check.yml');
-  for(const token of ['ready=0','OSHIRU gallery v9',"SEARCH_UI_VERSION='2026-08-23.12'",'oshiru-search-ui-version','test "$ready" = 1'])assert.ok(http.includes(token),token);
+  for(const token of ['ready=0','OSHIRU gallery v9',"SEARCH_UI_VERSION='2026-08-23.17'",'oshiru-search-ui-version','test "$ready" = 1'])assert.ok(http.includes(token),token);
   const quality=read('.github/workflows/v7-quality.yml');
   assert.ok(quality.includes("home=fs.readFileSync('home-experience-v8.js','utf8'),affiliate=fs.readFileSync('affiliate-widget.js','utf8')"));
   const writers=['affiliate-health.yml','dense-latest-production-smoke.yml','public-smoke.yml','search-quality.yml','ux-smoke.yml'];

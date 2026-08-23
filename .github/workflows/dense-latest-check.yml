@@ -96,10 +96,10 @@ jobs:
           ready=0
           for attempt in $(seq 1 36); do
             if curl --fail --silent --show-error --location "$base/?ready=$attempt-${GITHUB_SHA}" -o "$tmp/index.html" \
-              && grep -Fq 'oshiru-search-ui-version" content="2026-08-23.12' "$tmp/index.html" \
-              && grep -Fq '/app.js?v=20260823-12' "$tmp/index.html" \
-              && curl --fail --silent --show-error --location "$base/app.js?v=20260823-12-$attempt" -o "$tmp/app.js" \
-              && grep -Fq "SEARCH_UI_VERSION='2026-08-23.12'" "$tmp/app.js" \
+              && grep -Fq 'oshiru-search-ui-version" content="2026-08-23.17' "$tmp/index.html" \
+              && grep -Fq '/app.js?v=20260823-17' "$tmp/index.html" \
+              && curl --fail --silent --show-error --location "$base/app.js?v=20260823-17-$attempt" -o "$tmp/app.js" \
+              && grep -Fq "SEARCH_UI_VERSION='2026-08-23.17'" "$tmp/app.js" \
               && grep -Fq 'oshiru-home-version" content="2026-08-23.14' "$tmp/index.html" \
               && grep -Fq '/home-experience-v8.js?v=20260823-14' "$tmp/index.html" \
               && curl --fail --silent --show-error --location "$base/home-experience-v8.js?v=20260823-14-$attempt" -o "$tmp/home.js" \

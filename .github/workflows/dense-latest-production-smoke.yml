@@ -34,10 +34,10 @@ jobs:
           ready=0
           for attempt in $(seq 1 45); do
             if curl --fail --silent --show-error --location "$base/?ready=$attempt-${GITHUB_SHA}" -o "$tmp/index.html" \
-              && grep -Fq 'oshiru-search-ui-version" content="2026-08-23.12' "$tmp/index.html" \
-              && grep -Fq '/app.js?v=20260823-12' "$tmp/index.html" \
-              && curl --fail --silent --show-error --location "$base/app.js?v=20260823-12-$attempt" -o "$tmp/app.js" \
-              && grep -Fq "SEARCH_UI_VERSION='2026-08-23.12'" "$tmp/app.js" \
+              && grep -Fq 'oshiru-search-ui-version" content="2026-08-23.17' "$tmp/index.html" \
+              && grep -Fq '/app.js?v=20260823-17' "$tmp/index.html" \
+              && curl --fail --silent --show-error --location "$base/app.js?v=20260823-17-$attempt" -o "$tmp/app.js" \
+              && grep -Fq "SEARCH_UI_VERSION='2026-08-23.17'" "$tmp/app.js" \
               && grep -Fq 'oshiru-home-version" content="2026-08-23.14' "$tmp/index.html" \
               && grep -Fq '/home-experience-v8.js?v=20260823-14' "$tmp/index.html" \
               && curl --fail --silent --show-error --location "$base/gallery-v8.css?v=$(date +%s)" -o "$tmp/gallery.css" \
@@ -167,7 +167,7 @@ jobs:
             });
             console.log(name,JSON.stringify(metrics));
             await page.screenshot({path:`verification/screenshots/${name}-search.png`,fullPage:false});
-            if(metrics.uiVersion!=='2026-08-23.12'||metrics.homeVersion!=='2026-08-23.14'||metrics.affiliateVersion!=='2026-08-23.16'||metrics.diagnostics?.version!=='2026-08-23.12')throw new Error(`${name}: stale search UI loaded: ${JSON.stringify({uiVersion:metrics.uiVersion,homeVersion:metrics.homeVersion,affiliateVersion:metrics.affiliateVersion,diagnostics:metrics.diagnostics})}`);
+            if(metrics.uiVersion!=='2026-08-23.17'||metrics.homeVersion!=='2026-08-23.14'||metrics.affiliateVersion!=='2026-08-23.16'||metrics.diagnostics?.version!=='2026-08-23.17')throw new Error(`${name}: stale search UI loaded: ${JSON.stringify({uiVersion:metrics.uiVersion,homeVersion:metrics.homeVersion,affiliateVersion:metrics.affiliateVersion,diagnostics:metrics.diagnostics})}`);
             if(metrics.columns!==expectedColumns)throw new Error(`${name}: expected ${expectedColumns} columns, got ${metrics.columns}`);
             if(metrics.cards<2||!metrics.sourceVisible||!metrics.priceVisible||!metrics.heartVisible||!metrics.compareVisible)throw new Error(`${name}: card controls/source/price missing`);
             if(!metrics.controlsInsideVisual)throw new Error(`${name}: card overlays escaped the image area`);
@@ -180,10 +180,11 @@ jobs:
 
             const searchStarted=Date.now();
             await page.evaluate(()=>{const q=document.getElementById('q'),button=document.getElementById('searchBtn');q.value='なると';button.click()});
-            await page.waitForFunction(()=>{
+            await page.waitForFunction(expectedQuery=>{
               const button=document.getElementById('searchBtn');
-              return button&&!button.classList.contains('loading')&&button.textContent.trim()!=='検索中…'&&!document.querySelector('#productGrid .skeleton');
-            },null,{timeout:9000});
+              const diagnostics=window.__OSHIRU_SEARCH_DIAGNOSTICS__;
+              return button&&!button.classList.contains('loading')&&button.textContent.trim()!=='検索中…'&&!document.querySelector('#productGrid .skeleton')&&diagnostics?.query===expectedQuery&&diagnostics?.liveQuery===expectedQuery&&diagnostics?.live==='complete';
+            },'なると',{timeout:16000});
             await page.waitForFunction(()=>document.querySelectorAll('#productGrid .product-card[data-card-id]').length>=6,null,{timeout:15000});
             const searchSettlement=await page.evaluate(started=>({
               elapsedMs:Date.now()-started,
@@ -195,7 +196,7 @@ jobs:
               titles:[...document.querySelectorAll('#productGrid .product-title')].map(node=>node.textContent.trim())
             }),searchStarted);
             if(searchSettlement.elapsedMs>15000||searchSettlement.skeletons!==0)throw new Error(`${name}: search did not settle: ${JSON.stringify(searchSettlement)}`);
-            if(searchSettlement.cards<6||searchSettlement.diagnostics?.live!=='complete')throw new Error(`${name}: search did not return live merchandise: ${JSON.stringify(searchSettlement)}`);
+            if(searchSettlement.cards<6||searchSettlement.diagnostics?.query!=='なると'||searchSettlement.diagnostics?.liveQuery!=='なると'||searchSettlement.diagnostics?.live!=='complete')throw new Error(`${name}: search did not return live merchandise: ${JSON.stringify(searchSettlement)}`);
             if(searchSettlement.titles.some(title=>/(ヘアピン|ヘアクリップ|髪留め|コミック|単行本|電子書籍)/i.test(title)))throw new Error(`${name}: NARUTO search returned retail noise: ${JSON.stringify(searchSettlement.titles)}`);
             console.log(`${name}-search-settlement`,JSON.stringify(searchSettlement));
 
