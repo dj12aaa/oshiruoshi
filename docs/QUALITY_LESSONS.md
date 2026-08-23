@@ -81,6 +81,14 @@
 - 自動検査: `scripts/check-vercel-function-budget.mjs`が`api/`を再帰走査してNode/Python/Ruby/Go runtimeを数え、2本のV9 workflowと`tests/process-guard-v9.test.mjs`がFunction数11、上限まで1枠の余裕、両共有moduleの`_`接頭辞、互換rewriteを検査する。
 - 本番証拠: 修正後deploymentの成功と正規URLのV9 asset/API/browser検査が必要。成功前は本番反映済みと扱わない。
 
+### QL-009 検証workflow自身のraceと待機条件で偽の失敗を出す
+
+- 症状: V9本番asset/APIは公開済みなのに、browser検査は「カード部品なし」、HTTP smokeは旧asset、検索品質と公開smokeはpush失敗、楽天healthは一時fileなしで失敗した。
+- 根本原因: 商品読込前のskeletonも`.product-card`だったためbrowser検査が早く進んだ。別のHTTP検査はproduction aliasのV9 markerを待たなかった。5本の検証workflowが別々の結果fileを同時にmainへpushした。楽天0件時の分岐で後続shellが読む空fileを作らなかった。
+- 恒久対策: browserは`data-card-id`を持つ実商品だけを待ち、部品が画像領域内に収まることまで測る。HTTPはV9 markerをpollする。全結果writerを共通concurrency groupで直列化し、共通push scriptでfetch/rebase/retryする。楽天0件時も空URLと`found:false`を正常な検査結果として保存する。
+- 自動検査: `tests/process-guard-v9.test.mjs`が実商品selector、overlay境界検査、V9待機、writer直列化、共通push、楽天0件分岐を固定する。
+- 本番証拠: 修正workflowをmainで再実行し、390px/1440px browser metricsとHTTP/search checksが成功することを確認する。
+
 ## リリース前チェックリスト
 
 - [ ] 今回のユーザー指摘を本台帳へ追記した
@@ -96,8 +104,9 @@
 
 ## 今回リリースの検証状態
 
-- 2026-08-23: 回帰テスト22件成功（Function予算・互換rewrite検査を追加）。
+- 2026-08-23: 回帰テスト23件成功（Function予算、互換rewrite、production検証processを固定）。
 - 2026-08-23: 変更対象JavaScriptの構文確認と`git diff --check`成功。
 - 2026-08-23: 掲載中の4件を公式一次ページで再確認。hololive商品は期間内だが全品SOLD OUTのため表示を訂正。
 - 2026-08-23 20:08 JST: 正規本番URLは旧assetのまま。V9の本番反映と実ブラウザ検査は未完了。
 - 2026-08-23 20:32 JST: 失敗原因をFunction実数13（Hobby上限12）と特定。CIの`.mjs`数え漏れを修正し、互換URLを維持したまま実数11へ削減。
+- 2026-08-23 20:57 JST: Vercel本番deploymentと正規URLのV9 asset/APIを確認。browser検査のskeleton誤判定とverification push raceを特定し、再検証用の恒久対策を追加。
