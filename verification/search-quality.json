@@ -1,42 +1,47 @@
 {
-  "checkedAt": "2026-08-23T12:02:54.587Z",
-  "ok": false,
+  "checkedAt": "2026-08-23T12:35:50.371Z",
+  "ok": true,
   "expansionOk": true,
   "baselineOk": true,
-  "predictiveOk": false,
+  "relevanceOk": true,
+  "predictiveOk": true,
   "duplicateFree": true,
-  "cleanupPresent": false,
+  "cleanupPresent": true,
   "results": [
     {
       "query": "星街すいせい アクスタ",
-      "count": 33,
+      "count": 30,
+      "effectiveQuery": "星街すいせい アクリルスタンド",
+      "precisionVersion": "2026-08-23.10",
       "queryVariants": [
-        "星街すいせい アクスタ",
         "星街すいせい アクリルスタンド"
       ],
       "expansionOk": true,
+      "relevanceOk": true,
       "topTitles": [
-        "中古フォトフレーム・アルバム 星街すいせい アクスタ付きカードスタンド 「バーチャルYouTuber ホロライブ」 Tファン",
-        "中古グッズセット 星街すいせい グッズセット(アクスタ+A4クリアファイル+缶バッジ) 「バーチャルYouTuber 星街すいせい×ZO",
-        "星街すいせい アクリルスタンド ホロライブ hololive ローソン 制服 アクスタ VTuber Loppi・HMV＆BOOKS online 限定 未開封"
+        "星街すいせい アクリルスタンド ホロライブ hololive ローソン 制服 アクスタ VTuber Loppi・HMV＆BOOKS online 限定 未開封",
+        "星街すいせい アクリルスタンドキーホルダー フェスティバルver. ホロライブ ヴァイスシュヴァルツ＆Reバース",
+        "新品未開封 星街すいせい アクリルスタンド ホロライブ ウィンターストリート 公式 グッズ"
       ],
       "topScores": [
+        972,
+        952,
+        952,
         932,
-        812,
-        792,
-        772,
-        768
+        932
       ],
-      "aliasVersion": "2026-08-21.7"
+      "aliasVersion": "2026-08-23.10"
     },
     {
       "query": "五条悟 缶バッジ",
       "count": 30,
+      "effectiveQuery": "五条悟 缶バッジ",
+      "precisionVersion": "2026-08-23.10",
       "queryVariants": [
-        "五条悟 缶バッジ",
-        "五条悟 缶バッジ ッジ"
+        "五条悟 缶バッジ"
       ],
       "expansionOk": true,
+      "relevanceOk": true,
       "topTitles": [
         "【五条悟】 缶バッジ 呪術廻戦 ふかふかスクイーズパン編",
         "中古バッジ・ピンズ A.五条悟 缶バッジ 「ファンパレくじ 呪術廻戦 懐玉・玉折」 E賞",
@@ -49,166 +54,125 @@
         542,
         542
       ],
-      "aliasVersion": "2026-08-21.7"
+      "aliasVersion": "2026-08-23.10"
     },
     {
       "query": "初音ミク ぬい",
-      "count": 60,
+      "count": 30,
+      "effectiveQuery": "初音ミク ぬいぐるみ",
+      "precisionVersion": "2026-08-23.10",
       "queryVariants": [
-        "初音ミク ぬい",
         "初音ミク ぬいぐるみ"
       ],
       "expansionOk": true,
+      "relevanceOk": true,
       "topTitles": [
-        "初音ミク ぬいぐるみ ピアプロキャラクターズ ぬいコロン アイアップ",
-        "初音ミク ぬいぐるみ ピアプロキャラクターズ ぬいコロン アイアップ",
-        "初音ミク ぬいコロン ぬいぐるみ"
+        "キャラクター・ボーカル・シリーズ01 初音ミク ぬいぐるみ デコミク ライトネス",
+        "送料無料◆セガ フェイブ プロジェクトセカイ カラフルステージ！ feat. 初音ミク ぬいぐるみ 4種セット (司/えむ/寧々/類) セット商品 【11月予約】",
+        "中国 キャラクター グッズ『初音ミク ぬいぐるみ風 ミニ痛バッグ イヤホンポーチ』公式グッズ（bilibili公式）"
       ],
       "topScores": [
         952,
         952,
-        952,
-        948,
-        948
+        932,
+        792,
+        772
       ],
-      "aliasVersion": "2026-08-21.7"
+      "aliasVersion": "2026-08-23.10"
     },
     {
       "query": "ローレンイロアスアクキー",
-      "count": 16,
+      "count": 12,
+      "effectiveQuery": "ローレンイロアス アクリルキーホルダー",
+      "precisionVersion": "2026-08-23.10",
       "queryVariants": [
-        "ローレンイロアスアクキー",
         "ローレンイロアス アクリルキーホルダー"
       ],
       "expansionOk": true,
+      "relevanceOk": true,
       "topTitles": [
-        "中古キーホルダー ローレン・イロアス タッセル付きアクリルチャーム 「バーチャルYouTuber にじさんじ にじさんじ妖",
         "中古雑貨 ローレン・イロアス アクリルキーホルダー 「バーチャルYouTuber にじさんじ エデン組ハーフアニバーサリー",
-        "中古キーホルダー ローレン・イロアス ゆらゆらアクリルキーホルダー 「バーチャルYouTuber にじさんじ A"
+        "中古雑貨 ローレン・イロアス アクリルキーホルダー 「バーチャルYouTuber にじさんじ×サンリオキャラクターズ 第3弾",
+        "中古キーホルダー ローレン・イロアス タッセル付きアクリルチャーム 「バーチャルYouTuber にじさんじ にじさんじ妖"
       ],
       "topScores": [
-        768,
-        768,
-        768,
-        768,
-        768
+        952,
+        952,
+        772,
+        772,
+        772
       ],
-      "aliasVersion": "2026-08-21.7"
+      "aliasVersion": "2026-08-23.10"
     },
     {
       "query": "ボイスキーホルダーFelix",
-      "count": 30,
+      "count": 0,
+      "effectiveQuery": "Stray Kids フィリックス ボイスキーホルダー",
+      "precisionVersion": "2026-08-23.10",
       "queryVariants": [
-        "ボイスキーホルダーFelix",
-        "ボイス キーホルダー ホルダー felix",
-        "キーホルダー felix"
+        "Stray Kids フィリックス ボイスキーホルダー"
       ],
       "expansionOk": true,
-      "topTitles": [
-        "フィリックス ラバー キーチェーン 1964 FELIX キーホルダー キーリング キーチャーム 1964年 64 おしゃれ かわいい プレゼント ローライダー Lowrider チカーノ",
-        "フィリックス ラバー キーチェーン 1963 FELIX キーホルダー キーリング キーチャーム 1963年 63 おしゃれ かわいい プレゼント ローライダー Lowrider チカーノ",
-        "フィリックス メタル クローム キーホルダー FELIX ローライダー キーチェーン キーリング キーチャーム チカーノ キャラクター フィリックス ザ キャット"
-      ],
-      "topScores": [
-        899,
-        899,
-        899,
-        899,
-        899
-      ],
-      "aliasVersion": "2026-08-21.7"
+      "relevanceOk": true,
+      "topTitles": [],
+      "topScores": [],
+      "aliasVersion": "2026-08-23.10"
     },
     {
       "query": "Felix ボイスキーホルダー",
-      "count": 30,
+      "count": 0,
+      "effectiveQuery": "Stray Kids フィリックス ボイスキーホルダー",
+      "precisionVersion": "2026-08-23.10",
       "queryVariants": [
-        "Felix ボイスキーホルダー",
-        "felix ボイス キーホルダー ホルダー",
-        "felix キーホルダー"
+        "Stray Kids フィリックス ボイスキーホルダー"
       ],
       "expansionOk": true,
-      "topTitles": [
-        "フィリックス ラバー キーチェーン 1964 FELIX キーホルダー キーリング キーチャーム 1964年 64 おしゃれ かわいい プレゼント ローライダー Lowrider チカーノ",
-        "フィリックス ラバー キーチェーン 1963 FELIX キーホルダー キーリング キーチャーム 1963年 63 おしゃれ かわいい プレゼント ローライダー Lowrider チカーノ",
-        "フィリックス メタル クローム キーホルダー FELIX ローライダー キーチェーン キーリング キーチャーム チカーノ キャラクター フィリックス ザ キャット"
-      ],
-      "topScores": [
-        899,
-        899,
-        899,
-        899,
-        899
-      ],
-      "aliasVersion": "2026-08-21.7"
+      "relevanceOk": true,
+      "topTitles": [],
+      "topScores": [],
+      "aliasVersion": "2026-08-23.10"
     },
     {
       "query": "owキリコぬいぐるみ",
-      "count": 35,
+      "count": 0,
+      "effectiveQuery": "オーバーウォッチ キリコ ぬいぐるみ",
+      "precisionVersion": "2026-08-23.10",
       "queryVariants": [
-        "owキリコぬいぐるみ",
-        "オーバーウォッチ キリコ ぬいぐるみ ぐるみ",
-        "オーバーウォッチ キリコ グッズ",
-        "ぬいぐるみ"
+        "オーバーウォッチ キリコ ぬいぐるみ"
       ],
       "expansionOk": true,
-      "topTitles": [
-        "オーバーウォッチ Overwatch OW2 キリコ Kiriko コスプレ 道具小物 cosplayコスチュームパーティーグッズ仮装演出",
-        "オーバーウォッチ Overwatch OW2 キリコ Kiriko コスプレ 道具小物 cosplayコスチュームパーティーグッズ仮装演出",
-        "オーバーウォッチ Overwatch OW2 キリコ Kiriko コスプレ  道具小物 cosplayコスチュームパーティーグッズ仮装演出"
-      ],
-      "topScores": [
-        234,
-        234,
-        234,
-        234,
-        135
-      ],
-      "aliasVersion": "2026-08-21.7"
+      "relevanceOk": true,
+      "topTitles": [],
+      "topScores": [],
+      "aliasVersion": "2026-08-23.10"
     },
     {
       "query": "OW キリコ ぬい",
-      "count": 35,
+      "count": 0,
+      "effectiveQuery": "オーバーウォッチ キリコ ぬいぐるみ",
+      "precisionVersion": "2026-08-23.10",
       "queryVariants": [
-        "OW キリコ ぬい",
-        "オーバーウォッチ キリコ ぬいぐるみ",
-        "オーバーウォッチ キリコ グッズ",
-        "ぬいぐるみ"
+        "オーバーウォッチ キリコ ぬいぐるみ"
       ],
       "expansionOk": true,
-      "topTitles": [
-        "オーバーウォッチ Overwatch OW2 キリコ Kiriko コスプレ 道具小物 cosplayコスチュームパーティーグッズ仮装演出",
-        "オーバーウォッチ Overwatch OW2 キリコ Kiriko コスプレ 道具小物 cosplayコスチュームパーティーグッズ仮装演出",
-        "オーバーウォッチ Overwatch OW2 キリコ Kiriko コスプレ  道具小物 cosplayコスチュームパーティーグッズ仮装演出"
-      ],
-      "topScores": [
-        234,
-        234,
-        234,
-        234,
-        135
-      ],
-      "aliasVersion": "2026-08-21.7"
+      "relevanceOk": true,
+      "topTitles": [],
+      "topScores": [],
+      "aliasVersion": "2026-08-23.10"
     },
     {
       "query": "3DS本体",
-      "count": 30,
+      "count": 0,
+      "effectiveQuery": "3ds 本体 グッズ",
+      "precisionVersion": "2026-08-23.10",
       "queryVariants": [
-        "3DS本体"
+        "3ds 本体 グッズ"
       ],
       "expansionOk": true,
-      "topTitles": [
-        "3DS 本体 すぐ遊べるセット 訳アリ 全5色 カラーランダム ニンテンドーDS 任天堂 中古 任天堂 中古",
-        "3DS 本体 訳アリ タッチペン 充電器 選べる6色 任天堂 中古",
-        "Nintendo 3DS 本体 選べるカラー6色　【本体のみ】★レビューでプレゼントキャンペーン実施中★"
-      ],
-      "topScores": [
-        682,
-        662,
-        662,
-        662,
-        662
-      ],
-      "aliasVersion": "2026-08-21.7"
+      "relevanceOk": true,
+      "topTitles": [],
+      "topScores": [],
+      "aliasVersion": "2026-08-23.10"
     }
   ],
   "suggestions": [
@@ -263,7 +227,7 @@
       "count": 2,
       "items": [
         {
-          "name": "felix ボイスキーホルダー",
+          "name": "stray kids フィリックス ボイスキーホルダー",
           "kind": "correction",
           "label": "表記を整理",
           "detail": "グッズ名の重複や断片を整理"
@@ -275,7 +239,7 @@
           "detail": "入力した言葉を変更しません"
         }
       ],
-      "providerQuery": "felix ボイスキーホルダー",
+      "providerQuery": "stray kids フィリックス ボイスキーホルダー",
       "signals": {
         "commerce": 0,
         "fallbackCommerce": 30,
@@ -289,7 +253,7 @@
       "count": 2,
       "items": [
         {
-          "name": "felix スキズ ボイスキーホルダー",
+          "name": "stray kids フィリックス ボイスキーホルダー",
           "kind": "correction",
           "label": "表記を整理",
           "detail": "グッズ名の重複や断片を整理"
@@ -301,7 +265,7 @@
           "detail": "入力した言葉を変更しません"
         }
       ],
-      "providerQuery": "felix スキズ ボイスキーホルダー",
+      "providerQuery": "stray kids フィリックス ボイスキーホルダー",
       "signals": {
         "commerce": 0,
         "fallbackCommerce": 30,
