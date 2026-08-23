@@ -30,20 +30,20 @@ jobs:
           node --check latest-goods.js
           node --check seo-structured-data.js
           node --check api/live-search.js
-          node --check api/live-search-v8.js
+          node --check api/_live-search-v8.js
           node --check api/sitemap.js
           node --check app.js
           node --check performance-v3.js
 
       - name: Validate Vercel config and function budget
         run: |
+          node scripts/check-vercel-function-budget.mjs
           node <<'NODE'
           const fs=require('fs');
           const config=JSON.parse(fs.readFileSync('vercel.json','utf8'));
           if(!(config.rewrites||[]).some(x=>x.source==='/latest-goods'&&x.destination==='/latest-goods.html'))throw new Error('latest-goods rewrite missing');
-          const api=fs.readdirSync('api').filter(f=>f.endsWith('.js')&&!f.startsWith('_'));
-          if(api.length>12)throw new Error(`Vercel function budget exceeded: ${api.length}`);
-          console.log({apiFunctions:api.length,vercel:'ok'});
+          if(!(config.rewrites||[]).some(x=>x.source==='/api/live-search-v8'&&x.destination==='/api/search'))throw new Error('live-search-v8 compatibility rewrite missing');
+          console.log({vercel:'ok'});
           NODE
 
       - name: Validate v9 responsive gallery

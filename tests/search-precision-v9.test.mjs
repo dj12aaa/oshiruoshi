@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import precisionHandler,{effectiveQuery,relevant} from '../api/live-search-v8.js';
+import precisionHandler,{effectiveQuery,relevant} from '../api/_live-search-v8.js';
 import searchHandler from '../api/search.js';
 
 function invoke(handler,url){

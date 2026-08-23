@@ -1,3 +1,5 @@
+// Shared search-language utility. The leading underscore prevents Vercel from
+// turning this imported module into a separate public Function.
 export const MERCH_GROUPS=[
   {key:'voice-keyholder',canonical:'ボイスキーホルダー',broad:'キーホルダー',aliases:['ボイスキーホルダー','ボイスキー','ボイスキーチェーン','voice keyholder','voice key holder','voice keychain','voice key chain']},
   {key:'acrylic-stand',canonical:'アクリルスタンド',broad:'アクリルスタンド',aliases:['アクスタ','アクリルスタンド','アクリルフィギュア','アクリルスタンドフィギュア','acrylic stand']},

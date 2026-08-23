@@ -1,5 +1,7 @@
+// Shared precision handler. The leading underscore keeps this module from
+// consuming a separate Vercel Function while public routes reuse it.
 import legacyHandler from './live-search.js';
-import { detectIntent, normalizeFlexible, compactFlexible } from './search-language.mjs';
+import { detectIntent, normalizeFlexible, compactFlexible } from './_search-language.mjs';
 import { snapshotSearch } from './_core.mjs';
 
 const VERSION='2026-08-22.9';
