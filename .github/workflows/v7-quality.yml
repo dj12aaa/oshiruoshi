@@ -70,9 +70,9 @@ jobs:
           node <<'NODE'
           const fs=require('fs');
           const live=fs.readFileSync('api/live-search.js','utf8');
-          for(const token of ['MAX_VARIANTS=5','countStrongMatches','robustVariants','oshiMerchBias','SEARCH_ALIAS_VERSION=\'2026-08-21.7\''])if(!live.includes(token))throw new Error(`search invariant missing: ${token}`);
+          for(const token of ['MAX_VARIANTS=5','countStrongMatches','robustVariants','oshiMerchBias','SEARCH_ALIAS_VERSION=\'2026-08-23.10\''])if(!live.includes(token))throw new Error(`search invariant missing: ${token}`);
           const v8=fs.readFileSync('api/_live-search-v8.js','utf8');
-          for(const token of ["VERSION='2026-08-22.9'",'GENERIC_RETAIL_NOISE','effectiveQuery','precisionVersion','snapshotSearch','strictVerified'])if(!v8.includes(token))throw new Error(`v9 precision invariant missing: ${token}`);
+          for(const token of ["VERSION='2026-08-23.10'",'GENERIC_RETAIL_NOISE','effectiveQuery','precisionVersion','snapshotSearch','strictVerified'])if(!v8.includes(token))throw new Error(`v10 precision invariant missing: ${token}`);
           const perf=fs.readFileSync('performance-v3.js','utf8');
           if(!perf.includes("PRECISION_ENDPOINT='/api/live-search-v8'"))throw new Error('client live search is not routed through v8 precision endpoint');
           const search=fs.readFileSync('api/search.js','utf8');

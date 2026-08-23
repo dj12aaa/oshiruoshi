@@ -10,7 +10,7 @@ const esc=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const dt=s=>{if(!s)return'不明';const d=new Date(s);return Number.isNaN(+d)?'不明':d.toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})};
 const originLabel=o=>({'verified-snapshot':'検証済み実出品','web-index-snapshot':'Web確認済み','public-page-live':'現在取得','openai-web-search':'Web検索','official-api':'公式API'}[o]||'取得元確認');
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1500)}
-async function json(url,opts){const r=await fetch(url,opts);const text=await r.text();if(!r.ok)throw new Error(text||`${r.status}`);return JSON.parse(text)}
+async function json(url,opts={}){const {timeoutMs=10000,...init}=opts||{},controller=new AbortController(),upstream=init.signal,abort=()=>controller.abort();if(upstream?.aborted)controller.abort();else upstream?.addEventListener?.('abort',abort,{once:true});const timer=setTimeout(abort,timeoutMs);try{const r=await fetch(url,{...init,signal:controller.signal});const text=await r.text();if(!r.ok)throw new Error(text||`${r.status}`);return JSON.parse(text)}finally{clearTimeout(timer);upstream?.removeEventListener?.('abort',abort)}}
 function debounce(fn,ms=300){let id;return(...a)=>{clearTimeout(id);id=setTimeout(()=>fn(...a),ms)}}
 function sourceClass(s){if(s==='メルカリ')return'mercari';if(s==='Yahoo!フリマ')return'yflea';if(s==='Yahoo!オークション')return'yauc';return'shop'}
 function sourceMode(s){return(s==='Yahoo!ショッピング'||s==='楽天市場')?'公式API':'サイト内検索'}
@@ -20,25 +20,28 @@ function remoteImage(i){return /^https?:\/\//i.test(i.image||'')}
 function officialImageProvider(i){if(i?.origin!=='official-api')return'';if(i.source==='Yahoo!ショッピング')return'yahoo';if(i.source==='楽天市場')return'rakuten';return''}
 function imageSrc(i){const raw=i.image||'';if(!raw)return'';const provider=officialImageProvider(i);return provider?`/api/image-proxy?source=${provider}&url=${encodeURIComponent(raw)}`:raw}
 function itemLive(i){return liveStatuses.has(i.status)}
+let primarySearchController=null,liveSearchController=null;
 async function runSearch(){
   const q=$('#q').value.trim(); const seq=++state.searchSeq; state.query=q; state.broken.clear(); state.loaded.clear();state.direct=directLinks(q);
+  primarySearchController?.abort();liveSearchController?.abort();const controller=new AbortController();primarySearchController=controller;
   $('#queryBadge').textContent=q?`「${q}」`:'すべて'; $('#resultMeta').textContent='個別出品を検索しています…'; $('#productGrid').innerHTML=loadingCards(); $('#emptyState').classList.add('hidden'); $('#providerNotice').classList.add('hidden');
   const btn=$('#searchBtn');btn.classList.add('loading');btn.textContent='検索中…';
   try{
-    const data=await json(`/api/search?q=${encodeURIComponent(q)}`);if(seq!==state.searchSeq)return;
+    const data=await json(`/api/search?initial=1&q=${encodeURIComponent(q)}`,{signal:controller.signal,timeoutMs:6000});if(seq!==state.searchSeq)return;
     state.all=data.items||[];state.direct=directLinks(q);state.providers=data.providers||{};
     hydrateFilters();applyFilters();renderProviderNotice(true);refreshLive(q,seq);
   }catch(e){
-    if(seq!==state.searchSeq)return;state.all=[];state.direct=directLinks(q);hydrateFilters();renderEmpty('検索サーバーに接続できませんでした','販売サイトへの直接検索リンクをご利用ください。');console.error(e);
-  }finally{if(seq===state.searchSeq){btn.classList.remove('loading');btn.textContent='横断検索'}}
+    if(seq!==state.searchSeq)return;state.all=[];state.direct=directLinks(q);hydrateFilters();renderEmpty(e?.name==='AbortError'?'検索の応答が時間内に返りませんでした':'検索サーバーに接続できませんでした','検索中表示は終了しました。販売サイトへの直接検索リンクも利用できます。');console.error(e);
+  }finally{if(primarySearchController===controller)primarySearchController=null;if(seq===state.searchSeq){btn.classList.remove('loading');btn.textContent='横断検索'}}
 }
 async function refreshLive(q,seq){
   if(!q)return;
+  liveSearchController?.abort();const controller=new AbortController();liveSearchController=controller;
   try{
-    const live=await json(`/api/live-search?q=${encodeURIComponent(q)}`);if(seq!==state.searchSeq)return;
+    const live=await json(`/api/live-search-v8?q=${encodeURIComponent(q)}`,{signal:controller.signal,timeoutMs:8000});if(seq!==state.searchSeq)return;
     const seen=new Set(),merged=[];for(const i of [...(live.items||[]),...state.all]){const k=(i.url||`${i.source}|${i.title}|${i.price}`).replace(/[?#].*$/,'');if(seen.has(k))continue;seen.add(k);merged.push(i)}
     state.all=merged;state.providers={...state.providers,...(live.providers||{})};hydrateFilters();applyFilters();renderProviderNotice(false);
-  }catch(e){if(seq===state.searchSeq){state.providers.liveError=String(e.message||e);renderProviderNotice(false)}}
+  }catch(e){if(seq===state.searchSeq){state.providers.liveError=e?.name==='AbortError'?'timeout':String(e.message||e);renderProviderNotice(false)}}finally{if(liveSearchController===controller)liveSearchController=null}
 }
 function loadingCards(){return Array.from({length:8},()=>`<div class="product-card"><div class="visual skeleton"></div><div class="card-body"><div class="skeleton line"></div><div class="skeleton line short"></div><div class="skeleton price-sk"></div></div></div>`).join('')}
 function hydrateFilters(){

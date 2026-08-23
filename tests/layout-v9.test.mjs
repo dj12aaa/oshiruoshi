@@ -23,6 +23,15 @@ test('dense grid has deterministic widths and controls are born inside the image
   assert.doesNotMatch(card,/<div class="card-actions"><button/);
 });
 
+test('search returns an immediate precision snapshot and always leaves the loading state',()=>{
+  const html=read('index.html'),app=read('app.js'),performance=read('performance-v3.js'),precision=read('api/_live-search-v8.js'),live=read('api/live-search.js');
+  for(const token of ['/performance-v3.js?v=20260823-11','/app.js?v=20260823-11'])assert.ok(html.includes(token),token);
+  for(const token of ['timeoutMs=10000','initial=1','timeoutMs:6000','/api/live-search-v8','timeoutMs:8000','finally{if(primarySearchController===controller)','検索中表示は終了しました'])assert.ok(app.includes(token),token);
+  for(const token of ["function initialUrl(q)","u.searchParams.set('initial','1')","nativeFetch(initialUrl(q).href,init)"])assert.ok(performance.includes(token),token);
+  for(const token of ["u.searchParams.get('initial')==='1'","initial:true","fast=1"])assert.ok(precision.includes(token),token);
+  for(const token of ["fast?1:4","provider_timeout","fast?5500:6500"])assert.ok(live.includes(token),token);
+});
+
 test('latest hub uses current official visuals, source labels and controllable rotation',()=>{
   const html=read('latest-goods.html'),js=read('latest-goods.js'),css=read('latest-goods.css'),nav=read('navigation-extra-v7.js');
   for(const token of ['latest-goods.css?v=20260823-10','latest-goods.js?v=20260823-10','確認日：2026年8月23日','先斗寧誕生日グッズ2026','獅白ぼたん 活動6周年記念','SOLD OUT 8/23','data-live-until','data-checked-at','jujutsukaisen.jp/news/images','straykidsjapan.com/runitjapan/img/og.png','official-preview-source','railToggle'])assert.ok(html.includes(token),token);

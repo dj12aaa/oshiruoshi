@@ -89,6 +89,30 @@
 - 自動検査: `tests/process-guard-v9.test.mjs`が実商品selector、overlay境界検査、V9待機、writer直列化、共通push、楽天0件分岐を固定する。
 - 本番証拠: 修正workflowをmainで再実行し、390px/1440px browser metricsとHTTP/search checksが成功することを確認する。
 
+### QL-010 同一concurrency groupのpending上限を誤認して検査をcancelする
+
+- 症状: 5本のverification writerを共通groupへ入れたmain実行で、実行中1本とpending 1本以外の3本が`cancelled`になった。
+- 根本原因: `cancel-in-progress:false`なら全pendingが順番待ちになると誤認した。GitHub Actionsの既定`queue: single`は同一groupにpendingを1本だけ保持し、新しいpendingが既存pendingを置き換える。
+- 恒久対策: GitHub公式仕様の`queue: max`を共通concurrency groupへ明示し、最大100本を直列待機できるようにする。結果pushは引き続きfetch/rebase/retryで保護する。
+- 自動検査: `tests/process-guard-v9.test.mjs`が全5 writerに共通group、`cancel-in-progress:false`、`queue: max`、共通push scriptがあることを検査する。
+- 本番証拠: mainで5本がcancelされず完了し、各verification結果が順次保存されることを確認する。
+
+### QL-011 曖昧な人物名と重複グッズ語で無関係商品を通す
+
+- 症状: 「Felix ボイスキーホルダー」でStray KidsではないFELIX商品、「OW キリコ ぬい」でOverwatchのコスプレ品や無関係なぬいぐるみが表示された。分割入力では「キーホルダー ホルダー」「ぬいぐるみ ぐるみ」のような重複語も生成し得た。
+- 根本原因: Felix・キリコを作品文脈付き人物として定義せず、人物・作品・グッズ種別のどれか一つが一致すれば候補を残していた。加えて長い別名を正規化した後、その正規化結果の中にある短い別名を再置換する連鎖があった。本番品質workflowも旧`/api/live-search`を検査し、表示に使う精度APIと検査対象が一致していなかった。
+- 恒久対策: Stray Kids＋Felix、Overwatch＋キリコを文脈必須の複合entityとして定義する。検索先には複合entityと正規グッズ名を組み立てた語を送り、返却商品は作品・人物・グッズ種別をすべて満たす場合だけ採用する。親entityと一般キーホルダーgroupは、より具体的な子groupが一致した場合に除外する。別名置換は長い一致を一度だけmarker化し、重複断片を消してから正規名を一度だけ戻す。
+- 自動検査: `tests/search-precision-v9.test.mjs`がFELIX THE CAT、Overwatchコスプレ、無関係ぬいを負例にし、Stray Kids FelixのボイスキーホルダーとOverwatchキリコぬいを正例にする。検索品質workflowは表示と同じ`/api/live-search-v8`、`precisionVersion 2026-08-23.10`、有効検索語、返却全商品の複合文脈を検査する。
+- 本番証拠: 正規ドメインで両表記順のFelix検索と両表記のキリコ検索を行い、誤商品0件、`effectiveQuery`、`precisionVersion`を確認する。該当在庫が0件の場合は0件を正しい結果とし、無関係商品で穴埋めしない。
+
+### QL-012 検索中のスケルトンが終了せず結果が返らない
+
+- 症状: モバイルで検索ボタンが「検索中…」のままになり、商品欄もスケルトンカードから変化しなかった。
+- 根本原因: 初回`/api/search`を精度APIへ転送した後、複数の検索語variantごとに外部providerを直列実行していた。各providerには5秒の通信期限があったが、variant全体と待機queueには短い上限がなかった。ブラウザの初回検索と追加検索にも終了期限がなく、Functionや外部APIの遅延時にUIが待ち続けた。
+- 恒久対策: 初回`/api/search?initial=1`は外部通信を行わず、検証済みsnapshotを同じ精度filterで即時返却する。追加取得は`/api/live-search-v8`へ分離し、正規化済み検索語1回に限定、server側5.5秒・browser側8秒で終了する。初回もbrowser側6秒で中断し、成功・0件・失敗の全経路で`finally`から検索ボタンを復元する。旧asset cacheを避けるため`app.js`と`performance-v3.js`のversionを`20260823-11`へ更新する。
+- 自動検査: `tests/layout-v9.test.mjs`が初回/追加URL、AbortController期限、`finally`、server fast mode、asset versionを固定する。`tests/search-precision-v9.test.mjs`が初回snapshotを1秒未満で返し、精度filterを維持することを検査する。本番browser検査は実商品selectorまたは明示的な0件/エラー状態まで待ち、スケルトン残存を失敗にする。
+- 本番証拠: 正規ドメインのモバイルで「なると」と代表的な推しグッズ語を検索し、検索ボタンが8秒以内に戻ること、スケルトンが消えること、取得済み商品または0件/直接検索案内が表示されることを確認する。
+
 ## リリース前チェックリスト
 
 - [ ] 今回のユーザー指摘を本台帳へ追記した
@@ -110,3 +134,5 @@
 - 2026-08-23 20:08 JST: 正規本番URLは旧assetのまま。V9の本番反映と実ブラウザ検査は未完了。
 - 2026-08-23 20:32 JST: 失敗原因をFunction実数13（Hobby上限12）と特定。CIの`.mjs`数え漏れを修正し、互換URLを維持したまま実数11へ削減。
 - 2026-08-23 20:57 JST: Vercel本番deploymentと正規URLのV9 asset/APIを確認。browser検査のskeleton誤判定とverification push raceを特定し、再検証用の恒久対策を追加。
+- 2026-08-23: Felix／キリコの本番誤検索と別名の連鎖置換を特定。複合文脈必須filter、正規provider query、誤商品回帰testをV10候補へ追加。本番反映前のため、この時点では精度改善を確認済みとしない。
+- 2026-08-23 21:19 JST: モバイル本番で検索中表示とスケルトンが終了しない症状を確認。初回snapshot即時応答、live取得期限、UI終了保証をV11候補へ追加。本番反映前のため、この時点では解決済みとしない。

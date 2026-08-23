@@ -4,7 +4,7 @@ import legacyHandler from './live-search.js';
 import { detectIntent, normalizeFlexible, compactFlexible } from './_search-language.mjs';
 import { snapshotSearch } from './_core.mjs';
 
-const VERSION='2026-08-22.9';
+const VERSION='2026-08-23.10';
 const OSHI_HINTS=[
   'グッズ','アクスタ','アクリルスタンド','アクキー','アクリルキーホルダー','アクリル','缶バッジ','缶バ','ぬい','ぬいぐるみ','マスコット',
   'トレカ','トレーディングカード','ブロマイド','チェキ','クリアファイル','ステッカー','シール','ラバスト','ラバーストラップ',
@@ -25,6 +25,7 @@ function includesLoose(text,value){
   return text.includes(n)||compactFlexible(text).includes(compactFlexible(n));
 }
 function groupMatch(group,text){
+  if(group.required)return group.required.every(alternatives=>alternatives.some(value=>includesLoose(text,value)));
   return [group.canonical,group.broad,...(group.aliases||[])].filter(Boolean).some(value=>includesLoose(text,value));
 }
 function queryMentions(query,term){return includesLoose(normalizeFlexible(query),term)}
@@ -44,7 +45,7 @@ export function relevant(item,query){
   if(noiseHit(text,query))return false;
   if(isNarutoQuery(query)&&!hasNarutoEntity(text))return false;
 
-  if(intent.entityGroups.length&&!intent.entityGroups.some(group=>groupMatch(group,text)))return false;
+  if(intent.entityGroups.length&&!intent.entityGroups.every(group=>groupMatch(group,text)))return false;
   if(!isNarutoQuery(query)&&!intent.entityGroups.length&&intent.entity&&!entityTokenMatch(intent,text))return false;
   if(intent.merchGroups.length&&!intent.merchGroups.some(group=>groupMatch(group,text)))return false;
 
@@ -58,9 +59,12 @@ export function normalizeAmbiguousQuery(query=''){
   return q;
 }
 export function effectiveQuery(query=''){
+  if(isNarutoQuery(query))return 'NARUTO ナルト グッズ';
   const normalized=normalizeAmbiguousQuery(query),intent=detectIntent(normalized);
-  if(intent.entity&&!intent.merchGroups.length)return `${normalized} グッズ`;
-  return normalized;
+  const merch=[...new Set(intent.merchGroups.map(group=>group.canonical))];
+  const canonical=[intent.entity,...merch].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
+  if(intent.entity&&!merch.length)return `${canonical||normalized} グッズ`;
+  return canonical||normalized;
 }
 function adjustedProviders(providers={},items=[],snapshotCount=0){
   const p=typeof structuredClone==='function'
@@ -98,7 +102,31 @@ export default async function handler(req,res){
   if(!original)return legacyHandler(req,res);
 
   const target=effectiveQuery(original);
-  const forwarded={...req,url:`/api/live-search?q=${encodeURIComponent(target)}`};
+  if(u.searchParams.get('initial')==='1'){
+    try{
+      const verifiedResult=await snapshotSearch(original);
+      const items=dedupeItems((verifiedResult.items||[]).filter(item=>relevant(item,original))).slice(0,120);
+      const snapshotCount=items.length;
+      res.setHeader('X-OSHIRU-Precision-Version',VERSION);
+      res.setHeader('Cache-Control','public, max-age=4, s-maxage=12, stale-while-revalidate=45');
+      res.status(200).json({
+        query:original,
+        effectiveQuery:target,
+        precisionVersion:VERSION,
+        initial:true,
+        items,
+        direct:verifiedResult.direct||[],
+        snapshotCount,
+        providers:adjustedProviders({},items,snapshotCount),
+        generatedAt:new Date().toISOString()
+      });
+      return;
+    }catch(error){
+      res.status(500).json({error:'initial_search_failed',message:String(error?.message||error).slice(0,160)});return;
+    }
+  }
+
+  const forwarded={...req,url:`/api/live-search?fast=1&q=${encodeURIComponent(target)}`};
   const capture=captureResponse();
   try{
     const verifiedPromise=snapshotSearch(original);

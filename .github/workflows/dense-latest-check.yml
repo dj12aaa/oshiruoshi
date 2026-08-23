@@ -116,5 +116,5 @@ jobs:
           curl --fail --silent --show-error --location --retry 8 --retry-all-errors --retry-delay 4 "$base/api/search?q=" -o "$tmp/idle.json"
           node -e "const d=require(process.argv[1]); if(!d.idle||!Array.isArray(d.items)||d.items.length!==0) process.exit(1)" "$tmp/idle.json"
           curl --fail --silent --show-error --location --retry 8 --retry-all-errors --retry-delay 4 "$base/api/live-search-v8?q=%E3%83%8A%E3%83%AB%E3%83%88" -o "$tmp/live.json"
-          node -e "const d=require(process.argv[1]); if(d.precisionVersion!=='2026-08-22.9'||!Array.isArray(d.items)||!String(d.effectiveQuery||'').includes('グッズ')) process.exit(1)" "$tmp/live.json"
+          node -e "const d=require(process.argv[1]); if(d.precisionVersion!=='2026-08-23.10'||!Array.isArray(d.items)||!String(d.effectiveQuery||'').includes('グッズ')) process.exit(1)" "$tmp/live.json"
           echo 'Production v9 HTTP smoke passed.'
