@@ -107,11 +107,27 @@ jobs:
           async function inspect(browser,name,viewport,expectedColumns){
             const context=await browser.newContext({viewport,locale:'ja-JP',isMobile:viewport.width<600,hasTouch:viewport.width<600});
             const page=await context.newPage();
+            const network=[];
             page.on('pageerror',error=>console.error(`${name}-pageerror`,error));
             page.on('console',message=>{if(['error','warning'].includes(message.type()))console.log(`${name}-console-${message.type()}`,message.text())});
+            page.on('response',response=>{if(/\/api\/(?:search|live-search-v8)/.test(response.url()))network.push({kind:'response',status:response.status(),url:response.url()})});
+            page.on('requestfailed',request=>{if(/\/api\/(?:search|live-search-v8)/.test(request.url()))network.push({kind:'failed',error:request.failure()?.errorText||'',url:request.url()})});
             await page.goto(`${base}/?q=${encodeURIComponent('五条悟 アクスタ')}&verify=${Date.now()}`,{waitUntil:'domcontentloaded',timeout:45000});
-            await page.waitForSelector('#productGrid .product-card[data-card-id]',{state:'visible',timeout:45000});
-            await page.waitForFunction(()=>document.querySelectorAll('#productGrid .product-card[data-card-id]').length>=2,null,{timeout:45000});
+            await page.waitForFunction(()=>document.querySelectorAll('#productGrid .product-card[data-card-id]').length>=2,null,{timeout:15000}).catch(()=>{});
+            const startup=await page.evaluate(()=>{
+              const grid=document.getElementById('productGrid'),empty=document.getElementById('emptyState'),results=document.getElementById('results'),button=document.getElementById('searchBtn');
+              return{
+                readyState:document.readyState,url:location.href,query:document.getElementById('q')?.value||'',bodyClass:document.body.className,
+                uiVersion:document.querySelector('meta[name="oshiru-search-ui-version"]')?.content||'',diagnostics:window.__OSHIRU_SEARCH_DIAGNOSTICS__||null,
+                buttonText:button?.textContent?.trim()||'',buttonClass:button?.className||'',cards:grid?.querySelectorAll('.product-card[data-card-id]').length||0,
+                skeletons:grid?.querySelectorAll('.skeleton').length||0,gridText:grid?.textContent?.trim().slice(0,300)||'',emptyText:empty?.textContent?.trim().slice(0,300)||'',
+                emptyHidden:empty?.classList.contains('hidden'),resultsDisplay:results?getComputedStyle(results).display:'missing',
+                assets:performance.getEntriesByType('resource').filter(entry=>/\/(?:app|performance-v3|seo-query-bridge)\.js/.test(entry.name)).map(entry=>({name:entry.name,duration:Math.round(entry.duration),transferSize:entry.transferSize}))
+              };
+            });
+            console.log(`${name}-startup-diagnostics`,JSON.stringify({...startup,network}));
+            await page.screenshot({path:`verification/screenshots/${name}-startup.png`,fullPage:false});
+            if(startup.cards<2)throw new Error(`${name}: startup search did not render merchandise: ${JSON.stringify({...startup,network})}`);
             await page.waitForTimeout(1200);
 
             const metrics=await page.evaluate(()=>{
