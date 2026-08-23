@@ -145,6 +145,14 @@
 - 自動検査: `tests/layout-v9.test.mjs`と2本のquality workflowがcompact分岐が大型ボタン`innerHTML`より先にreturnすること、記号だけの更新、asset版markerを固定する。本番Playwrightが`compareText==='＋'`、28px以上のtap target、画像領域内配置を390px/1440pxで測る。
 - 本番証拠: 正規ドメインでaffiliate UI版`2026-08-23.16`と、モバイル・PC双方の比較ボタン文字・位置・サイズを確認する。workflow成功前は解決済みとしない。
 
+### QL-017 検索語変更後も前回結果を保持し、完了前に新結果と誤認する
+
+- 症状: 「五条悟 アクスタ」の検索後に「なると」を実行すると、検索ボタンとskeletonは先に終了する一方、画面には前回の30商品が残った。production browser検査も`live: loading`の116ms時点で、その30件を「なると」の取得結果と誤認して失敗した。
+- 根本原因: `runSearch()`が新しい検索連番と検索語だけを更新し、前回検索の商品集合`state.all`・表示集合`state.shown`・provider状態を初期化していなかった。そのため初回snapshotとlive結果の統合処理へ前回商品まで入り続けた。また検査はボタン復元・skeleton消滅・カード6件以上だけを待っており、そのカードが現在の検索語のlive取得で生成されたか識別できなかった。
+- 恒久対策: 検索開始をトランザクション境界として商品集合・表示集合・provider状態を必ず空にする。診断状態は開始時に件数と完了検索語をリセットし、snapshot完了語を`initialQuery`、live完了語を`liveQuery`へ記録する。検索UI版`2026-08-23.17`で旧script cacheを排除する。
+- 自動検査: `tests/layout-v9.test.mjs`が検索開始時の3状態初期化、`initialQuery`・`liveQuery`記録、UI版markerを固定する。本番Playwrightは「なると」について`diagnostics.query`と`diagnostics.liveQuery`の両方が一致し、`live==='complete'`になってから商品数・ノイズ除外を判定する。
+- 本番証拠: 正規ドメインでUI版`2026-08-23.17`を確認し、390pxと1440pxの各ブラウザで初回検索後の「なると」再検索が16秒以内にlive完了、skeleton 0件、商品6件以上になること。workflow成功前は解決済みとしない。
+
 ## リリース前チェックリスト
 
 - [ ] 今回のユーザー指摘を本台帳へ追記した
@@ -172,3 +180,4 @@
 - 2026-08-23: API成功後もPlaywrightがDOMへ応答できない本番証拠から、カード補正observerの無条件`textContent`更新によるmicrotask自己再発火を特定。idempotent更新・grid直下だけの監視・home版`2026-08-23.14`をV14候補へ追加。本番browser検査成功前のため、この時点では解決済みとしない。
 - 2026-08-23: V14 PRのquality検査で、別Node heredocの変数を参照するscope漏れを確認。各検査ブロックを自己完結させ、QL-015として再発防止条件へ追加。
 - 2026-08-23: V14本番browserで検索結果30件・モバイル3列・overflowなしを確認後、旧affiliate装飾がコンパクト比較ボタンへ長文を再挿入する競合を検出。compact modeの表示所有を記号だけに固定し、V16候補へ追加。
+- 2026-08-23: V16本番browserで初回30件の描画・比較ボタン修正を確認後、「なると」再検索が前回商品30件を保持したまま`live: loading`で誤判定される競合を検出。検索開始時の状態初期化・完了検索語診断・current-query完了待ちをV17候補へ追加。本番browser検査成功前のため、この時点では解決済みとしない。
