@@ -87,6 +87,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 7
     steps:
+      - uses: actions/checkout@v4
+
       - name: Verify live v8 assets, latest-goods and search APIs
         shell: bash
         run: |

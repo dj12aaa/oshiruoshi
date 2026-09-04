@@ -18,7 +18,7 @@ test('project instructions force correction logging and exact production verific
 
 test('quality ledger keeps every known root cause and release gate',()=>{
   const lessons=read('docs/QUALITY_LESSONS.md');
-  for(const id of ['QL-001','QL-002','QL-003','QL-004','QL-005','QL-006','QL-007','QL-008','QL-009','QL-010','QL-011','QL-012','QL-013','QL-014','QL-015','QL-016','QL-017','QL-018','QL-019','QL-020','QL-021','QL-022'])assert.ok(lessons.includes(id),id);
+  for(const id of ['QL-001','QL-002','QL-003','QL-004','QL-005','QL-006','QL-007','QL-008','QL-009','QL-010','QL-011','QL-012','QL-013','QL-014','QL-015','QL-016','QL-017','QL-018','QL-019','QL-020','QL-021','QL-022','QL-023'])assert.ok(lessons.includes(id),id);
   for(const token of [
     '動的挿入',
     '一般小売ノイズ除外',
@@ -42,6 +42,7 @@ test('quality ledger keeps every known root cause and release gate',()=>{
     '静的assetの版だけ',
     '検索辞書と本番検査',
     '固定500ms',
+    'checkoutがなく',
     'oshiruoshi.vercel.app',
     'V9の本番反映と実ブラウザ検査は未完了'
   ])assert.ok(lessons.includes(token),token);
@@ -52,6 +53,7 @@ test('production verification waits for real cards and serializes result writers
   for(const token of ['.product-card[data-card-id]','startup-diagnostics','requestfailed','startup search did not render merchandise','controlsInsideVisual','card overlays escaped the image area',"q.value='なると'",'diagnostics?.liveQuery===expectedQuery','search did not return live merchandise','SEARCH_UI_VERSION','HOME_EXPERIENCE_VERSION','AFFILIATE_UI_VERSION',"oshiru-search-ui-version\" content=\"2026-09-05.18",'oshiru-home-version','oshiru-affiliate-ui-version','verify-production-seo.sh','console.log(name,JSON.stringify(metrics))','if: always()','if-no-files-found: warn'])assert.ok(browser.includes(token),token);
   const http=read('.github/workflows/dense-latest-check.yml');
   for(const token of ['ready=0','OSHIRU gallery v9',"SEARCH_UI_VERSION='2026-09-05.18'",'oshiru-search-ui-version','verify-production-seo.sh','test "$ready" = 1'])assert.ok(http.includes(token),token);
+  assert.ok(http.indexOf('uses: actions/checkout@v4',http.indexOf('production-smoke:'))<http.indexOf('verify-production-seo.sh',http.indexOf('production-smoke:')),'production smoke must checkout shared scripts before execution');
   const seoReady=read('.github/scripts/verify-production-seo.sh');
   for(const token of ['robots.txt','sitemap.xml','character/gojo-satoru','Sitemap: https://oshiruoshi.vercel.app/sitemap.xml','for attempt in','sleep 5'])assert.ok(seoReady.includes(token),token);
   const search=read('.github/workflows/search-quality.yml');

@@ -193,6 +193,14 @@
 - 自動検査: `tests/seo-indexability.test.mjs`は`liveSearch` importと外部待機patternの不在を必須にし、handler上限は2.5秒とする。Production workflowは正規SEO URLへ12秒の通信期限と反復確認を持つ。
 - 本番証拠: PR CIが異なるrunnerでも安定して成功し、正規SEO URLの本文・版・JSON-LDがProduction検査で取得できることを確認する。
 
+### QL-023 共通検査scriptへ移行したjobにcheckoutを追加せず実行fileを失う
+
+- 症状: mainのHTTP Production smokeが`.github/scripts/verify-production-seo.sh: No such file or directory`で即時終了した。
+- 根本原因: 同jobは従来すべての検査をYAMLへinline記述していたためcheckoutを持っていなかった。SEO検査を共通scriptへ抽出した際、script呼出しだけを置換し、jobの実行環境へrepositoryを配置する`actions/checkout`を追加しなかった。PRではcheckoutを持つ別のquality jobだけが共通fileの内容を検査したため見逃した。
+- 恒久対策: repository内scriptを呼ぶ各jobは、そのjob自身で先にcheckoutする。別jobや前stepのworkspaceを共有する前提を持たない。
+- 自動検査: `tests/process-guard-v9.test.mjs`が`production-smoke` job内で`actions/checkout@v4`が`verify-production-seo.sh`より前にあることを順序付きで検査する。
+- 本番証拠: mainの`V9 dense grid and latest goods checks`でProduction smokeが共通scriptを実行し、成功することを確認する。
+
 ## リリース前チェックリスト
 
 - [ ] 今回のユーザー指摘を本台帳へ追記した
@@ -225,3 +233,4 @@
 - 2026-09-05: 本番実queryでFelixの別作品16件、誤字・未完入力の0件、同一商品名重複を再現。補正処理と最終filterのqueryが異なる二重解釈、known entity時の残余条件無視をQL-019として記録し、query解決の一元化と複合条件検査をV18候補へ追加。
 - 2026-09-05: V18本番でrobots・21 URL sitemap・SEO版・実queryを確認。初回Production検査が静的／動的経路の切替差で早期終了した問題をQL-020、検索辞書と検査の同義語差で関連商品を失敗扱いした問題をQL-021として記録し、共通pollと辞書共有へ修正。
 - 2026-09-05: PR #18の共有runnerで、外部通信のないSEO handlerを固定500msの壁時計だけで判定する不安定な検査を検出。構造検査と緩い停止上限へ分離し、QL-022として記録。
+- 2026-09-05: 共通SEO検査scriptを導入したHTTP jobにcheckoutがなくmainでfile not foundとなった移行漏れを検出。job内checkoutの順序検査を追加し、QL-023として記録。
