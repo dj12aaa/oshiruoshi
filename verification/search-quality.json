@@ -1,178 +1,301 @@
 {
-  "checkedAt": "2026-08-23T13:44:31.146Z",
-  "ok": true,
+  "checkedAt": "2026-09-04T22:19:36.110Z",
+  "ok": false,
   "expansionOk": true,
   "baselineOk": true,
-  "relevanceOk": true,
+  "relevanceOk": false,
+  "uniqueTitlesOk": true,
   "predictiveOk": true,
   "duplicateFree": true,
   "cleanupPresent": true,
   "results": [
     {
       "query": "星街すいせい アクスタ",
-      "count": 30,
-      "effectiveQuery": "星街すいせい アクリルスタンド",
-      "precisionVersion": "2026-08-23.10",
+      "count": 28,
+      "effectiveQuery": "ホロライブ 星街すいせい アクリルスタンド",
+      "resolvedQuery": "ホロライブ 星街すいせい アクリルスタンド",
+      "precisionVersion": "2026-09-05.18",
       "queryVariants": [
-        "星街すいせい アクリルスタンド"
+        "ホロライブ 星街すいせい アクリルスタンド"
       ],
       "expansionOk": true,
       "relevanceOk": true,
+      "uniqueTitlesOk": true,
       "topTitles": [
-        "星街すいせい アクリルスタンド ホロライブ hololive ローソン 制服 アクスタ VTuber Loppi・HMV＆BOOKS online 限定 未開封",
-        "星街すいせい アクリルスタンドキーホルダー フェスティバルver. ホロライブ ヴァイスシュヴァルツ＆Reバース",
-        "新品未開封 星街すいせい アクリルスタンド ホロライブ ウィンターストリート 公式 グッズ"
+        "ホロライブ 星街すいせい カプとれ アクリルスタンド 衣装(2)【未使用】",
+        "ホロライブ C103 星街すいせい 正月衣装 hololive closet アクリルスタンド 【未開封】",
+        "ホロライブ×セブンイレブン 不知火建設 キャンペーン 星街すいせい 不知火建設 アクリルスタンド"
       ],
       "topScores": [
-        972,
-        952,
-        952,
-        932,
-        932
+        532,
+        477,
+        477,
+        477,
+        477
       ],
-      "aliasVersion": "2026-08-23.10"
+      "aliasVersion": "2026-09-05.18"
     },
     {
       "query": "五条悟 缶バッジ",
-      "count": 30,
-      "effectiveQuery": "五条悟 缶バッジ",
-      "precisionVersion": "2026-08-23.10",
+      "count": 25,
+      "effectiveQuery": "呪術廻戦 五条悟 缶バッジ",
+      "resolvedQuery": "呪術廻戦 五条悟 缶バッジ",
+      "precisionVersion": "2026-09-05.18",
       "queryVariants": [
-        "五条悟 缶バッジ"
+        "呪術廻戦 五条悟 缶バッジ"
       ],
       "expansionOk": true,
       "relevanceOk": true,
+      "uniqueTitlesOk": true,
       "topTitles": [
         "【五条悟】 缶バッジ 呪術廻戦 ふかふかスクイーズパン編",
-        "中古バッジ・ピンズ A.五条悟 缶バッジ 「ファンパレくじ 呪術廻戦 懐玉・玉折」 E賞",
-        "呪術廻戦 5周年 メタリック缶バッジ 五条悟(懐玉・玉折)[ツインクル]《０９月予約》"
+        "呪術廻戦 5周年 百面相缶バッジ 五条悟(懐玉・玉折)[ツインクル]《発売済・在庫品》",
+        "中古バッジ・ピンズ 五条悟 32mm缶バッジ 「呪術廻戦"
       ],
       "topScores": [
-        722,
-        702,
-        542,
-        542,
-        542
+        657,
+        477,
+        477,
+        477,
+        477
       ],
-      "aliasVersion": "2026-08-23.10"
+      "aliasVersion": "2026-09-05.18"
     },
     {
       "query": "初音ミク ぬい",
-      "count": 30,
+      "count": 28,
       "effectiveQuery": "初音ミク ぬいぐるみ",
-      "precisionVersion": "2026-08-23.10",
+      "resolvedQuery": "初音ミク ぬいぐるみ",
+      "precisionVersion": "2026-09-05.18",
       "queryVariants": [
         "初音ミク ぬいぐるみ"
       ],
       "expansionOk": true,
       "relevanceOk": true,
+      "uniqueTitlesOk": true,
       "topTitles": [
-        "キャラクター・ボーカル・シリーズ01 初音ミク ぬいぐるみ デコミク ライトネス",
-        "送料無料◆セガ フェイブ プロジェクトセカイ カラフルステージ！ feat. 初音ミク ぬいぐるみ 4種セット (司/えむ/寧々/類) セット商品 【11月予約】",
-        "中国 キャラクター グッズ『初音ミク ぬいぐるみ風 ミニ痛バッグ イヤホンポーチ』公式グッズ（bilibili公式）"
+        "初音ミク ぬいコロン ぬいぐるみ",
+        "ガンダム45周年×初音ミク ぬいぐるみ 初音ミク×ウイングガンダムゼロEW[バンダイナムコヌイ]【送料無料】《発売済・在庫品》",
+        "『中古即納』{STY} 初音ミク どでかジャンボふわふわぬいぐるみ キャラクターボーカルシリーズ01 初音ミク ぬいぐるみ(1022769) キャラアニ(20200702)"
       ],
       "topScores": [
-        952,
-        952,
-        932,
-        792,
-        772
+        712,
+        712,
+        692,
+        532,
+        532
       ],
-      "aliasVersion": "2026-08-23.10"
+      "aliasVersion": "2026-09-05.18"
     },
     {
       "query": "ローレンイロアスアクキー",
-      "count": 12,
+      "count": 11,
       "effectiveQuery": "ローレンイロアス アクリルキーホルダー",
-      "precisionVersion": "2026-08-23.10",
+      "resolvedQuery": "ローレンイロアス アクリルキーホルダー",
+      "precisionVersion": "2026-09-05.18",
       "queryVariants": [
         "ローレンイロアス アクリルキーホルダー"
       ],
       "expansionOk": true,
       "relevanceOk": true,
+      "uniqueTitlesOk": true,
       "topTitles": [
+        "中古キーホルダー ローレン・イロアス 「バーチャルYouTuber にじさんじ Flower festival×animatecafe",
         "中古雑貨 ローレン・イロアス アクリルキーホルダー 「バーチャルYouTuber にじさんじ エデン組ハーフアニバーサリー",
-        "中古雑貨 ローレン・イロアス アクリルキーホルダー 「バーチャルYouTuber にじさんじ×サンリオキャラクターズ 第3弾",
-        "中古キーホルダー ローレン・イロアス タッセル付きアクリルチャーム 「バーチャルYouTuber にじさんじ にじさんじ妖"
+        "中古キーホルダー ローレン・イロアス(ミニキャラ) 「バーチャルYouTuber にじさんじ×極楽湯・RAKU SPA"
       ],
       "topScores": [
-        952,
-        952,
-        772,
-        772,
-        772
+        437,
+        437,
+        437,
+        437,
+        437
       ],
-      "aliasVersion": "2026-08-23.10"
+      "aliasVersion": "2026-09-05.18"
     },
     {
       "query": "ボイスキーホルダーFelix",
       "count": 0,
       "effectiveQuery": "Stray Kids フィリックス ボイスキーホルダー",
-      "precisionVersion": "2026-08-23.10",
+      "resolvedQuery": "Stray Kids フィリックス ボイスキーホルダー",
+      "precisionVersion": "2026-09-05.18",
       "queryVariants": [
-        "Stray Kids フィリックス ボイスキーホルダー"
+        "Stray Kids kids フィリックス ボイスキーホルダー"
       ],
       "expansionOk": true,
       "relevanceOk": true,
+      "uniqueTitlesOk": true,
       "topTitles": [],
       "topScores": [],
-      "aliasVersion": "2026-08-23.10"
+      "aliasVersion": "2026-09-05.18"
     },
     {
       "query": "Felix ボイスキーホルダー",
       "count": 0,
       "effectiveQuery": "Stray Kids フィリックス ボイスキーホルダー",
-      "precisionVersion": "2026-08-23.10",
+      "resolvedQuery": "Stray Kids フィリックス ボイスキーホルダー",
+      "precisionVersion": "2026-09-05.18",
       "queryVariants": [
-        "Stray Kids フィリックス ボイスキーホルダー"
+        "Stray Kids kids フィリックス ボイスキーホルダー"
       ],
       "expansionOk": true,
       "relevanceOk": true,
+      "uniqueTitlesOk": true,
       "topTitles": [],
       "topScores": [],
-      "aliasVersion": "2026-08-23.10"
+      "aliasVersion": "2026-09-05.18"
     },
     {
       "query": "owキリコぬいぐるみ",
       "count": 0,
       "effectiveQuery": "オーバーウォッチ キリコ ぬいぐるみ",
-      "precisionVersion": "2026-08-23.10",
+      "resolvedQuery": "オーバーウォッチ キリコ ぬいぐるみ",
+      "precisionVersion": "2026-09-05.18",
       "queryVariants": [
         "オーバーウォッチ キリコ ぬいぐるみ"
       ],
       "expansionOk": true,
       "relevanceOk": true,
+      "uniqueTitlesOk": true,
       "topTitles": [],
       "topScores": [],
-      "aliasVersion": "2026-08-23.10"
+      "aliasVersion": "2026-09-05.18"
     },
     {
       "query": "OW キリコ ぬい",
       "count": 0,
       "effectiveQuery": "オーバーウォッチ キリコ ぬいぐるみ",
-      "precisionVersion": "2026-08-23.10",
+      "resolvedQuery": "オーバーウォッチ キリコ ぬいぐるみ",
+      "precisionVersion": "2026-09-05.18",
       "queryVariants": [
         "オーバーウォッチ キリコ ぬいぐるみ"
       ],
       "expansionOk": true,
       "relevanceOk": true,
+      "uniqueTitlesOk": true,
       "topTitles": [],
       "topScores": [],
-      "aliasVersion": "2026-08-23.10"
+      "aliasVersion": "2026-09-05.18"
+    },
+    {
+      "query": "Felix キーホルダー",
+      "count": 17,
+      "effectiveQuery": "Stray Kids フィリックス キーホルダー",
+      "resolvedQuery": "Stray Kids フィリックス キーホルダー",
+      "precisionVersion": "2026-09-05.18",
+      "queryVariants": [
+        "Stray Kids kids フィリックス キーホルダー"
+      ],
+      "expansionOk": true,
+      "relevanceOk": true,
+      "uniqueTitlesOk": true,
+      "topTitles": [
+        "中古キーホルダー フィリックス(Stray Kids) オリジナルアクリルキーホルダー 「CD THE SOUND」 楽天ブッ",
+        "中古キーホルダー フィリックス アクリルブロックキーホルダー 「Stray Kids JAPAN 20",
+        "中古キーホルダー フィリックス(Stray Kids)/A SKZOO ランダムアクリルキーホルダー BbokAri"
+      ],
+      "topScores": [
+        537,
+        537,
+        537,
+        537,
+        537
+      ],
+      "aliasVersion": "2026-09-05.18"
+    },
+    {
+      "query": "五条悟 アクスラ",
+      "count": 36,
+      "effectiveQuery": "呪術廻戦 五条悟 アクリルスタンド",
+      "resolvedQuery": "呪術廻戦 五条悟 アクリルスタンド",
+      "precisionVersion": "2026-09-05.18",
+      "queryVariants": [
+        "呪術廻戦 五条悟 アクリルスタンド"
+      ],
+      "expansionOk": true,
+      "relevanceOk": false,
+      "uniqueTitlesOk": true,
+      "topTitles": [
+        "五条悟 アクリルスタンド 花火Ver. 「呪術廻戦 懐玉・玉折 マルイ POP UP SHOP」",
+        "五条悟 アクリルスタンド 「呪術廻戦 じゅじゅHONPO」",
+        "呪術廻戦 五条悟 アクリルスタンド アクスタ"
+      ],
+      "topScores": [
+        657,
+        657,
+        632.6,
+        624.6,
+        624.6
+      ],
+      "aliasVersion": "2026-09-05.18"
+    },
+    {
+      "query": "星町すいせい アクスタ",
+      "count": 28,
+      "effectiveQuery": "ホロライブ 星街すいせい アクリルスタンド",
+      "resolvedQuery": "ホロライブ 星街すいせい アクリルスタンド",
+      "precisionVersion": "2026-09-05.18",
+      "queryVariants": [
+        "ホロライブ 星街すいせい アクリルスタンド"
+      ],
+      "expansionOk": true,
+      "relevanceOk": true,
+      "uniqueTitlesOk": true,
+      "topTitles": [
+        "ホロライブ 星街すいせい カプとれ アクリルスタンド 衣装(2)【未使用】",
+        "ホロライブ C103 星街すいせい 正月衣装 hololive closet アクリルスタンド 【未開封】",
+        "ホロライブ×セブンイレブン 不知火建設 キャンペーン 星街すいせい 不知火建設 アクリルスタンド"
+      ],
+      "topScores": [
+        532,
+        477,
+        477,
+        477,
+        477
+      ],
+      "aliasVersion": "2026-09-05.18"
+    },
+    {
+      "query": "五条悟 サンリオ",
+      "count": 18,
+      "effectiveQuery": "呪術廻戦 五条悟 サンリオ グッズ",
+      "resolvedQuery": "呪術廻戦 五条悟 サンリオ グッズ",
+      "precisionVersion": "2026-09-05.18",
+      "queryVariants": [
+        "呪術廻戦 五条悟 サンリオ グッズ"
+      ],
+      "expansionOk": true,
+      "relevanceOk": true,
+      "uniqueTitlesOk": true,
+      "topTitles": [
+        "中古シール・ステッカー 五条悟＆シナモロール ステッカー 「呪術廻戦 懐玉・玉折×サンリオキャラクターズPOPUP STOR",
+        "中古シール・ステッカー 五条悟×シナモロール ダイカットステッカー 「劇場版 呪術廻戦 0×サンリオキャラクタ",
+        "中古ペン 五条悟＆シナモロール チャーム付きボールペン 「呪術廻戦 懐玉・玉折×サンリオキャラクターズPOPUP STORE"
+      ],
+      "topScores": [
+        407,
+        407,
+        407,
+        407,
+        401.36
+      ],
+      "aliasVersion": "2026-09-05.18"
     },
     {
       "query": "3DS本体",
       "count": 0,
       "effectiveQuery": "3ds 本体 グッズ",
-      "precisionVersion": "2026-08-23.10",
+      "resolvedQuery": "3ds 本体 グッズ",
+      "precisionVersion": "2026-09-05.18",
       "queryVariants": [
         "3ds 本体 グッズ"
       ],
       "expansionOk": true,
       "relevanceOk": true,
+      "uniqueTitlesOk": true,
       "topTitles": [],
       "topScores": [],
-      "aliasVersion": "2026-08-23.10"
+      "aliasVersion": "2026-09-05.18"
     }
   ],
   "suggestions": [
