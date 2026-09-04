@@ -185,6 +185,14 @@
 - 自動検査: `search-quality.yml`が`MERCH_GROUPS`由来の`merchGroupOk()`と`rankOrderOk`を使う。`tests/process-guard-v9.test.mjs`が辞書import・アクリルstand group利用・順位検査を固定する。
 - 本番証拠: 同じ本番queryで`relevanceOk`、`rankOrderOk`、重複なしが成功し、結果JSONがmainへ記録されること。検査を緩めただけでなく、返却全件の作品・人物条件が維持されていることを確認する。
 
+### QL-022 固定500msの壁時計を外部API不使用の証拠にしてCIを不安定化する
+
+- 症状: SEO handlerの外部API依存は削除済みで他の36テストも成功したが、並列テスト中のGitHub runnerではローカルsnapshot集計に1.217秒かかり、500ms条件だけが失敗した。手元では同じ処理が100ms未満だった。
+- 根本原因: 外部通信の有無という構造的な性質を、共有runnerのCPU負荷・I/O競合にも左右される固定500msの壁時計で代用した。性能目標と依存関係の回帰検出を一つの不安定な条件へ混在させた。
+- 恒久対策: 外部provider不使用はimport・呼出し・timeout raceの不在をsource検査で固定する。時間条件は複数秒の停止だけを検出する安全上限とし、厳密な応答性能は本番HTTP計測で別に記録する。
+- 自動検査: `tests/seo-indexability.test.mjs`は`liveSearch` importと外部待機patternの不在を必須にし、handler上限は2.5秒とする。Production workflowは正規SEO URLへ12秒の通信期限と反復確認を持つ。
+- 本番証拠: PR CIが異なるrunnerでも安定して成功し、正規SEO URLの本文・版・JSON-LDがProduction検査で取得できることを確認する。
+
 ## リリース前チェックリスト
 
 - [ ] 今回のユーザー指摘を本台帳へ追記した
@@ -216,3 +224,4 @@
 - 2026-09-05: 外部検索では21 URL中2 URLだけが確認でき、本番`robots.txt`に`Sitemap:`がないことを実測。静的fileが環境判定付きAPIをshadowしていたこと、SEO HTMLが外部販売APIを待っていたことをQL-018として記録し、Production本体の本文検査へ変更。
 - 2026-09-05: 本番実queryでFelixの別作品16件、誤字・未完入力の0件、同一商品名重複を再現。補正処理と最終filterのqueryが異なる二重解釈、known entity時の残余条件無視をQL-019として記録し、query解決の一元化と複合条件検査をV18候補へ追加。
 - 2026-09-05: V18本番でrobots・21 URL sitemap・SEO版・実queryを確認。初回Production検査が静的／動的経路の切替差で早期終了した問題をQL-020、検索辞書と検査の同義語差で関連商品を失敗扱いした問題をQL-021として記録し、共通pollと辞書共有へ修正。
+- 2026-09-05: PR #18の共有runnerで、外部通信のないSEO handlerを固定500msの壁時計だけで判定する不安定な検査を検出。構造検査と緩い停止上限へ分離し、QL-022として記録。

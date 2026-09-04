@@ -18,7 +18,7 @@ test('project instructions force correction logging and exact production verific
 
 test('quality ledger keeps every known root cause and release gate',()=>{
   const lessons=read('docs/QUALITY_LESSONS.md');
-  for(const id of ['QL-001','QL-002','QL-003','QL-004','QL-005','QL-006','QL-007','QL-008','QL-009','QL-010','QL-011','QL-012','QL-013','QL-014','QL-015','QL-016','QL-017','QL-018','QL-019','QL-020','QL-021'])assert.ok(lessons.includes(id),id);
+  for(const id of ['QL-001','QL-002','QL-003','QL-004','QL-005','QL-006','QL-007','QL-008','QL-009','QL-010','QL-011','QL-012','QL-013','QL-014','QL-015','QL-016','QL-017','QL-018','QL-019','QL-020','QL-021','QL-022'])assert.ok(lessons.includes(id),id);
   for(const token of [
     '動的挿入',
     '一般小売ノイズ除外',
@@ -41,6 +41,7 @@ test('quality ledger keeps every known root cause and release gate',()=>{
     'resolveSearchQuery()',
     '静的assetの版だけ',
     '検索辞書と本番検査',
+    '固定500ms',
     'oshiruoshi.vercel.app',
     'V9の本番反映と実ブラウザ検査は未完了'
   ])assert.ok(lessons.includes(token),token);
