@@ -169,6 +169,30 @@
 - 自動検査: `tests/search-precision-v9.test.mjs`がFelix一般グッズ、五条悟＋サンリオの残余条件、誤字、未完入力、人物名表記揺れ、同一marketplace重複を正例・負例で検査する。Production検索品質workflowも同じ複合queryを実APIへ送り、全商品文脈・0件でない基準・重複signature・精度版`2026-09-05.18`を確認する。
 - 本番証拠: 正規APIと390px/1440pxの画面で上記queryの`effectiveQuery`、件数、全商品文脈、同一marketplace重複0、補正表示を確認する。PR・CI・Preview成功だけでは解決済みとしない。
 
+### QL-020 静的assetの版だけを待ち、動的SEO経路の切替前に本番検査を始める
+
+- 症状: V18のHTMLと`app.js`は正規URLへ切り替わっていたが、直後の本番browser workflowがHTTP確認で終了し、実ブラウザ工程へ進まなかった。数秒後の同じ`robots.txt`、sitemap、SEOページはすべて正常だった。
+- 根本原因: Production準備完了条件が静的HTML・JavaScript・CSSの版だけで、今回変更した動的Function経路を含めていなかった。静的aliasが先に切り替わった直後、robots・sitemap・SEOページを各1回だけ取得して同時切替を前提にした。
+- 恒久対策: 静的asset確認後も、正規URLのrobots本文、21件のcanonical sitemap、server-rendered SEO本文が同時に揃うまで独立してpollする。HTTP検査とbrowser検査は同じ共通scriptを使い、動的経路の確認後だけ次へ進む。
+- 自動検査: `.github/scripts/verify-production-seo.sh`が3経路をcache-busting付きで反復取得し、URL件数・重複・canonical origin・SEO版・JSON-LDを検査する。`tests/process-guard-v9.test.mjs`が両Production workflowから共通scriptを呼ぶことを固定する。
+- 本番証拠: 修正版workflowがHTTP段階を通過し、後続の390px/1440px browser工程まで成功すること。1回の手動curlだけでは工程修正の確認済みとしない。
+
+### QL-021 検索辞書と本番検査で同義語を二重管理し、正解商品を失敗扱いする
+
+- 症状: 「五条悟 アクスラ」は36件の関連商品を順位順に返したが、`アクリルフィギュアメモスタンド`1件だけを本番検索品質workflowが不正商品と判定した。
+- 根本原因: 製品側のアクリルスタンドgroupは`アクリルフィギュア`を同義語として保持していた一方、今回追加したworkflowでは`アクスタ|アクリルスタンド|acrylic stand`を別の正規表現へ手書きし、正式な許容語を欠落させた。検査が製品辞書と別の分類定義を持っていた。
+- 恒久対策: 本番検査は`api/_search-language.mjs`の`MERCH_GROUPS`を直接importし、グッズ種別の許容同義語を製品と共有する。作品・人物・コラボ条件は独立検査を維持し、全返却商品のscore降順も検査する。
+- 自動検査: `search-quality.yml`が`MERCH_GROUPS`由来の`merchGroupOk()`と`rankOrderOk`を使う。`tests/process-guard-v9.test.mjs`が辞書import・アクリルstand group利用・順位検査を固定する。
+- 本番証拠: 同じ本番queryで`relevanceOk`、`rankOrderOk`、重複なしが成功し、結果JSONがmainへ記録されること。検査を緩めただけでなく、返却全件の作品・人物条件が維持されていることを確認する。
+
+### QL-022 固定500msの壁時計を外部API不使用の証拠にしてCIを不安定化する
+
+- 症状: SEO handlerの外部API依存は削除済みで他の36テストも成功したが、並列テスト中のGitHub runnerではローカルsnapshot集計に1.217秒かかり、500ms条件だけが失敗した。手元では同じ処理が100ms未満だった。
+- 根本原因: 外部通信の有無という構造的な性質を、共有runnerのCPU負荷・I/O競合にも左右される固定500msの壁時計で代用した。性能目標と依存関係の回帰検出を一つの不安定な条件へ混在させた。
+- 恒久対策: 外部provider不使用はimport・呼出し・timeout raceの不在をsource検査で固定する。時間条件は複数秒の停止だけを検出する安全上限とし、厳密な応答性能は本番HTTP計測で別に記録する。
+- 自動検査: `tests/seo-indexability.test.mjs`は`liveSearch` importと外部待機patternの不在を必須にし、handler上限は2.5秒とする。Production workflowは正規SEO URLへ12秒の通信期限と反復確認を持つ。
+- 本番証拠: PR CIが異なるrunnerでも安定して成功し、正規SEO URLの本文・版・JSON-LDがProduction検査で取得できることを確認する。
+
 ## リリース前チェックリスト
 
 - [ ] 今回のユーザー指摘を本台帳へ追記した
@@ -199,3 +223,5 @@
 - 2026-08-23: V16本番browserで初回30件の描画・比較ボタン修正を確認後、「なると」再検索が前回商品30件を保持したまま`live: loading`で誤判定される競合を検出。検索開始時の状態初期化・完了検索語診断・current-query完了待ちをV17候補へ追加。本番browser検査成功前のため、この時点では解決済みとしない。
 - 2026-09-05: 外部検索では21 URL中2 URLだけが確認でき、本番`robots.txt`に`Sitemap:`がないことを実測。静的fileが環境判定付きAPIをshadowしていたこと、SEO HTMLが外部販売APIを待っていたことをQL-018として記録し、Production本体の本文検査へ変更。
 - 2026-09-05: 本番実queryでFelixの別作品16件、誤字・未完入力の0件、同一商品名重複を再現。補正処理と最終filterのqueryが異なる二重解釈、known entity時の残余条件無視をQL-019として記録し、query解決の一元化と複合条件検査をV18候補へ追加。
+- 2026-09-05: V18本番でrobots・21 URL sitemap・SEO版・実queryを確認。初回Production検査が静的／動的経路の切替差で早期終了した問題をQL-020、検索辞書と検査の同義語差で関連商品を失敗扱いした問題をQL-021として記録し、共通pollと辞書共有へ修正。
+- 2026-09-05: PR #18の共有runnerで、外部通信のないSEO handlerを固定500msの壁時計だけで判定する不安定な検査を検出。構造検査と緩い停止上限へ分離し、QL-022として記録。

@@ -53,14 +53,7 @@ jobs:
             sleep 5
           done
           test "$ready" = 1
-
-          curl --fail --silent --show-error --location "$base/robots.txt?v=$GITHUB_SHA" -o "$tmp/robots.txt"
-          grep -Fq 'Sitemap: https://oshiruoshi.vercel.app/sitemap.xml' "$tmp/robots.txt"
-          curl --fail --silent --show-error --location "$base/sitemap.xml?v=$GITHUB_SHA" -o "$tmp/sitemap.xml"
-          grep -Fq '<loc>https://oshiruoshi.vercel.app/character/gojo-satoru</loc>' "$tmp/sitemap.xml"
-          curl --max-time 8 --fail --silent --show-error --location "$base/character/gojo-satoru?v=$GITHUB_SHA" -o "$tmp/seo.html"
-          grep -Fq 'oshiru-seo-version" content="2026-09-05.18' "$tmp/seo.html"
-          grep -Fq 'application/ld+json" data-oshiru-structured' "$tmp/seo.html"
+          bash .github/scripts/verify-production-seo.sh "$base" "$tmp" 45
 
           curl --fail --silent --show-error --location "$base/?v=$(date +%s)" -o "$tmp/index.html"
           grep -Fq 'OSHIRU' "$tmp/index.html"

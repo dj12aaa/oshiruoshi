@@ -66,8 +66,9 @@ jobs:
         shell: bash
         run: |
           mkdir -p verification
-          node - <<'NODE'
-          const fs=require('fs');
+          node --input-type=module - <<'NODE'
+          import fs from 'node:fs';
+          import { MERCH_GROUPS, compactFlexible, normalizeFlexible } from './api/_search-language.mjs';
           const specs=[
             {query:'星街すいせい アクスタ',baseline:true},
             {query:'五条悟 缶バッジ',baseline:true},
@@ -83,25 +84,31 @@ jobs:
             {query:'五条悟 サンリオ',kind:'gojo-sanrio',baseline:true,mustInclude:['呪術廻戦','五条悟','サンリオ']},
             {query:'3DS本体',mustInclude:['3ds 本体']}
           ];
-          const norm=v=>String(v||'').normalize('NFKC').toLowerCase().replace(/[・･·／/|｜,，。｡()（）【】\[\]「」『』〈〉《》:_＿\-—–+＋]+/g,' ').replace(/([a-z0-9])([ぁ-んァ-ヶ一-龯々ー])/gi,'$1 $2').replace(/([ぁ-んァ-ヶ一-龯々ー])([a-z0-9])/gi,'$1 $2').replace(/\s+/g,' ').trim();
+          const norm=normalizeFlexible;
+          const includesLoose=(value,term)=>norm(value).includes(norm(term))||compactFlexible(value).includes(compactFlexible(term));
+          const merchGroupOk=(key,item)=>{
+            const group=MERCH_GROUPS.find(candidate=>candidate.key===key);
+            return Boolean(group&&[group.canonical,group.broad,...(group.aliases||[])].filter(Boolean).some(term=>includesLoose(item,term)));
+          };
           const results=specs.map((spec,n)=>{
             const d=JSON.parse(fs.readFileSync(`/tmp/oshiru-quality/q${n}.json`,'utf8'));
             const items=Array.isArray(d.items)?d.items:[];
             const variants=(d.queryVariants||[]).map(v=>typeof v==='string'?v:v?.query).filter(Boolean);
             const hay=[d.effectiveQuery,...variants].map(norm).join(' | ');
             const expansionOk=(spec.mustInclude||[]).every(value=>hay.includes(norm(value)));
-            const scores=items.slice(0,5).map(x=>x._score);
+            const scores=items.map(x=>Number(x._score)||0);
             const text=item=>norm([item.title,item.description,item.series,item.character,item.type,item.collab,item.shop,...(item.tags||[])].filter(Boolean).join(' '));
             const felixOk=item=>/(stray\s*kids|straykids|skz|スキズ)/i.test(text(item))&&/(felix|フィリックス|ピリ|bbokari|bokari|ボッカリ)/i.test(text(item))&&/(ボイス\s*キー|voice\s*key)/i.test(text(item));
             const felixGenericOk=item=>/(stray\s*kids|straykids|skz|スキズ)/i.test(text(item))&&/(felix|フィリックス|ピリ|bbokari|bokari|ボッカリ)/i.test(text(item))&&/(キーホルダー|キーチェーン|key\s*(?:holder|chain))/i.test(text(item));
             const kirikoOk=item=>/(overwatch|オーバーウォッチ|\bow2?\b)/i.test(text(item))&&/(kiriko|キリコ)/i.test(text(item))&&/(ぬい|マスコット|plush)/i.test(text(item));
-            const gojoAcrylicOk=item=>/(呪術廻戦|jujutsu)/i.test(text(item))&&/五条\s*悟|ごじょうさとる|gojo\s*satoru/i.test(text(item))&&/(アクスタ|アクリルスタンド|acrylic\s*stand)/i.test(text(item));
-            const suiseiAcrylicOk=item=>/星街\s*すいせい|hoshimachi\s*suisei/i.test(text(item))&&/(アクスタ|アクリルスタンド|acrylic\s*stand)/i.test(text(item));
+            const gojoAcrylicOk=item=>/(呪術廻戦|jujutsu)/i.test(text(item))&&/五条\s*悟|ごじょうさとる|gojo\s*satoru/i.test(text(item))&&merchGroupOk('acrylic-stand',text(item));
+            const suiseiAcrylicOk=item=>/星街\s*すいせい|hoshimachi\s*suisei/i.test(text(item))&&merchGroupOk('acrylic-stand',text(item));
             const gojoSanrioOk=item=>/五条\s*悟|ごじょうさとる|gojo\s*satoru/i.test(text(item))&&/(サンリオ|シナモロール|sanrio|cinnamoroll)/i.test(text(item));
             const relevanceOk=spec.kind==='felix'?items.every(felixOk):spec.kind==='felix-generic'?items.every(felixGenericOk):spec.kind==='kiriko'?items.every(kirikoOk):spec.kind==='gojo-acrylic'?items.every(gojoAcrylicOk):spec.kind==='suisei-acrylic'?items.every(suiseiAcrylicOk):spec.kind==='gojo-sanrio'?items.every(gojoSanrioOk):true;
+            const rankOrderOk=scores.every((score,index)=>index===0||scores[index-1]>=score);
             const signatures=items.map(item=>`${norm(item.source)}|${norm(item.title)}`);
             const uniqueTitlesOk=new Set(signatures).size===signatures.length;
-            return{query:spec.query,count:items.length,effectiveQuery:d.effectiveQuery||null,resolvedQuery:d.resolvedQuery||null,precisionVersion:d.precisionVersion||null,queryVariants:variants,expansionOk,relevanceOk,uniqueTitlesOk,topTitles:items.slice(0,3).map(x=>x.title),topScores:scores,aliasVersion:d.aliasVersion||null};
+            return{query:spec.query,count:items.length,effectiveQuery:d.effectiveQuery||null,resolvedQuery:d.resolvedQuery||null,precisionVersion:d.precisionVersion||null,queryVariants:variants,expansionOk,relevanceOk,rankOrderOk,uniqueTitlesOk,topTitles:items.slice(0,3).map(x=>x.title),topScores:scores.slice(0,5),aliasVersion:d.aliasVersion||null};
           });
           const suggestQueries=['3DS','owキリコ','ボイスキーホルダーFelix','felix ボイス キーホルダー ホルダー スキズ'];
           const suggestions=suggestQueries.map((query,n)=>{
@@ -111,6 +118,7 @@ jobs:
           const expansionOk=results.every(x=>x.expansionOk&&x.precisionVersion==='2026-09-05.18');
           const baselineOk=specs.every((spec,index)=>!spec.baseline||results[index].count>0);
           const relevanceOk=results.every(x=>x.relevanceOk);
+          const rankOrderOk=results.every(x=>x.rankOrderOk);
           const uniqueTitlesOk=results.every(x=>x.uniqueTitlesOk);
           const generated=suggestions.flatMap(x=>x.items).filter(x=>x.label!=='このまま検索');
           const duplicatePattern=/(キーホルダー\s*ホルダー|ホルダー\s*キーホルダー|ボイス\s*キーホルダー\s*ホルダー)/i;
@@ -118,7 +126,7 @@ jobs:
           const malformed=suggestions.find(x=>x.query.startsWith('felix ボイス'));
           const cleanupPresent=Boolean(malformed?.items?.some(x=>x.label==='表記を整理'&&norm(x.name).includes(norm('stray kids フィリックス'))&&norm(x.name).includes(norm('ボイスキーホルダー'))));
           const predictiveOk=suggestions.every(x=>x.count>0)&&duplicateFree&&cleanupPresent;
-          const out={checkedAt:new Date().toISOString(),ok:expansionOk&&baselineOk&&relevanceOk&&uniqueTitlesOk&&predictiveOk,expansionOk,baselineOk,relevanceOk,uniqueTitlesOk,predictiveOk,duplicateFree,cleanupPresent,results,suggestions};
+          const out={checkedAt:new Date().toISOString(),ok:expansionOk&&baselineOk&&relevanceOk&&rankOrderOk&&uniqueTitlesOk&&predictiveOk,expansionOk,baselineOk,relevanceOk,rankOrderOk,uniqueTitlesOk,predictiveOk,duplicateFree,cleanupPresent,results,suggestions};
           fs.writeFileSync('verification/search-quality.json',JSON.stringify(out,null,2)+'\n');
           console.log(JSON.stringify(out,null,2));
           if(!out.ok)process.exitCode=1;

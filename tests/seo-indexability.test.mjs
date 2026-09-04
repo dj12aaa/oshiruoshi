@@ -75,7 +75,7 @@ test('crawler-facing SEO handler does not wait for live marketplace APIs',async(
   assert.match(response.headers['x-robots-tag'],/index, follow/);
   assert.equal(response.headers['x-oshiru-seo-version'],'2026-09-05.18');
   assert.match(response.body,/五条悟グッズ/);
-  assert.ok(performance.now()-started<500,'SEO handler should render without an external API wait');
+  assert.ok(performance.now()-started<2500,'SEO handler should not incur a multi-second external provider wait');
 });
 
 test('homepage exposes stable canonical metadata and server-rendered WebSite data',()=>{

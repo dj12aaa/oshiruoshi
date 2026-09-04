@@ -60,6 +60,7 @@ test('typos and incomplete merchandise words are resolved before final relevance
   assert.equal(resolveSearchQuery('五条悟 アクスラ').resolved,'五条悟 アクリルスタンド');
   assert.equal(effectiveQuery('五条悟 アクスラ'),'呪術廻戦 五条悟 アクリルスタンド');
   assert.equal(relevant({title:'呪術廻戦 五条悟 アクリルスタンド 公式'},'五条悟 アクスラ'),true);
+  assert.equal(relevant({title:'呪術廻戦 五条悟 アクリルフィギュアメモスタンド'},'五条悟 アクスラ'),true);
   assert.equal(resolveSearchQuery('初音ミク ぬいぐる').resolved,'初音ミク ぬいぐるみ');
   assert.equal(effectiveQuery('星町すいせい アクスタ'),'ホロライブ 星街すいせい アクリルスタンド');
   assert.equal(effectiveQuery('フリーレソ グッズ'),'葬送のフリーレン グッズ');
