@@ -1,9 +1,17 @@
 # OSHIRU 無料計測・SEO公開手順
 
-## 開発中
-- `develop-v2` は `noindex,nofollow`
-- Production `main` は一般公開停止を維持
-- Search Consoleにはまだ公開版を送信しない
+## 現在の公開状態（2026-09-05）
+- Production `main` は `index,follow` で一般公開中
+- Previewは環境判定付き`robots.txt`で全crawlを拒否する
+- Productionの`robots.txt`からcanonical sitemapを通知する
+- Search Console所有権確認fileは配置済みだが、接続中のSearch Consoleでsitemap送信済みかは別途確認する
+
+## 2026-09-05の露出基準値
+- `site:oshiruoshi.vercel.app`相当の外部検索で確認できたURL: 2件（トップ、概要）
+- sitemap掲載URL: 21件
+- 技術原因: 静的`robots.txt`がAPI版をshadowし、`Sitemap:`通知が本番へ出ていなかった
+- 順位面の制約: 新規の`vercel.app`配下で外部評価・指名検索・被リンクが少なく、crawl可能化だけで上位表示は確定しない
+- 再確認: デプロイ後ではなく検索エンジンの再crawl後に、登録URL数・表示回数・query・平均順位を確認する
 
 ## 公開直前
 1. 独自ドメインを確定

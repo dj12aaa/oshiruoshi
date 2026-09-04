@@ -17,6 +17,7 @@
 
   const canonical=document.querySelector('link[rel="canonical"]')?.href||new URL(location.pathname,location.origin).href;
   const description=document.querySelector('meta[name="description"]')?.content||'';
+  if(document.querySelector('script[data-oshiru-structured]'))return;
   const graph=[
     {'@type':'WebSite','@id':SITE+'#website',url:SITE,name:'OSHIRU',description:'推し活グッズを複数の販売サイトから横断検索し、価格・送料・販売状況を比較できる検索サービスです。',inLanguage:'ja-JP'},
     {'@type':'WebPage','@id':canonical+'#webpage',url:canonical,name:document.title,description,inLanguage:'ja-JP',isPartOf:{'@id':SITE+'#website'}}

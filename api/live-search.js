@@ -1,16 +1,16 @@
 import { json, cleanQuery, liveSearch as coreLiveSearch } from './_core.mjs';
 import {
   MERCH_GROUPS,
-  ENTITY_GROUPS,
   normalizeFlexible,
   compactFlexible,
   detectIntent,
   buildSearchVariants,
   rankSearchItems,
-  countStrongMatches
+  countStrongMatches,
+  resolveSearchQuery
 } from './_search-language.mjs';
 
-const SEARCH_ALIAS_VERSION='2026-08-23.10';
+const SEARCH_ALIAS_VERSION='2026-09-05.18';
 const cache=new Map();
 const MAX_RESULTS=120;
 const MAX_VARIANTS=5;
@@ -38,50 +38,6 @@ function distance(a='',b=''){
   return d[n][m];
 }
 function similarity(a,b){const x=compactFlexible(a),y=compactFlexible(b),max=Math.max([...x].length,[...y].length);return max?1-distance(x,y)/max:0}
-function script(value=''){const v=compactFlexible(value);if(/^[a-z0-9]+$/i.test(v))return'latin';if(/^[ぁ-んァ-ヶ一-龯々ー]+$/.test(v))return'ja';return'mixed'}
-function threshold(value=''){const n=[...compactFlexible(value)].length;return n<=3?1:n<=5?.79:n<=8?.82:.84}
-const LEXICON=(()=>{
-  const out=[];
-  for(const group of [...ENTITY_GROUPS,...MERCH_GROUPS])for(const alias of [...new Set([group.canonical,group.broad,...(group.aliases||[])].filter(Boolean))]){
-    const compact=compactFlexible(alias);if([...compact].length<4)continue;
-    out.push({alias,compact,canonical:group.canonical,kind:MERCH_GROUPS.includes(group)?'merch':'entity'});
-  }
-  return out;
-})();
-function completeKnownPrefix(query=''){
-  const tokens=normalizeFlexible(query).split(/\s+/).filter(Boolean);let best=null;
-  tokens.forEach((token,index)=>{
-    const t=compactFlexible(token),len=[...t].length;if(len<4)return;
-    for(const item of LEXICON){
-      const candidate=item.compact;if(candidate===t||!candidate.startsWith(t))continue;
-      const missing=[...candidate].length-len;if(missing<1||missing>5)continue;
-      const score=len/[...candidate].length+(item.kind==='merch'?.08:0);
-      if(!best||score>best.score)best={index,item,score};
-    }
-  });
-  if(!best)return{changed:false,corrected:normalizeFlexible(query),completion:null};
-  const next=[...tokens];next[best.index]=best.item.canonical;
-  return{changed:true,corrected:next.join(' '),completion:{from:tokens[best.index],to:best.item.canonical}};
-}
-function correctKnownQuery(query=''){
-  const tokens=normalizeFlexible(query).split(/\s+/).filter(Boolean),corrections=[];
-  const corrected=tokens.map(token=>{
-    const t=compactFlexible(token);if(LEXICON.some(x=>x.compact===t))return token;
-    const kind=script(token);let best=null;
-    for(const item of LEXICON){
-      if(kind!=='mixed'&&script(item.alias)!==kind)continue;
-      if(Math.abs([...t].length-[...item.compact].length)>2)continue;
-      const score=similarity(t,item.compact);
-      if(score<Math.max(threshold(token),threshold(item.alias)))continue;
-      if(!best||score>best.score)best={item,score};
-    }
-    if(!best)return token;
-    corrections.push({from:token,to:best.item.canonical,confidence:Number(best.score.toFixed(3))});
-    return best.item.canonical;
-  });
-  const value=corrected.join(' ').trim();
-  return{query:String(query||''),corrected:value,changed:compactFlexible(value)!==compactFlexible(query),corrections};
-}
 function candidateWindows(text=''){
   const tokens=normalizeFlexible(text).split(/\s+/).filter(Boolean).filter(x=>!GENERIC.has(x)),out=[];
   for(let i=0;i<tokens.length;i++)for(let size=1;size<=3&&i+size<=tokens.length;size++){
@@ -159,16 +115,16 @@ function send(res,status,data,cacheable=false){
   return res.status(status).json(data);
 }
 function robustVariants(query){
-  const prefix=completeKnownPrefix(query),known=correctKnownQuery(prefix.changed?prefix.corrected:query);
-  const seed=known.changed?known.corrected:(prefix.changed?prefix.corrected:query),out=[],seen=new Set();
+  const resolution=resolveSearchQuery(query),prefix=resolution.inputCompletion,known=resolution.typoCorrection;
+  const seed=resolution.resolved||query,out=[],seen=new Set();
   const add=list=>{
     for(const v of list){
       const key=normalizeFlexible(v?.query||'');if(!key||seen.has(key))continue;
       seen.add(key);out.push(v);if(out.length>=MAX_VARIANTS)break;
     }
   };
-  add(buildSearchVariants(query,5));
   if(compactFlexible(seed)!==compactFlexible(query))add(buildSearchVariants(seed,5).map(v=>({...v,reason:`corrected-${v.reason}`,weight:Number(v.weight||0)+5})));
+  add(buildSearchVariants(query,5));
   return{prefix,known,seed,variants:out};
 }
 

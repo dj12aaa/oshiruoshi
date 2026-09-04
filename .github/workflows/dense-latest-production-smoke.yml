@@ -34,10 +34,10 @@ jobs:
           ready=0
           for attempt in $(seq 1 45); do
             if curl --fail --silent --show-error --location "$base/?ready=$attempt-${GITHUB_SHA}" -o "$tmp/index.html" \
-              && grep -Fq 'oshiru-search-ui-version" content="2026-08-23.17' "$tmp/index.html" \
-              && grep -Fq '/app.js?v=20260823-17' "$tmp/index.html" \
-              && curl --fail --silent --show-error --location "$base/app.js?v=20260823-17-$attempt" -o "$tmp/app.js" \
-              && grep -Fq "SEARCH_UI_VERSION='2026-08-23.17'" "$tmp/app.js" \
+              && grep -Fq 'oshiru-search-ui-version" content="2026-09-05.18' "$tmp/index.html" \
+              && grep -Fq '/app.js?v=20260905-18' "$tmp/index.html" \
+              && curl --fail --silent --show-error --location "$base/app.js?v=20260905-18-$attempt" -o "$tmp/app.js" \
+              && grep -Fq "SEARCH_UI_VERSION='2026-09-05.18'" "$tmp/app.js" \
               && grep -Fq 'oshiru-home-version" content="2026-08-23.14' "$tmp/index.html" \
               && grep -Fq '/home-experience-v8.js?v=20260823-14' "$tmp/index.html" \
               && curl --fail --silent --show-error --location "$base/gallery-v8.css?v=$(date +%s)" -o "$tmp/gallery.css" \
@@ -53,6 +53,14 @@ jobs:
             sleep 5
           done
           test "$ready" = 1
+
+          curl --fail --silent --show-error --location "$base/robots.txt?v=$GITHUB_SHA" -o "$tmp/robots.txt"
+          grep -Fq 'Sitemap: https://oshiruoshi.vercel.app/sitemap.xml' "$tmp/robots.txt"
+          curl --fail --silent --show-error --location "$base/sitemap.xml?v=$GITHUB_SHA" -o "$tmp/sitemap.xml"
+          grep -Fq '<loc>https://oshiruoshi.vercel.app/character/gojo-satoru</loc>' "$tmp/sitemap.xml"
+          curl --max-time 8 --fail --silent --show-error --location "$base/character/gojo-satoru?v=$GITHUB_SHA" -o "$tmp/seo.html"
+          grep -Fq 'oshiru-seo-version" content="2026-09-05.18' "$tmp/seo.html"
+          grep -Fq 'application/ld+json" data-oshiru-structured' "$tmp/seo.html"
 
           curl --fail --silent --show-error --location "$base/?v=$(date +%s)" -o "$tmp/index.html"
           grep -Fq 'OSHIRU' "$tmp/index.html"
@@ -82,12 +90,12 @@ jobs:
           node -e "const d=require(process.argv[1]);if(!d.idle||!Array.isArray(d.items)||d.items.length!==0)throw new Error('idle search regression')" "$tmp/idle.json"
 
           curl --max-time 12 --fail --silent --show-error --location "$base/api/search?initial=1&q=%E4%BA%94%E6%9D%A1%E6%82%9F%20%E3%82%B5%E3%83%B3%E3%83%AA%E3%82%AA" -o "$tmp/initial.json"
-          node -e "const d=require(process.argv[1]);if(!d.initial||d.precisionVersion!=='2026-08-23.10'||!Array.isArray(d.items))throw new Error('initial snapshot regression')" "$tmp/initial.json"
+          node -e "const d=require(process.argv[1]);if(!d.initial||d.precisionVersion!=='2026-09-05.18'||!Array.isArray(d.items))throw new Error('initial snapshot regression')" "$tmp/initial.json"
 
           curl --max-time 15 --fail --silent --show-error --location "$base/api/live-search-v8?q=%E3%83%8A%E3%83%AB%E3%83%88" -o "$tmp/naruto.json"
           node - "$tmp/naruto.json" <<'NODE'
           const fs=require('fs');const d=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
-          if(d.precisionVersion!=='2026-08-23.10')throw new Error('precision version is not v10');
+          if(d.precisionVersion!=='2026-09-05.18')throw new Error('precision version is not v18');
           if(!String(d.effectiveQuery||'').includes('NARUTO')||!String(d.effectiveQuery||'').includes('グッズ'))throw new Error(`NARUTO effective query invalid: ${d.effectiveQuery}`);
           const bad=/(ヘアピン|ヘアクリップ|髪留め|コミック|単行本|電子書籍)/i;
           const offending=(d.items||[]).filter(x=>bad.test(String(x.title||'')));
@@ -167,7 +175,7 @@ jobs:
             });
             console.log(name,JSON.stringify(metrics));
             await page.screenshot({path:`verification/screenshots/${name}-search.png`,fullPage:false});
-            if(metrics.uiVersion!=='2026-08-23.17'||metrics.homeVersion!=='2026-08-23.14'||metrics.affiliateVersion!=='2026-08-23.16'||metrics.diagnostics?.version!=='2026-08-23.17')throw new Error(`${name}: stale search UI loaded: ${JSON.stringify({uiVersion:metrics.uiVersion,homeVersion:metrics.homeVersion,affiliateVersion:metrics.affiliateVersion,diagnostics:metrics.diagnostics})}`);
+            if(metrics.uiVersion!=='2026-09-05.18'||metrics.homeVersion!=='2026-08-23.14'||metrics.affiliateVersion!=='2026-08-23.16'||metrics.diagnostics?.version!=='2026-09-05.18')throw new Error(`${name}: stale search UI loaded: ${JSON.stringify({uiVersion:metrics.uiVersion,homeVersion:metrics.homeVersion,affiliateVersion:metrics.affiliateVersion,diagnostics:metrics.diagnostics})}`);
             if(metrics.columns!==expectedColumns)throw new Error(`${name}: expected ${expectedColumns} columns, got ${metrics.columns}`);
             if(metrics.cards<2||!metrics.sourceVisible||!metrics.priceVisible||!metrics.heartVisible||!metrics.compareVisible)throw new Error(`${name}: card controls/source/price missing`);
             if(!metrics.controlsInsideVisual)throw new Error(`${name}: card overlays escaped the image area`);
