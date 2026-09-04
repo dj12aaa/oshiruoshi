@@ -1,9 +1,8 @@
-function siteBase(req){
+export const DEFAULT_SITE='https://oshiruoshi.vercel.app';
+function siteBase(){
   const configured=String(process.env.PUBLIC_SITE_URL||'').trim().replace(/\/$/,'');
   if(/^https:\/\/[A-Za-z0-9.-]+(?::\d+)?$/.test(configured))return configured;
-  const raw=String((req.headers['x-forwarded-host']||req.headers.host||'').split(',')[0]);
-  const host=raw.replace(/[^A-Za-z0-9.:-]/g,'');
-  return host?`https://${host}`:'';
+  return DEFAULT_SITE;
 }
 function escXml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;')}
 function isIndexable(){
@@ -12,19 +11,10 @@ function isIndexable(){
   if(configured==='false')return false;
   return process.env.VERCEL_ENV==='production';
 }
-export default function handler(req,res){
-  const indexable=isIndexable();
-  res.setHeader('Content-Type','application/xml; charset=utf-8');
-  res.setHeader('Cache-Control','public, max-age=0, s-maxage=300');
-  if(!indexable){
-    res.status(404).send('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>');
-    return;
-  }
-  const base=siteBase(req);
-  const lastmod='2026-08-21';
-  const pages=[
-    '/',
-    '/latest-goods',
+export const SITEMAP_ENTRIES=[
+  {path:'/',lastmod:'2026-09-05'},
+  {path:'/latest-goods',lastmod:'2026-08-23'},
+  ...[
     '/guide/oshi-goods',
     '/guide/how-oshiru-compares',
     '/compare/oshi-goods',
@@ -38,9 +28,20 @@ export default function handler(req,res){
     '/discover/characters',
     '/character/hoshimachi-suisei',
     '/character/gojo-satoru',
-    '/character/hatsune-miku',
-    '/about.html','/terms.html','/privacy.html','/disclaimer.html','/contact.html'
-  ];
-  const xml=`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${pages.map(p=>`<url><loc>${escXml(base+p)}</loc><lastmod>${lastmod}</lastmod></url>`).join('')}</urlset>`;
-  res.status(200).send(xml);
+    '/character/hatsune-miku'
+  ].map(path=>({path,lastmod:'2026-09-05'})),
+  ...['/about.html','/terms.html','/privacy.html','/disclaimer.html','/contact.html'].map(path=>({path,lastmod:'2026-08-19'}))
+];
+export function renderSitemap(base){
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${SITEMAP_ENTRIES.map(({path,lastmod})=>`  <url><loc>${escXml(base+path)}</loc><lastmod>${lastmod}</lastmod></url>`).join('\n')}\n</urlset>`;
+}
+export default function handler(req,res){
+  const indexable=isIndexable();
+  res.setHeader('Content-Type','application/xml; charset=utf-8');
+  res.setHeader('Cache-Control','public, max-age=0, s-maxage=3600, stale-while-revalidate=86400');
+  if(!indexable){
+    res.status(404).send('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>');
+    return;
+  }
+  res.status(200).send(renderSitemap(siteBase()));
 }

@@ -1,7 +1,7 @@
-const SEARCH_UI_VERSION='2026-08-23.17';
+const SEARCH_UI_VERSION='2026-09-05.18';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const storage={get(k,f='[]'){try{return localStorage.getItem(k)||f}catch{return f}},set(k,v){try{localStorage.setItem(k,v)}catch{}}};
-const state={all:[],shown:[],direct:[],providers:{},query:'',favorites:new Set(JSON.parse(storage.get('oshiru-v5-favs'))),compare:new Map(),broken:new Set(),loaded:new Set(),searchSeq:0};
+const state={all:[],shown:[],direct:[],providers:{},query:'',resolvedQuery:'',favorites:new Set(JSON.parse(storage.get('oshiru-v5-favs'))),compare:new Map(),broken:new Set(),loaded:new Set(),searchSeq:0};
 const retailSources=['メルカリ','Yahoo!フリマ','Yahoo!オークション','Yahoo!ショッピング','楽天市場'];
 const sourceOrder=[...retailSources,'X'];
 const liveStatuses=new Set(['販売中','販売中候補','入札受付中','交換募集中','譲渡募集中','交換・譲渡候補']);
@@ -22,22 +22,24 @@ function officialImageProvider(i){if(i?.origin!=='official-api')return'';if(i.so
 function imageSrc(i){const raw=i.image||'';if(!raw)return'';const provider=officialImageProvider(i);return provider?`/api/image-proxy?source=${provider}&url=${encodeURIComponent(raw)}`:raw}
 function itemLive(i){return liveStatuses.has(i.status)}
 let primarySearchController=null,liveSearchController=null;
-const searchDiagnostics={version:SEARCH_UI_VERSION,phase:'idle',query:'',initial:'idle',live:'idle',initialQuery:'',liveQuery:'',initialItems:0,liveItems:0,updatedAt:new Date().toISOString()};
+const searchDiagnostics={version:SEARCH_UI_VERSION,phase:'idle',query:'',resolvedQuery:'',initial:'idle',live:'idle',initialQuery:'',liveQuery:'',initialItems:0,liveItems:0,updatedAt:new Date().toISOString()};
 window.__OSHIRU_SEARCH_DIAGNOSTICS__=searchDiagnostics;
 function markSearch(patch={}){Object.assign(searchDiagnostics,patch,{updatedAt:new Date().toISOString()})}
 function mergeItems(...groups){const seen=new Set(),merged=[];for(const item of groups.flat()){const key=String(item?.url||`${item?.source}|${item?.title}|${item?.price}`).replace(/[?#].*$/,'');if(!key||seen.has(key))continue;seen.add(key);merged.push(item)}return merged}
+function queryKey(value=''){return String(value).normalize('NFKC').toLowerCase().replace(/\s+/g,' ').trim()}
+function adoptSearchInterpretation(data,original){const resolved=String(data?.resolvedQuery||data?.effectiveQuery||'').trim();if(!resolved||queryKey(resolved)===queryKey(original))return;state.resolvedQuery=resolved;state.direct=directLinks(resolved);markSearch({resolvedQuery:resolved})}
 function finishSearchUi(seq,phase='settled'){if(seq!==state.searchSeq)return;const btn=$('#searchBtn');btn.classList.remove('loading');btn.textContent='横断検索';markSearch({phase})}
 async function runSearch(){
-  const q=$('#q').value.trim(); const seq=++state.searchSeq; state.query=q; state.all=[]; state.shown=[]; state.providers={}; state.broken.clear(); state.loaded.clear();state.direct=directLinks(q);
+  const q=$('#q').value.trim(); const seq=++state.searchSeq; state.query=q; state.resolvedQuery=''; state.all=[]; state.shown=[]; state.providers={}; state.broken.clear(); state.loaded.clear();state.direct=directLinks(q);
   primarySearchController?.abort();liveSearchController?.abort();const controller=new AbortController();primarySearchController=controller;
-  markSearch({phase:'loading',query:q,initial:'loading',live:q?'loading':'idle',initialQuery:'',liveQuery:'',initialItems:0,liveItems:0});
+  markSearch({phase:'loading',query:q,resolvedQuery:'',initial:'loading',live:q?'loading':'idle',initialQuery:'',liveQuery:'',initialItems:0,liveItems:0});
   $('#queryBadge').textContent=q?`「${q}」`:'すべて'; $('#resultMeta').textContent='個別出品を検索しています…'; $('#productGrid').innerHTML=loadingCards(); $('#emptyState').classList.add('hidden'); $('#providerNotice').classList.add('hidden');
   const btn=$('#searchBtn');btn.classList.add('loading');btn.textContent='検索中…';
   const watchdog=setTimeout(()=>{if(seq!==state.searchSeq)return;finishSearchUi(seq,'watchdog-settled');if($('#productGrid .skeleton')){if(state.all.length)applyFilters();else renderEmpty('検索に時間がかかっています','検索中表示は終了しました。追加の商品はバックグラウンドで取得し、届き次第表示します。販売サイトへの直接検索も利用できます。')}},7500);
   const livePromise=refreshLive(q,seq);
   try{
     const data=await json(`/api/search?initial=1&q=${encodeURIComponent(q)}`,{signal:controller.signal,timeoutMs:6000});if(seq!==state.searchSeq)return;
-    state.all=mergeItems(state.all,data.items||[]);state.direct=directLinks(q);state.providers={...(data.providers||{}),...state.providers};markSearch({initial:'complete',initialQuery:q,initialItems:(data.items||[]).length});
+    adoptSearchInterpretation(data,q);state.all=mergeItems(state.all,data.items||[]);state.direct=directLinks(state.resolvedQuery||q);state.providers={...(data.providers||{}),...state.providers};markSearch({initial:'complete',initialQuery:q,initialItems:(data.items||[]).length});
     hydrateFilters();applyFilters();renderProviderNotice(Boolean(q)&&searchDiagnostics.live==='loading');
   }catch(e){
     if(seq!==state.searchSeq)return;state.direct=directLinks(q);markSearch({initial:e?.name==='AbortError'?'timeout':'error',initialQuery:q});if(!state.all.length){hydrateFilters();renderEmpty(e?.name==='AbortError'?'検索の応答が時間内に返りませんでした':'検索サーバーに接続できませんでした','検索中表示は終了しました。追加の商品はバックグラウンドで取得中です。販売サイトへの直接検索リンクも利用できます。')}console.error(e);
@@ -49,7 +51,7 @@ async function refreshLive(q,seq){
   liveSearchController?.abort();const controller=new AbortController();liveSearchController=controller;
   try{
     const live=await json(`/api/live-search-v8?q=${encodeURIComponent(q)}`,{signal:controller.signal,timeoutMs:12000});if(seq!==state.searchSeq)return;
-    state.all=mergeItems(live.items||[],state.all);state.providers={...state.providers,...(live.providers||{})};markSearch({live:'complete',liveQuery:q,liveItems:(live.items||[]).length});hydrateFilters();applyFilters();renderProviderNotice(false);finishSearchUi(seq,state.all.length?'results':'settled');
+    adoptSearchInterpretation(live,q);state.all=mergeItems(live.items||[],state.all);state.providers={...state.providers,...(live.providers||{})};markSearch({live:'complete',liveQuery:q,liveItems:(live.items||[]).length});hydrateFilters();applyFilters();renderProviderNotice(false);finishSearchUi(seq,state.all.length?'results':'settled');
   }catch(e){if(seq===state.searchSeq){state.providers.liveError=e?.name==='AbortError'?'timeout':String(e.message||e);markSearch({live:e?.name==='AbortError'?'timeout':'error',liveQuery:q});renderProviderNotice(false)}}finally{if(liveSearchController===controller)liveSearchController=null}
 }
 function loadingCards(){return Array.from({length:8},()=>`<div class="product-card"><div class="visual skeleton"></div><div class="card-body"><div class="skeleton line"></div><div class="skeleton line short"></div><div class="skeleton price-sk"></div></div></div>`).join('')}
@@ -66,7 +68,7 @@ function applyFilters(){
   const sort=$('#sort').value;if(sort==='price')arr.sort((a,b)=>(total(a)??a.price??Infinity)-(total(b)??b.price??Infinity));else if(sort==='source')arr.sort((a,b)=>sourceOrder.indexOf(a.source)-sourceOrder.indexOf(b.source));else if(sort==='new')arr.sort((a,b)=>new Date(b.verifiedAt||0)-new Date(a.verifiedAt||0));else arr.sort((a,b)=>(b._score||0)-(a._score||0)||(a.price??Infinity)-(b.price??Infinity));state.shown=arr;render();
 }
 function render(){
-  $('#favCount').textContent=state.favorites.size;const arr=state.shown;$('#resultMeta').textContent=`${arr.length}件表示 / 取得候補 ${state.all.length}件`;renderStats(arr);if(!arr.length){$('#productGrid').innerHTML='';renderEmpty();return}else $('#emptyState').classList.add('hidden');$('#productGrid').innerHTML=arr.map(card).join('');bindCards();
+  $('#favCount').textContent=state.favorites.size;const arr=state.shown;const interpreted=state.resolvedQuery?` ・ 「${state.resolvedQuery}」として検索`:'';$('#resultMeta').textContent=`${arr.length}件表示 / 取得候補 ${state.all.length}件${interpreted}`;renderStats(arr);if(!arr.length){$('#productGrid').innerHTML='';renderEmpty();return}else $('#emptyState').classList.add('hidden');$('#productGrid').innerHTML=arr.map(card).join('');bindCards();
 }
 function renderStats(arr){const costs=arr.map(total).filter(Number.isFinite);const prices=arr.map(x=>x.price).filter(Number.isFinite);const sources=new Set(arr.map(x=>x.source));const withImage=arr.filter(x=>x.image&&x.imageVerified===true&&!state.broken.has(String(x.id))).length;const min=costs.length?Math.min(...costs):(prices.length?Math.min(...prices):null);$('#stats').innerHTML=`<div class="stat"><span>表示件数</span><b>${arr.length}件</b></div><div class="stat"><span>最安候補</span><b>${fmt(min)}</b></div><div class="stat"><span>商品取得元</span><b>${sources.size}サイト</b></div><div class="stat"><span>画像あり</span><b>${withImage}件</b></div>`}
 function card(i){

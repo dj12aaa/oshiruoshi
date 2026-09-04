@@ -96,10 +96,10 @@ jobs:
           ready=0
           for attempt in $(seq 1 36); do
             if curl --fail --silent --show-error --location "$base/?ready=$attempt-${GITHUB_SHA}" -o "$tmp/index.html" \
-              && grep -Fq 'oshiru-search-ui-version" content="2026-08-23.17' "$tmp/index.html" \
-              && grep -Fq '/app.js?v=20260823-17' "$tmp/index.html" \
-              && curl --fail --silent --show-error --location "$base/app.js?v=20260823-17-$attempt" -o "$tmp/app.js" \
-              && grep -Fq "SEARCH_UI_VERSION='2026-08-23.17'" "$tmp/app.js" \
+              && grep -Fq 'oshiru-search-ui-version" content="2026-09-05.18' "$tmp/index.html" \
+              && grep -Fq '/app.js?v=20260905-18' "$tmp/index.html" \
+              && curl --fail --silent --show-error --location "$base/app.js?v=20260905-18-$attempt" -o "$tmp/app.js" \
+              && grep -Fq "SEARCH_UI_VERSION='2026-09-05.18'" "$tmp/app.js" \
               && grep -Fq 'oshiru-home-version" content="2026-08-23.14' "$tmp/index.html" \
               && grep -Fq '/home-experience-v8.js?v=20260823-14' "$tmp/index.html" \
               && curl --fail --silent --show-error --location "$base/home-experience-v8.js?v=20260823-14-$attempt" -o "$tmp/home.js" \
@@ -116,6 +116,15 @@ jobs:
             sleep 5
           done
           test "$ready" = 1
+          curl --fail --silent --show-error --location "$base/robots.txt?v=$GITHUB_SHA" -o "$tmp/robots.txt"
+          grep -Fq 'Sitemap: https://oshiruoshi.vercel.app/sitemap.xml' "$tmp/robots.txt"
+          grep -Fq 'Disallow: /*?q=' "$tmp/robots.txt"
+          curl --fail --silent --show-error --location "$base/sitemap.xml?v=$GITHUB_SHA" -o "$tmp/sitemap.xml"
+          grep -Fq '<loc>https://oshiruoshi.vercel.app/character/gojo-satoru</loc>' "$tmp/sitemap.xml"
+          grep -Fq '<lastmod>2026-09-05</lastmod>' "$tmp/sitemap.xml"
+          curl --max-time 8 --fail --silent --show-error --location "$base/guide/oshi-goods?v=$GITHUB_SHA" -o "$tmp/seo.html"
+          grep -Fq 'oshiru-seo-version" content="2026-09-05.18' "$tmp/seo.html"
+          grep -Fq 'application/ld+json" data-oshiru-structured' "$tmp/seo.html"
           curl --fail --silent --show-error --location --retry 8 --retry-all-errors --retry-delay 4 "$base/latest-goods" -o "$tmp/latest.html"
           grep -Fq 'data-official-rail' "$tmp/latest.html"
           grep -Fq 'CollectionPage' "$tmp/latest.html"
@@ -130,5 +139,5 @@ jobs:
           curl --fail --silent --show-error --location --retry 8 --retry-all-errors --retry-delay 4 "$base/api/search?q=" -o "$tmp/idle.json"
           node -e "const d=require(process.argv[1]); if(!d.idle||!Array.isArray(d.items)||d.items.length!==0) process.exit(1)" "$tmp/idle.json"
           curl --fail --silent --show-error --location --retry 8 --retry-all-errors --retry-delay 4 "$base/api/live-search-v8?q=%E3%83%8A%E3%83%AB%E3%83%88" -o "$tmp/live.json"
-          node -e "const d=require(process.argv[1]); if(d.precisionVersion!=='2026-08-23.10'||!Array.isArray(d.items)||!String(d.effectiveQuery||'').includes('グッズ')) process.exit(1)" "$tmp/live.json"
+          node -e "const d=require(process.argv[1]); if(d.precisionVersion!=='2026-09-05.18'||!Array.isArray(d.items)||!String(d.effectiveQuery||'').includes('グッズ')) process.exit(1)" "$tmp/live.json"
           echo 'Production v9 HTTP smoke passed.'

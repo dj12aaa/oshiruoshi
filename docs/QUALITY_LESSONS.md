@@ -1,6 +1,6 @@
 # OSHIRU 品質記録・再発防止台帳
 
-最終更新: 2026-08-23
+最終更新: 2026-09-05
 
 ## 運用ルール
 
@@ -153,6 +153,22 @@
 - 自動検査: `tests/layout-v9.test.mjs`が検索開始時の3状態初期化、`initialQuery`・`liveQuery`記録、UI版markerを固定する。本番Playwrightは「なると」について`diagnostics.query`と`diagnostics.liveQuery`の両方が一致し、`live==='complete'`になってから商品数・ノイズ除外を判定する。
 - 本番証拠: 正規ドメインでUI版`2026-08-23.17`を確認し、390pxと1440pxの各ブラウザで初回検索後の「なると」再検索が16秒以内にlive完了、skeleton 0件、商品6件以上になること。workflow成功前は解決済みとしない。
 
+### QL-018 robotsの修正元と本番配信元が異なり、SEOページ群が発見されにくい
+
+- 症状: ブラウザ検索の`site:oshiruoshi.vercel.app`相当では、サイトマップに21 URLある一方、確認できた検索結果はトップと概要の2 URLだけだった。一般検索語ではOSHIRUが上位に出ず、固定の比較・キャラクターページもほぼ露出していなかった。
+- 根本原因: `/robots.txt`を`/api/robots`へrewriteしていたが、リポジトリ直下にも静的`robots.txt`があり、Vercelでは静的fileが先に配信された。そのためAPI側に実装済みの`Sitemap:`行、検索queryのcrawl抑止、Preview全拒否が本番へ一度も出ていなかった。確認工程も`api/robots.js`のsourceだけを見て、本番`/robots.txt`の本文を受入条件にしていなかった。加えてsitemapの`lastmod`が8月21日で固定され、SEO landing pageはHTML生成前に外部販売APIを最大2.6秒待ち、構造化dataもclient JavaScript挿入だけだった。
+- 恒久対策: 静的`robots.txt`を削除し、環境判定付き`api/robots.js`を唯一の配信元にする。Productionはcanonical sitemapを通知し、検索queryとAPIをcrawl対象外、Previewは全拒否にする。sitemapは公開URLごとの実更新日を持つ。SEO landing pageは確認済みlocal dataだけで即時生成し、外部販売APIを待たない。WebSite・WebPage・BreadcrumbListを初期HTMLへ直接埋め込み、各テーマ固有の比較確認ポイントを追加する。
+- 自動検査: `tests/seo-indexability.test.mjs`が静的shadow file不在、Production/Preview robots、canonical sitemap URLと重複、全landing page対応、固有title/description/h1、server-rendered JSON-LD、外部API待機不在を検査する。`dense-latest-check.yml`と本番browser workflowは正規URLのrobots本文、sitemap URL、SEO版marker、JSON-LDを実取得する。
+- 本番証拠: 正規URLで`Sitemap: https://oshiruoshi.vercel.app/sitemap.xml`、21 URL、SEO版`2026-09-05.18`、server-rendered JSON-LDを確認する必要がある。検索エンジン上の件数・順位は再crawl後に確認し、デプロイ直後の増加を保証または確認済みと表現しない。
+
+### QL-019 誤字補正後に補正前の語で再filterし、正解を0件または別作品にする
+
+- 症状: 本番で「五条悟 アクスラ」「フリーレソ グッズ」「星町すいせい アクスタ」は0件、「初音ミク ぬいぐる」は不正な`初音ミク ぐる ぬいぐるみ`へ展開された。「Felix キーホルダー」はFELIX THE CATや別作品を16件返し、「初音ミク ぬい」は同一販売元の同一商品名が上位に重複した。
+- 根本原因: 誤字・前方一致補正は内側の`live-search.js`だけで行い、外側の精度handlerは補正前queryからprovider queryと最終`relevant()`を作っていたため、内側で見つけた正解を外側が除外した。known entityはFelixの特定商品例だけに限定され、一般的なグッズ種別では作品文脈を付けなかった。known entityを認識した場合は、`サンリオ`や`6c`等の残余条件を最終filterで確認していなかった。重複排除もURLだけで、同じmarketplaceの同一商品名を残した。
+- 恒久対策: 誤字・入力途中・表記揺れの解決を`resolveSearchQuery()`へ一元化し、候補取得前に1回だけ確定した解釈をprovider query、snapshot、関連判定、順位付け、直接検索へ渡す。主要な作品・人物の別名と必須作品文脈をentity registryへ追加し、known entity以外に残ったコラボ・型番語も全件必須にする。同一marketplace＋正規化商品名は1件へ整理し、異なるmarketplace間の比較候補は保持する。UIは解釈後の検索語を明示する。
+- 自動検査: `tests/search-precision-v9.test.mjs`がFelix一般グッズ、五条悟＋サンリオの残余条件、誤字、未完入力、人物名表記揺れ、同一marketplace重複を正例・負例で検査する。Production検索品質workflowも同じ複合queryを実APIへ送り、全商品文脈・0件でない基準・重複signature・精度版`2026-09-05.18`を確認する。
+- 本番証拠: 正規APIと390px/1440pxの画面で上記queryの`effectiveQuery`、件数、全商品文脈、同一marketplace重複0、補正表示を確認する。PR・CI・Preview成功だけでは解決済みとしない。
+
 ## リリース前チェックリスト
 
 - [ ] 今回のユーザー指摘を本台帳へ追記した
@@ -181,3 +197,5 @@
 - 2026-08-23: V14 PRのquality検査で、別Node heredocの変数を参照するscope漏れを確認。各検査ブロックを自己完結させ、QL-015として再発防止条件へ追加。
 - 2026-08-23: V14本番browserで検索結果30件・モバイル3列・overflowなしを確認後、旧affiliate装飾がコンパクト比較ボタンへ長文を再挿入する競合を検出。compact modeの表示所有を記号だけに固定し、V16候補へ追加。
 - 2026-08-23: V16本番browserで初回30件の描画・比較ボタン修正を確認後、「なると」再検索が前回商品30件を保持したまま`live: loading`で誤判定される競合を検出。検索開始時の状態初期化・完了検索語診断・current-query完了待ちをV17候補へ追加。本番browser検査成功前のため、この時点では解決済みとしない。
+- 2026-09-05: 外部検索では21 URL中2 URLだけが確認でき、本番`robots.txt`に`Sitemap:`がないことを実測。静的fileが環境判定付きAPIをshadowしていたこと、SEO HTMLが外部販売APIを待っていたことをQL-018として記録し、Production本体の本文検査へ変更。
+- 2026-09-05: 本番実queryでFelixの別作品16件、誤字・未完入力の0件、同一商品名重複を再現。補正処理と最終filterのqueryが異なる二重解釈、known entity時の残余条件無視をQL-019として記録し、query解決の一元化と複合条件検査をV18候補へ追加。
