@@ -1,9 +1,10 @@
 {
-  "checkedAt": "2026-09-04T22:19:36.110Z",
-  "ok": false,
+  "checkedAt": "2026-09-04T22:32:38.952Z",
+  "ok": true,
   "expansionOk": true,
   "baselineOk": true,
-  "relevanceOk": false,
+  "relevanceOk": true,
+  "rankOrderOk": true,
   "uniqueTitlesOk": true,
   "predictiveOk": true,
   "duplicateFree": true,
@@ -20,6 +21,7 @@
       ],
       "expansionOk": true,
       "relevanceOk": true,
+      "rankOrderOk": true,
       "uniqueTitlesOk": true,
       "topTitles": [
         "ホロライブ 星街すいせい カプとれ アクリルスタンド 衣装(2)【未使用】",
@@ -46,6 +48,7 @@
       ],
       "expansionOk": true,
       "relevanceOk": true,
+      "rankOrderOk": true,
       "uniqueTitlesOk": true,
       "topTitles": [
         "【五条悟】 缶バッジ 呪術廻戦 ふかふかスクイーズパン編",
@@ -72,6 +75,7 @@
       ],
       "expansionOk": true,
       "relevanceOk": true,
+      "rankOrderOk": true,
       "uniqueTitlesOk": true,
       "topTitles": [
         "初音ミク ぬいコロン ぬいぐるみ",
@@ -98,6 +102,7 @@
       ],
       "expansionOk": true,
       "relevanceOk": true,
+      "rankOrderOk": true,
       "uniqueTitlesOk": true,
       "topTitles": [
         "中古キーホルダー ローレン・イロアス 「バーチャルYouTuber にじさんじ Flower festival×animatecafe",
@@ -124,6 +129,7 @@
       ],
       "expansionOk": true,
       "relevanceOk": true,
+      "rankOrderOk": true,
       "uniqueTitlesOk": true,
       "topTitles": [],
       "topScores": [],
@@ -140,6 +146,7 @@
       ],
       "expansionOk": true,
       "relevanceOk": true,
+      "rankOrderOk": true,
       "uniqueTitlesOk": true,
       "topTitles": [],
       "topScores": [],
@@ -156,6 +163,7 @@
       ],
       "expansionOk": true,
       "relevanceOk": true,
+      "rankOrderOk": true,
       "uniqueTitlesOk": true,
       "topTitles": [],
       "topScores": [],
@@ -172,6 +180,7 @@
       ],
       "expansionOk": true,
       "relevanceOk": true,
+      "rankOrderOk": true,
       "uniqueTitlesOk": true,
       "topTitles": [],
       "topScores": [],
@@ -188,6 +197,7 @@
       ],
       "expansionOk": true,
       "relevanceOk": true,
+      "rankOrderOk": true,
       "uniqueTitlesOk": true,
       "topTitles": [
         "中古キーホルダー フィリックス(Stray Kids) オリジナルアクリルキーホルダー 「CD THE SOUND」 楽天ブッ",
@@ -213,7 +223,8 @@
         "呪術廻戦 五条悟 アクリルスタンド"
       ],
       "expansionOk": true,
-      "relevanceOk": false,
+      "relevanceOk": true,
+      "rankOrderOk": true,
       "uniqueTitlesOk": true,
       "topTitles": [
         "五条悟 アクリルスタンド 花火Ver. 「呪術廻戦 懐玉・玉折 マルイ POP UP SHOP」",
@@ -240,6 +251,7 @@
       ],
       "expansionOk": true,
       "relevanceOk": true,
+      "rankOrderOk": true,
       "uniqueTitlesOk": true,
       "topTitles": [
         "ホロライブ 星街すいせい カプとれ アクリルスタンド 衣装(2)【未使用】",
@@ -266,6 +278,7 @@
       ],
       "expansionOk": true,
       "relevanceOk": true,
+      "rankOrderOk": true,
       "uniqueTitlesOk": true,
       "topTitles": [
         "中古シール・ステッカー 五条悟＆シナモロール ステッカー 「呪術廻戦 懐玉・玉折×サンリオキャラクターズPOPUP STOR",
@@ -292,6 +305,7 @@
       ],
       "expansionOk": true,
       "relevanceOk": true,
+      "rankOrderOk": true,
       "uniqueTitlesOk": true,
       "topTitles": [],
       "topScores": [],
