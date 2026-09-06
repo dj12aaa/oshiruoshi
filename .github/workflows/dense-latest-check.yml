@@ -74,7 +74,7 @@ jobs:
           if(!latest.includes('localStorage'))throw new Error('local personalization missing');
           for(const token of ['createImageBitmap','MAX_DIMENSION=1600','/api/vision-search','removeLegacySourcePanel'])if(!home.includes(token))throw new Error(`image/search optimization missing: ${token}`);
           for(const token of ['画像検索','最新グッズ','/latest-goods'])if(!nav.includes(token))throw new Error(`taskbar item missing: ${token}`);
-          for(const token of ['/gallery-v8.css?v=20260822-9','/home-experience-v8.js?v=20260823-14','/affiliate-widget.js?v=20260823-16','/navigation-extra-v7.js?v=20260822-9'])if(!html.includes(token))throw new Error(`critical asset missing: ${token}`);
+          for(const token of ['/gallery-v8.css?v=20260906-19','/home-experience-v8.js?v=20260823-14','/affiliate-widget.js?v=20260823-16','/navigation-extra-v7.js?v=20260822-9'])if(!html.includes(token))throw new Error(`critical asset missing: ${token}`);
           if(!home.includes("HOME_EXPERIENCE_VERSION='2026-08-23.14'")||home.includes('observe(grid,{childList:true,subtree:true,characterData:true})'))throw new Error('self-triggering gallery observer remains');
           for(const token of ["AFFILIATE_UI_VERSION='2026-08-23.16'","const compact=btn.classList.contains('gallery-compare')","if(btn.textContent!==glyph)btn.textContent=glyph"])if(!affiliate.includes(token))throw new Error(`compact compare invariant missing: ${token}`);
           if(/loadScript|data-gallery-v8|home-experience-v8/.test(seo))throw new Error('dynamic critical-asset bootstrap remains');
@@ -98,10 +98,10 @@ jobs:
           ready=0
           for attempt in $(seq 1 36); do
             if curl --fail --silent --show-error --location "$base/?ready=$attempt-${GITHUB_SHA}" -o "$tmp/index.html" \
-              && grep -Fq 'oshiru-search-ui-version" content="2026-09-05.18' "$tmp/index.html" \
-              && grep -Fq '/app.js?v=20260905-18' "$tmp/index.html" \
-              && curl --fail --silent --show-error --location "$base/app.js?v=20260905-18-$attempt" -o "$tmp/app.js" \
-              && grep -Fq "SEARCH_UI_VERSION='2026-09-05.18'" "$tmp/app.js" \
+              && grep -Fq 'oshiru-search-ui-version" content="2026-09-06.19' "$tmp/index.html" \
+              && grep -Fq '/app.js?v=20260906-19' "$tmp/index.html" \
+              && curl --fail --silent --show-error --location "$base/app.js?v=20260906-19-$attempt" -o "$tmp/app.js" \
+              && grep -Fq "SEARCH_UI_VERSION='2026-09-06.19'" "$tmp/app.js" \
               && grep -Fq 'oshiru-home-version" content="2026-08-23.14' "$tmp/index.html" \
               && grep -Fq '/home-experience-v8.js?v=20260823-14' "$tmp/index.html" \
               && curl --fail --silent --show-error --location "$base/home-experience-v8.js?v=20260823-14-$attempt" -o "$tmp/home.js" \
@@ -133,5 +133,5 @@ jobs:
           curl --fail --silent --show-error --location --retry 8 --retry-all-errors --retry-delay 4 "$base/api/search?q=" -o "$tmp/idle.json"
           node -e "const d=require(process.argv[1]); if(!d.idle||!Array.isArray(d.items)||d.items.length!==0) process.exit(1)" "$tmp/idle.json"
           curl --fail --silent --show-error --location --retry 8 --retry-all-errors --retry-delay 4 "$base/api/live-search-v8?q=%E3%83%8A%E3%83%AB%E3%83%88" -o "$tmp/live.json"
-          node -e "const d=require(process.argv[1]); if(d.precisionVersion!=='2026-09-05.18'||!Array.isArray(d.items)||!String(d.effectiveQuery||'').includes('グッズ')) process.exit(1)" "$tmp/live.json"
+          node -e "const d=require(process.argv[1]); if(d.precisionVersion!=='2026-09-06.19'||!Array.isArray(d.items)||!String(d.effectiveQuery||'').includes('グッズ')) process.exit(1)" "$tmp/live.json"
           echo 'Production v9 HTTP smoke passed.'

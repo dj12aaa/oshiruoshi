@@ -34,10 +34,10 @@ jobs:
           ready=0
           for attempt in $(seq 1 45); do
             if curl --fail --silent --show-error --location "$base/?ready=$attempt-${GITHUB_SHA}" -o "$tmp/index.html" \
-              && grep -Fq 'oshiru-search-ui-version" content="2026-09-05.18' "$tmp/index.html" \
-              && grep -Fq '/app.js?v=20260905-18' "$tmp/index.html" \
-              && curl --fail --silent --show-error --location "$base/app.js?v=20260905-18-$attempt" -o "$tmp/app.js" \
-              && grep -Fq "SEARCH_UI_VERSION='2026-09-05.18'" "$tmp/app.js" \
+              && grep -Fq 'oshiru-search-ui-version" content="2026-09-06.19' "$tmp/index.html" \
+              && grep -Fq '/app.js?v=20260906-19' "$tmp/index.html" \
+              && curl --fail --silent --show-error --location "$base/app.js?v=20260906-19-$attempt" -o "$tmp/app.js" \
+              && grep -Fq "SEARCH_UI_VERSION='2026-09-06.19'" "$tmp/app.js" \
               && grep -Fq 'oshiru-home-version" content="2026-08-23.14' "$tmp/index.html" \
               && grep -Fq '/home-experience-v8.js?v=20260823-14' "$tmp/index.html" \
               && curl --fail --silent --show-error --location "$base/gallery-v8.css?v=$(date +%s)" -o "$tmp/gallery.css" \
@@ -57,7 +57,7 @@ jobs:
 
           curl --fail --silent --show-error --location "$base/?v=$(date +%s)" -o "$tmp/index.html"
           grep -Fq 'OSHIRU' "$tmp/index.html"
-          grep -Fq '/gallery-v8.css?v=20260822-9' "$tmp/index.html"
+          grep -Fq '/gallery-v8.css?v=20260906-19' "$tmp/index.html"
           grep -Fq '/home-experience-v8.js?v=20260823-14' "$tmp/index.html"
           grep -Fq '/affiliate-widget.js?v=20260823-16' "$tmp/index.html"
           grep -Fq '/navigation-extra-v7.js?v=20260822-9' "$tmp/index.html"
@@ -83,12 +83,12 @@ jobs:
           node -e "const d=require(process.argv[1]);if(!d.idle||!Array.isArray(d.items)||d.items.length!==0)throw new Error('idle search regression')" "$tmp/idle.json"
 
           curl --max-time 12 --fail --silent --show-error --location "$base/api/search?initial=1&q=%E4%BA%94%E6%9D%A1%E6%82%9F%20%E3%82%B5%E3%83%B3%E3%83%AA%E3%82%AA" -o "$tmp/initial.json"
-          node -e "const d=require(process.argv[1]);if(!d.initial||d.precisionVersion!=='2026-09-05.18'||!Array.isArray(d.items))throw new Error('initial snapshot regression')" "$tmp/initial.json"
+          node -e "const d=require(process.argv[1]);if(!d.initial||d.precisionVersion!=='2026-09-06.19'||!Array.isArray(d.items))throw new Error('initial snapshot regression')" "$tmp/initial.json"
 
           curl --max-time 15 --fail --silent --show-error --location "$base/api/live-search-v8?q=%E3%83%8A%E3%83%AB%E3%83%88" -o "$tmp/naruto.json"
           node - "$tmp/naruto.json" <<'NODE'
           const fs=require('fs');const d=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
-          if(d.precisionVersion!=='2026-09-05.18')throw new Error('precision version is not v18');
+          if(d.precisionVersion!=='2026-09-06.19')throw new Error('precision version is not v18');
           if(!String(d.effectiveQuery||'').includes('NARUTO')||!String(d.effectiveQuery||'').includes('グッズ'))throw new Error(`NARUTO effective query invalid: ${d.effectiveQuery}`);
           const bad=/(ヘアピン|ヘアクリップ|髪留め|コミック|単行本|電子書籍)/i;
           const offending=(d.items||[]).filter(x=>bad.test(String(x.title||'')));
@@ -114,13 +114,14 @@ jobs:
 
           async function inspect(browser,name,viewport,expectedColumns){
             const context=await browser.newContext({viewport,locale:'ja-JP',isMobile:viewport.width<600,hasTouch:viewport.width<600});
+            await context.addInitScript(()=>{localStorage.setItem('oshiru-v5-favs','{broken');localStorage.setItem('oshiru-v5-watch','null')});
             const page=await context.newPage();
-            const network=[];
-            page.on('pageerror',error=>console.error(`${name}-pageerror`,error));
-            page.on('console',message=>{if(['error','warning'].includes(message.type()))console.log(`${name}-console-${message.type()}`,message.text())});
+            const network=[],pageErrors=[];
+            page.on('pageerror',error=>{pageErrors.push(String(error));console.error(`${name}-pageerror`,error)});
+            page.on('console',message=>{if(['error','warning'].includes(message.type()))console.log(`${name}-console-${message.type()}`,message.text(),message.location())});
             page.on('response',response=>{if(/\/api\/(?:search|live-search-v8)/.test(response.url()))network.push({kind:'response',status:response.status(),url:response.url()})});
             page.on('requestfailed',request=>{if(/\/api\/(?:search|live-search-v8)/.test(request.url()))network.push({kind:'failed',error:request.failure()?.errorText||'',url:request.url()})});
-            await page.goto(`${base}/?q=${encodeURIComponent('五条悟 アクスタ')}&verify=${Date.now()}`,{waitUntil:'domcontentloaded',timeout:45000});
+            await page.goto(`${base}/?q=${encodeURIComponent('五条悟 アクスラ')}&verify=${Date.now()}`,{waitUntil:'domcontentloaded',timeout:45000});
             await page.waitForFunction(()=>document.querySelectorAll('#productGrid .product-card[data-card-id]').length>=2,null,{timeout:15000}).catch(()=>{});
             const startup=await page.evaluate(()=>{
               const grid=document.getElementById('productGrid'),empty=document.getElementById('emptyState'),results=document.getElementById('results'),button=document.getElementById('searchBtn');
@@ -153,6 +154,12 @@ jobs:
                 affiliateVersion:document.querySelector('meta[name="oshiru-affiliate-ui-version"]')?.content||'',
                 diagnostics:window.__OSHIRU_SEARCH_DIAGNOSTICS__||null,
                 cards:cards.length,
+                titleFont:parseFloat(getComputedStyle(card.querySelector('.product-title')).fontSize),
+                summaryVisible:visible(document.getElementById('resultMeta')),
+                sortVisible:visible(document.getElementById('sort')),
+                summary:document.getElementById('resultMeta')?.textContent,
+                detailVisible:visible(card.querySelector('.card-detail')),
+                structuredDataValid:[...document.querySelectorAll('script[data-oshiru-structured]')].some(node=>JSON.parse(node.textContent)['@graph']?.length>=2),
                 columns:gridStyle?.gridTemplateColumns?.split(/\s+/).filter(Boolean).length||0,
                 sourceVisible:visible(source),priceVisible:visible(price),heartVisible:visible(heart),compareVisible:visible(compare),
                 controlsInsideVisual:[source,price,heart,compare].every(control=>inside(control,visual)),
@@ -168,8 +175,10 @@ jobs:
             });
             console.log(name,JSON.stringify(metrics));
             await page.screenshot({path:`verification/screenshots/${name}-search.png`,fullPage:false});
-            if(metrics.uiVersion!=='2026-09-05.18'||metrics.homeVersion!=='2026-08-23.14'||metrics.affiliateVersion!=='2026-08-23.16'||metrics.diagnostics?.version!=='2026-09-05.18')throw new Error(`${name}: stale search UI loaded: ${JSON.stringify({uiVersion:metrics.uiVersion,homeVersion:metrics.homeVersion,affiliateVersion:metrics.affiliateVersion,diagnostics:metrics.diagnostics})}`);
+            if(metrics.uiVersion!=='2026-09-06.19'||metrics.homeVersion!=='2026-08-23.14'||metrics.affiliateVersion!=='2026-08-23.16'||metrics.diagnostics?.version!=='2026-09-06.19')throw new Error(`${name}: stale search UI loaded: ${JSON.stringify({uiVersion:metrics.uiVersion,homeVersion:metrics.homeVersion,affiliateVersion:metrics.affiliateVersion,diagnostics:metrics.diagnostics})}`);
             if(metrics.columns!==expectedColumns)throw new Error(`${name}: expected ${expectedColumns} columns, got ${metrics.columns}`);
+            if(metrics.titleFont<12||!metrics.summaryVisible||!metrics.sortVisible||!metrics.detailVisible)throw new Error(`${name}: readability or search feedback missing`);
+            if(!metrics.summary.includes('として検索')||!metrics.structuredDataValid)throw new Error(`${name}: correction or structured data missing`);
             if(metrics.cards<2||!metrics.sourceVisible||!metrics.priceVisible||!metrics.heartVisible||!metrics.compareVisible)throw new Error(`${name}: card controls/source/price missing`);
             if(!metrics.controlsInsideVisual)throw new Error(`${name}: card overlays escaped the image area`);
             if(!['♡','♥'].includes(metrics.heartText))throw new Error(`${name}: heart text broken: ${metrics.heartText}`);
@@ -180,7 +189,8 @@ jobs:
             if(viewport.width<600&&Number(metrics.searchToGridGap)>140)throw new Error(`${name}: merchandise grid is too far below search (${metrics.searchToGridGap}px)`);
 
             const searchStarted=Date.now();
-            await page.evaluate(()=>{const q=document.getElementById('q'),button=document.getElementById('searchBtn');q.value='なると';button.click()});
+            await page.locator('#q').fill('なると');
+            await page.locator('#searchBtn').click();
             await page.waitForFunction(expectedQuery=>{
               const button=document.getElementById('searchBtn');
               const diagnostics=window.__OSHIRU_SEARCH_DIAGNOSTICS__;
@@ -200,6 +210,19 @@ jobs:
             if(searchSettlement.cards<6||searchSettlement.diagnostics?.query!=='なると'||searchSettlement.diagnostics?.liveQuery!=='なると'||searchSettlement.diagnostics?.live!=='complete')throw new Error(`${name}: search did not return live merchandise: ${JSON.stringify(searchSettlement)}`);
             if(searchSettlement.titles.some(title=>/(ヘアピン|ヘアクリップ|髪留め|コミック|単行本|電子書籍)/i.test(title)))throw new Error(`${name}: NARUTO search returned retail noise: ${JSON.stringify(searchSettlement.titles)}`);
             console.log(`${name}-search-settlement`,JSON.stringify(searchSettlement));
+
+            const responsive=[];
+            for(const [width,columns] of (viewport.width<600?[[320,2]]:[[768,5],[1920,8]])){
+              await page.setViewportSize({width,height:900});
+              const layout=await page.evaluate(()=>{
+                const grid=document.getElementById('productGrid'),rect=grid.getBoundingClientRect();
+                const meta=document.getElementById('resultMeta');
+                return{width:innerWidth,columns:getComputedStyle(grid).gridTemplateColumns.split(/\s+/).length,overflow:document.documentElement.scrollWidth>innerWidth+2||rect.right>innerWidth+1,summaryVisible:meta.getBoundingClientRect().height>0};
+              });
+              if(layout.columns!==columns||layout.overflow||!layout.summaryVisible)throw new Error(`${name}: responsive regression ${JSON.stringify(layout)}`);
+              responsive.push(layout);
+            }
+            await page.setViewportSize(viewport);
 
             await page.locator('#imageSearchBtn').click({force:true});
             await page.waitForSelector('.modal.image-search-open',{state:'visible',timeout:10000});
@@ -229,7 +252,8 @@ jobs:
             await page.screenshot({path:`verification/screenshots/${name}-latest.png`,fullPage:false});
             if(latest.previewCards<3||latest.sourceCards<10||latest.sourceLabels<3||!latest.railToggleVisible||!latest.autoMoved||latest.overflow)throw new Error(`${name}: latest-goods layout/source/rotation regression`);
             await context.close();
-            return{...metrics,searchSettlement,imageSearch:modal,latest};
+            if(pageErrors.length)throw new Error(`${name}: browser runtime errors ${JSON.stringify(pageErrors)}`);
+            return{...metrics,searchSettlement,responsive,imageSearch:modal,latest};
           }
 
           (async()=>{

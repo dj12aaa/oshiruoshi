@@ -10,7 +10,7 @@ import {
   resolveSearchQuery
 } from './_search-language.mjs';
 
-const SEARCH_ALIAS_VERSION='2026-09-05.18';
+const SEARCH_ALIAS_VERSION='2026-09-06.19';
 const cache=new Map();
 const MAX_RESULTS=120;
 const MAX_VARIANTS=5;

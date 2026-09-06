@@ -2,7 +2,30 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import precisionHandler,{dedupeItems,effectiveQuery,relevant} from '../api/_live-search-v8.js';
 import searchHandler from '../api/search.js';
-import {buildSearchVariants,detectIntent,resolveSearchQuery} from '../api/_search-language.mjs';
+import {buildSearchVariants,detectIntent,resolveSearchQuery,rankSearchItems} from '../api/_search-language.mjs';
+
+test('every explicit collaboration, location and edition remains required',()=>{
+  const query='五条悟 サンリオ 渋谷 2026 アクスタ';
+  const full={title:'呪術廻戦 五条悟 サンリオ 渋谷 2026 アクリルスタンド'};
+  assert.equal(relevant(full,query),true);
+  for(const term of ['サンリオ','渋谷','2026'])assert.equal(relevant({title:full.title.replace(term,'')},query),false,term);
+  assert.equal(relevant({title:'プロセカ 東雲絵名 6c 缶バッジ'},'東雲絵名 6c'),true);
+  for(const code of ['16c','6cm','6'])assert.equal(relevant({title:`プロセカ 東雲絵名 ${code} 缶バッジ`},'東雲絵名 6c'),false,code);
+});
+
+test('specific merchandise is not replaced by a broad parent category',()=>{
+  assert.equal(relevant({title:'Stray Kids Felix キーホルダー'},'Felix ボイスキーホルダー'),false);
+  assert.equal(relevant({title:'初音ミク メタルキーホルダー'},'初音ミク アクキー'),false);
+  assert.equal(relevant({title:'初音ミク アクリルキーホルダー'},'初音ミク アクキー'),true);
+});
+
+test('title evidence outranks description-only name matches',()=>{
+  const items=[
+    {id:'description',url:'https://example.com/description',title:'アクリルスタンド各種',description:'呪術廻戦 五条悟',price:500},
+    {id:'title',url:'https://example.com/title',title:'呪術廻戦 五条悟 アクリルスタンド',price:1200}
+  ];
+  assert.equal(rankSearchItems(items,'五条悟 アクスタ')[0].id,'title');
+});
 
 function invoke(handler,url){
   return new Promise((resolve,reject)=>{
@@ -88,7 +111,7 @@ test('initial search returns verified precise results without waiting for live p
   const result=await invoke(precisionHandler,'/api/search?initial=1&q='+encodeURIComponent('五条悟 サンリオ'));
   assert.equal(result.status,200);
   assert.equal(result.data.initial,true);
-  assert.equal(result.data.precisionVersion,'2026-09-05.18');
+  assert.equal(result.data.precisionVersion,'2026-09-06.19');
   assert.ok(result.data.items.length>=4);
   assert.ok(result.data.items.every(item=>/五条悟/.test(`${item.title} ${item.character||''}`)));
   assert.ok(Date.now()-started<1000,`initial snapshot took ${Date.now()-started}ms`);
@@ -97,7 +120,7 @@ test('initial search returns verified precise results without waiting for live p
 test('precision endpoint keeps verified marketplace fallback when live APIs return zero',async()=>{
   const result=await invoke(precisionHandler,'/api/live-search-v8?q='+encodeURIComponent('五条悟 サンリオ'));
   assert.equal(result.status,200);
-  assert.equal(result.data.precisionVersion,'2026-09-05.18');
+  assert.equal(result.data.precisionVersion,'2026-09-06.19');
   assert.ok(result.data.items.length>=4);
   assert.ok(result.data.items.every(item=>/五条悟/.test(`${item.title} ${item.character||''}`)));
   assert.ok(new Set(result.data.items.map(item=>item.source)).size>=2);
@@ -107,7 +130,7 @@ test('precision endpoint keeps verified marketplace fallback when live APIs retu
 test('primary search endpoint uses the same precision path from the first response',async()=>{
   const result=await invoke(searchHandler,'/api/search?q='+encodeURIComponent('東雲絵名 6c'));
   assert.equal(result.status,200);
-  assert.equal(result.data.precisionVersion,'2026-09-05.18');
+  assert.equal(result.data.precisionVersion,'2026-09-06.19');
   assert.ok(result.data.items.some(item=>item.url==='https://jp.mercari.com/item/m42733344317'&&item.price===2666));
   assert.ok(result.data.items.every(item=>/東雲絵名|6c/i.test(`${item.title} ${item.character||''} ${(item.tags||[]).join(' ')}`)));
 });

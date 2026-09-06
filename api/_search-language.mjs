@@ -334,6 +334,10 @@ export function itemSearchScore(item,query=''){
     }
   }
   for(const group of intent.entityGroups)if(groupHit(group,text))score+=95;
+  // Product-title evidence outranks names present only in a shop description.
+  const title=normalizeFlexible(item?.title||'');
+  if(intent.entityGroups.length&&intent.entityGroups.every(group=>groupHit(group,title)))score+=140;
+  if(intent.merchGroups.length&&intent.merchGroups.some(group=>groupHit(group,title)))score+=80;
   if(intent.merchGroups.length){let matched=0;for(const group of intent.merchGroups){if(groupHit(group,text)){score+=125;matched++}}if(!matched)score-=55}
   if(NOISE_WORDS.some(word=>text.includes(normalizeFlexible(word))))score-=90;
   if(item?.status==='販売中'||item?.status==='販売中候補')score+=8;

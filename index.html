@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="oshiru-search-ui-version" content="2026-09-05.18">
+  <meta name="oshiru-search-ui-version" content="2026-09-06.19">
   <meta name="oshiru-home-version" content="2026-08-23.14">
   <meta name="oshiru-affiliate-ui-version" content="2026-08-23.16">
   <meta name="theme-color" content="#ffffff">
   <title>OSHIRU | 推し活グッズを横断検索・価格比較</title>
   <meta name="description" content="OSHIRUは推し活グッズを複数の販売サイトから横断検索し、商品価格・送料・販売状況を比較できる検索サービスです。">
   <meta name="robots" content="index,follow,max-image-preview:large">
-  <meta name="last-modified" content="2026-09-05">
+  <meta name="last-modified" content="2026-09-06">
   <link rel="canonical" href="https://oshiruoshi.vercel.app/">
   <link rel="sitemap" type="application/xml" href="/sitemap.xml">
   <meta property="og:type" content="website">
@@ -20,7 +20,7 @@
   <meta property="og:description" content="推し活グッズを複数の販売サイトから横断検索し、商品価格・送料・販売状況を比較できる検索サービスです。">
   <meta property="og:url" content="https://oshiruoshi.vercel.app/">
   <meta name="twitter:card" content="summary">
-  <script type="application/ld+json" data-oshiru-structured>{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://oshiruoshi.vercel.app/#website","url":"https://oshiruoshi.vercel.app/","name":"OSHIRU","alternateName":"OSHIRU 推し活グッズ検索","description":"推し活グッズを複数の販売サイトから横断検索し、価格・送料・販売状況を比較できる検索サービスです。","inLanguage":"ja-JP"},{"@type":"WebPage","@id":"https://oshiruoshi.vercel.app/#webpage","url":"https://oshiruoshi.vercel.app/","name":"OSHIRU | 推し活グッズを横断検索・価格比較","description":"OSHIRUは推し活グッズを複数の販売サイトから横断検索し、商品価格・送料・販売状況を比較できる検索サービスです。","inLanguage":"ja-JP","dateModified":"2026-09-05","isPartOf":{"@id":"https://oshiruoshi.vercel.app/#website"}}]}</script>
+  <script type="application/ld+json" data-oshiru-structured>{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://oshiruoshi.vercel.app/#website","url":"https://oshiruoshi.vercel.app/","name":"OSHIRU","alternateName":"OSHIRU 推し活グッズ検索","description":"推し活グッズを複数の販売サイトから横断検索し、価格・送料・販売状況を比較できる検索サービスです。","inLanguage":"ja-JP"},{"@type":"WebPage","@id":"https://oshiruoshi.vercel.app/#webpage","url":"https://oshiruoshi.vercel.app/","name":"OSHIRU | 推し活グッズを横断検索・価格比較","description":"OSHIRUは推し活グッズを複数の販売サイトから横断検索し、商品価格・送料・販売状況を比較できる検索サービスです。","inLanguage":"ja-JP","dateModified":"2026-09-06","isPartOf":{"@id":"https://oshiruoshi.vercel.app/#website"}}]}</script>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/styles.css?v=20260819-pcfix1">
   <link rel="stylesheet" href="/ui-v2.css?v=20260819-pcfix1">
@@ -30,7 +30,7 @@
   <link rel="stylesheet" href="/affiliate-widget.css?v=20260819-pcfix1">
   <link rel="stylesheet" href="/predictive-mobile.css?v=20260819-searchmode1">
   <!-- Critical gallery geometry is loaded directly and last so legacy card CSS can never win. -->
-  <link rel="stylesheet" href="/gallery-v8.css?v=20260822-9">
+  <link rel="stylesheet" href="/gallery-v8.css?v=20260906-19">
   <link rel="manifest" href="/manifest.webmanifest">
   <script src="/seo-structured-data.js?v=20260905-seo4" defer></script>
 </head>
@@ -59,17 +59,18 @@
   <section class="search-hero">
     <div class="hero-copy">
       <span class="kicker">推し活グッズを、サイトをまたいで比較</span>
-      <h1>欲しいグッズを<br><em>一度の検索</em>で見つける。</h1>
+      <h1>推しのグッズを、<br><em>探して、比べる。</em></h1>
       <p>価格・送料・販売状況を同じ画面で比較。気になる商品は、販売元の商品・出品ページへ直接移動できます。</p>
     </div>
     <div class="search-panel">
       <div class="search-box">
         <span class="search-icon" aria-hidden="true">⌕</span>
-        <input id="q" value="" autocomplete="off" placeholder="キャラ・作品・コラボ・グッズ名を入力" aria-label="グッズを検索">
+        <input id="q" type="search" enterkeyhint="search" value="" autocomplete="off" placeholder="キャラ・作品・コラボ・グッズ名を入力" aria-label="グッズを検索">
         <button id="clearQ" class="clear-q" title="検索語をクリア" aria-label="検索語をクリア">×</button>
         <button id="searchBtn" class="search-button">横断検索</button>
       </div>
       <div id="suggestBox" class="suggest-box hidden"></div>
+      <nav class="discovery-links" aria-label="作品・キャラクター別のグッズ案内"><span>名前から探す</span><a href="/character/gojo-satoru">五条悟</a><a href="/character/hoshimachi-suisei">星街すいせい</a><a href="/character/hatsune-miku">初音ミク</a><a href="/discover/characters">一覧を見る</a></nav>
       <div class="search-actions">
         <button id="imageSearchBtn" class="soft-button" hidden>▣ 画像から探す <span class="beta-label">β</span></button>
         <span class="examples">例：</span>
@@ -105,9 +106,10 @@
 
     <section class="result-area">
       <div class="result-top">
-        <div><div class="result-title-row"><h2 id="resultTitle">横断検索結果</h2><span id="queryBadge" class="query-badge"></span></div><p id="resultMeta" class="result-meta">おすすめ順は、検索語との一致度を中心に並べます。</p></div>
-        <div class="result-controls"><button id="mobileFilterBtn" class="mobile-filter">絞り込み</button><select id="sort"><option value="relevance">おすすめ（検索語との一致度）</option><option value="price">実質価格が安い順</option><option value="source">販売サイト順</option></select></div>
+        <div><div class="result-title-row"><h2 id="resultTitle">横断検索結果</h2><span id="queryBadge" class="query-badge"></span></div><p id="resultMeta" class="result-meta" role="status" aria-live="polite">おすすめ順は、検索語との一致度を中心に並べます。</p></div>
+        <div class="result-controls"><button id="mobileFilterBtn" class="mobile-filter">絞り込み</button><select id="sort" aria-label="検索結果の並び順"><option value="relevance">一致度順</option><option value="price">価格が安い順（送料判明分は込）</option><option value="source">販売サイト順</option></select></div>
       </div>
+      <p id="searchStatus" class="search-status" role="status" hidden></p>
       <div id="stats" class="stats-row"></div>
       <div id="providerNotice" class="provider-notice hidden" aria-hidden="true"></div>
       <div id="productGrid" class="product-grid" aria-live="polite"></div>
@@ -127,6 +129,12 @@
       </div>
       <div class="guide-links" aria-label="グッズ比較ガイド"><a href="/guide/oshi-goods">推し活グッズ比較ガイド</a><a href="/compare/acrylic-stand">アクスタ比較</a><a href="/compare/can-badge">缶バッジ比較</a><a href="/compare/plush">推しぬい比較</a><a href="/compare/card">カード比較</a><a href="/discover/vtuber">VTuberグッズ</a><a href="/discover/anime">アニメグッズ</a><a href="/discover/manga">漫画グッズ</a><a href="/discover/characters">キャラ・作品から探す</a><a href="/guide/how-oshiru-compares">検索・比較の仕組み</a></div>
       <div class="guide-links"><a href="/about.html">サービスについて</a><a href="/privacy.html">プライバシーポリシー</a><a href="/disclaimer.html">免責・広告表示</a></div>
+      <section class="search-faq" aria-labelledby="searchFaqTitle">
+        <h2 id="searchFaqTitle">検索・比較でよくある質問</h2>
+        <details><summary>欲しいグッズが見つからないときは？</summary><p>「作品・キャラクター名＋グッズ種別」で探し、必要ならコラボ名やシリーズ名を追加してください。OSHIRUで取得できない出品もあるため、0件の案内にある販売サイトの直接検索も利用できます。</p></details>
+        <details><summary>表示価格には送料が含まれますか？</summary><p>画像上の価格は商品価格です。送料は商品名の下に別表示します。価格順では送料が分かる商品のみ送料を加算し、不明な商品は商品価格で比較するため、購入前に販売元で総額を確認してください。</p></details>
+        <details><summary>すべての販売サイトの在庫が表示されますか？</summary><p>いいえ。取得可能な公式APIの候補と、確認時点の出品情報を表示します。取得制限や在庫変更があるため、市場の全商品や現在の在庫を保証するものではありません。広告は通常の検索結果と別枠です。</p></details>
+      </section>
     </div>
   </section>
 
@@ -157,7 +165,7 @@
 <div id="toast" class="toast"></div>
 <script src="/performance-v3.js?v=20260823-12"></script>
 <script src="/seo-query-bridge.js?v=20260819-seo1"></script>
-<script src="/app.js?v=20260905-18"></script>
+<script src="/app.js?v=20260906-19"></script>
 <script src="/ui-v2.js?v=20260819-pcfix1"></script>
 <script src="/predictive-mobile.js?v=20260819-searchmode1"></script>
 <script src="/enhancements.js?v=20260819-pcfix1"></script>
