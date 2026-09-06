@@ -24,9 +24,9 @@ for attempt in $(seq 1 "$attempts"); do
     && curl --connect-timeout 5 --max-time 12 --fail --silent --show-error --location "$base/sitemap.xml?v=$nonce" -o "$target_dir/sitemap.xml" \
     && valid_sitemap "$target_dir/sitemap.xml" \
     && grep -Fq '<loc>https://oshiruoshi.vercel.app/character/gojo-satoru</loc>' "$target_dir/sitemap.xml" \
-    && grep -Fq '<lastmod>2026-09-05</lastmod>' "$target_dir/sitemap.xml" \
+    && grep -Fq '<lastmod>2026-09-06</lastmod>' "$target_dir/sitemap.xml" \
     && curl --connect-timeout 5 --max-time 12 --fail --silent --show-error --location "$base/character/gojo-satoru?v=$nonce" -o "$target_dir/seo.html" \
-    && grep -Fq 'oshiru-seo-version" content="2026-09-05.18' "$target_dir/seo.html" \
+    && grep -Fq 'oshiru-seo-version" content="2026-09-06.19' "$target_dir/seo.html" \
     && grep -Fq 'application/ld+json" data-oshiru-structured' "$target_dir/seo.html"; then
     ready=1
     break

@@ -4,7 +4,7 @@ import legacyHandler from './live-search.js';
 import { detectIntent, normalizeFlexible, compactFlexible, rankSearchItems, resolveSearchQuery } from './_search-language.mjs';
 import { snapshotSearch } from './_core.mjs';
 
-const VERSION='2026-09-05.18';
+const VERSION='2026-09-06.19';
 const OSHI_HINTS=[
   'グッズ','アクスタ','アクリルスタンド','アクキー','アクリルキーホルダー','アクリル','缶バッジ','缶バ','ぬい','ぬいぐるみ','マスコット',
   'トレカ','トレーディングカード','ブロマイド','チェキ','クリアファイル','ステッカー','シール','ラバスト','ラバーストラップ',
@@ -26,7 +26,7 @@ function includesLoose(text,value){
 }
 function groupMatch(group,text){
   if(group.required)return group.required.every(alternatives=>alternatives.some(value=>includesLoose(text,value)));
-  return [group.canonical,group.broad,...(group.aliases||[])].filter(Boolean).some(value=>includesLoose(text,value));
+  return [group.canonical,...(group.aliases||[])].filter(Boolean).some(value=>includesLoose(text,value));
 }
 function queryMentions(query,term){return includesLoose(normalizeFlexible(query),term)}
 function hasOshiSignal(text){return OSHI_HINTS.some(term=>includesLoose(text,term))}
@@ -34,10 +34,12 @@ function noiseHit(text,query){return GENERIC_RETAIL_NOISE.some(term=>includesLoo
 function isNarutoQuery(query=''){return /^(?:naruto|ナルト|なると)$/i.test(String(query||'').trim())}
 function hasNarutoEntity(text=''){return ['NARUTO','ナルト'].some(value=>includesLoose(text,value))}
 function entityTokenMatch(intent,text){
-  const tokens=normalizeFlexible(intent.entity||'').split(/\s+/).filter(token=>compactFlexible(token).length>=2);
-  if(!tokens.length)return true;
-  const matched=tokens.filter(token=>includesLoose(text,token)).length;
-  return matched===tokens.length || (tokens.length>=3&&matched>=tokens.length-1);
+  const tokens=normalizeFlexible(intent.entity||'').split(/\s+/).filter(Boolean);
+  return tokens.every(token=>{
+    // A model/edition code such as 6c must not match 16c or 6cm.
+    if(/^[a-z0-9]+$/i.test(token))return new RegExp(`(^|[^a-z0-9])${token}($|[^a-z0-9])`,'i').test(text);
+    return includesLoose(text,token);
+  });
 }
 export function relevant(item,query){
   const resolved=normalizeAmbiguousQuery(resolveSearchQuery(query).resolved||query);
@@ -144,11 +146,8 @@ export default async function handler(req,res){
     const strictLive=result.data.items.filter(item=>relevant(item,resolved));
     const strictVerified=(verifiedResult.items||[]).filter(item=>relevant(item,resolved));
     const strict=rankSearchItems(dedupeItems([...strictLive,...strictVerified]),resolved);
-    const originalIntent=detectIntent(resolved);
-    const fallback=originalIntent.entity
-      ? []
-      : result.data.items.filter(item=>!noiseHit(itemText(item),resolved)&&Number(item?._score||0)>=120);
-    const items=dedupeItems(strict.length?strict:fallback).slice(0,120);
+    // A high score never overrides a failed required condition, even for merch-only queries.
+    const items=dedupeItems(strict).slice(0,120);
     const snapshotCount=items.filter(item=>String(item.origin||'').includes('snapshot')).length;
     res.setHeader('X-OSHIRU-Precision-Version',VERSION);
     res.setHeader('Cache-Control','public, max-age=8, s-maxage=22, stale-while-revalidate=75');

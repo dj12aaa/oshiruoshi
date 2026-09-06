@@ -30,10 +30,13 @@ jobs:
       - name: Wait for production
         shell: bash
         run: |
+          ready=0
           for i in $(seq 1 30); do
-            if curl -fsSL https://oshiruoshi.vercel.app/performance-v3.js >/dev/null && curl -fsSL https://oshiruoshi.vercel.app/design-v3.css >/dev/null; then break; fi
+            if curl --max-time 12 -fsSL 'https://oshiruoshi.vercel.app/api/search?initial=1&q=probe' -o /tmp/oshiru-quality-ready.json \
+              && node -e "const d=require('/tmp/oshiru-quality-ready.json');process.exit(d.precisionVersion==='2026-09-06.19'?0:1)"; then ready=1; break; fi
             sleep 5
           done
+          test "$ready" = 1
       - name: Search flexible queries
         shell: bash
         run: |
@@ -115,7 +118,7 @@ jobs:
             const d=JSON.parse(fs.readFileSync(`/tmp/oshiru-quality/s${n}.json`,'utf8'));
             return{query,count:Array.isArray(d.items)?d.items.length:0,items:(d.items||[]).slice(0,8).map(x=>({name:x.name,kind:x.kind,label:x.label,detail:x.detail})),providerQuery:d.providerQuery||null,signals:d.signals||null};
           });
-          const expansionOk=results.every(x=>x.expansionOk&&x.precisionVersion==='2026-09-05.18');
+          const expansionOk=results.every(x=>x.expansionOk&&x.precisionVersion==='2026-09-06.19');
           const baselineOk=specs.every((spec,index)=>!spec.baseline||results[index].count>0);
           const relevanceOk=results.every(x=>x.relevanceOk);
           const rankOrderOk=results.every(x=>x.rankOrderOk);

@@ -1,10 +1,10 @@
 import { snapshotSearch } from './_core.mjs';
 
 const SITE='https://oshiruoshi.vercel.app';
-const UPDATED='2026年9月5日';
-const UPDATED_ISO='2026-09-05';
-const LAST_MODIFIED_HTTP='Fri, 04 Sep 2026 15:00:00 GMT';
-const SEO_VERSION='2026-09-05.18';
+const UPDATED='2026年9月6日';
+const UPDATED_ISO='2026-09-06';
+const LAST_MODIFIED_HTTP='Sun, 06 Sep 2026 00:00:00 GMT';
+const SEO_VERSION='2026-09-06.19';
 
 const commonTips={
   compare:[
@@ -118,7 +118,7 @@ function snapshotHtml(data,page){
   const price=data.min!==null&&data.max!==null?(data.min===data.max?money(data.min):`${money(data.min)}〜${money(data.max)}`):'価格情報なし';
   const checked=data.checkedAt?new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',year:'numeric',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(data.checkedAt)):'確認日時不明';
   const source=data.sourceRows.length?data.sourceRows.map(([name,count])=>`<span><b>${esc(name)}</b>${count}件</span>`).join(''):'<span>取得できた販売サイト別候補はありません</span>';
-  return `<section class="seo-section seo-live" aria-labelledby="liveSnapshot"><div class="seo-live-head"><div><span class="seo-eyebrow">OSHIRU VERIFIED DATA</span><h2 id="liveSnapshot">「${esc(page.query)}」の確認済み比較スナップショット</h2></div><a href="${searchHref(page.query)}" rel="nofollow">最新候補を検索</a></div><p class="seo-live-lead">OSHIRUが確認済み情報として保持する候補だけを集計しています。市場全体の件数や現在の相場を保証するものではありません。</p><div class="seo-live-stats"><div><span>確認済み候補</span><b>${data.count}件</b></div><div><span>表示価格帯</span><b>${esc(price)}</b><small>送料は含めず、価格が取得できた候補のみ</small></div><div><span>最終確認</span><b>${esc(checked)}</b><small>日本時間</small></div></div><div class="seo-source-counts" aria-label="販売サイト別候補件数">${source}</div><p class="seo-live-note">ページ表示のたびに外部販売APIを待たないため、検索エンジンと利用者へ安定した本文を返します。最新の価格・送料・在庫・商品状態は販売元で確認してください。</p></section>`;
+  return `<section class="seo-section seo-live" aria-labelledby="liveSnapshot"><div class="seo-live-head"><div><span class="seo-eyebrow">OSHIRU VERIFIED DATA</span><h2 id="liveSnapshot">「${esc(page.query)}」の確認済み比較スナップショット</h2></div><a href="${searchHref(page.query)}" rel="nofollow">最新候補を検索</a></div><p class="seo-live-lead">OSHIRUが確認済み情報として保持する候補だけを集計しています。市場全体の件数や現在の相場を保証するものではありません。</p><div class="seo-live-stats"><div><span>確認済み候補</span><b>${data.count}件</b></div><div><span>表示価格帯</span><b>${esc(price)}</b><small>送料は含めず、価格が取得できた候補のみ</small></div><div><span>最終確認</span><b>${esc(checked)}</b><small>日本時間</small></div></div><div class="seo-source-counts" aria-label="販売サイト別候補件数">${source}</div><p class="seo-live-note">候補は取得時点の記録であり、現在販売中とは限りません。最新の価格・送料・在庫・商品状態は販売元で確認してください。</p></section>`;
 }
 function structuredData(page,canonical,crumbRows){
   const graph=[

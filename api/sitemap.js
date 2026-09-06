@@ -12,7 +12,7 @@ function isIndexable(){
   return process.env.VERCEL_ENV==='production';
 }
 export const SITEMAP_ENTRIES=[
-  {path:'/',lastmod:'2026-09-05'},
+  {path:'/',lastmod:'2026-09-06'},
   {path:'/latest-goods',lastmod:'2026-08-23'},
   ...[
     '/guide/oshi-goods',
@@ -29,7 +29,7 @@ export const SITEMAP_ENTRIES=[
     '/character/hoshimachi-suisei',
     '/character/gojo-satoru',
     '/character/hatsune-miku'
-  ].map(path=>({path,lastmod:'2026-09-05'})),
+  ].map(path=>({path,lastmod:'2026-09-06'})),
   ...['/about.html','/terms.html','/privacy.html','/disclaimer.html','/contact.html'].map(path=>({path,lastmod:'2026-08-19'}))
 ];
 export function renderSitemap(base){

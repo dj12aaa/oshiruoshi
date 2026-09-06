@@ -57,7 +57,7 @@ test('SEO landing pages have unique metadata, useful page-specific copy and serv
     assert.ok(page.h1&&!headings.has(page.h1),`duplicate h1: ${page.h1}`);headings.add(page.h1);
     const html=renderSeoPage(page,key,null);
     assert.match(html,new RegExp(`<link rel="canonical" href="https://oshiruoshi\\.vercel\\.app${page.path.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}">`));
-    assert.match(html,/meta name="oshiru-seo-version" content="2026-09-05\.18"/);
+    assert.match(html,/meta name="oshiru-seo-version" content="2026-09-06\.19"/);
     assert.match(html,/type="application\/ld\+json" data-oshiru-structured/);
     assert.match(html,/このテーマで結果を絞る確認ポイント/);
     const json=html.match(/<script type="application\/ld\+json" data-oshiru-structured>(.*?)<\/script>/)?.[1];
@@ -73,14 +73,14 @@ test('crawler-facing SEO handler does not wait for live marketplace APIs',async(
   const response=await invokeSeo('character','gojo-satoru');
   assert.equal(response.status,200);
   assert.match(response.headers['x-robots-tag'],/index, follow/);
-  assert.equal(response.headers['x-oshiru-seo-version'],'2026-09-05.18');
+  assert.equal(response.headers['x-oshiru-seo-version'],'2026-09-06.19');
   assert.match(response.body,/五条悟グッズ/);
   assert.ok(performance.now()-started<2500,'SEO handler should not incur a multi-second external provider wait');
 });
 
 test('homepage exposes stable canonical metadata and server-rendered WebSite data',()=>{
   const home=read('index.html');
-  assert.match(home,/meta name="last-modified" content="2026-09-05"/);
+  assert.match(home,/meta name="last-modified" content="2026-09-06"/);
   assert.match(home,/type="application\/ld\+json" data-oshiru-structured/);
   assert.match(home,/"alternateName":"OSHIRU 推し活グッズ検索"/);
   assert.match(home,/property="og:title" content="OSHIRU \| 推し活グッズを横断検索・価格比較"/);
