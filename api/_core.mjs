@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { INTEGRATION_VERSION, providerCapabilities, yahooSearchParams, yahooLinkInfo, knownAmount } from './_provider-config.mjs';
 
 const verified=JSON.parse(fs.readFileSync(new URL('../data/verified-listings.json',import.meta.url),'utf8'));
 const publicAdapters=String(process.env.ENABLE_PUBLIC_PAGE_ADAPTERS||'false').toLowerCase()==='true';
@@ -45,7 +46,7 @@ function score(i,q){
 }
 function dedupe(items){
   const seen=new Set();
-  return items.filter(i=>{const k=(i.url||`${i.source}|${i.title}|${i.price}`).replace(/[?#].*$/,'');if(seen.has(k))return false;seen.add(k);return true});
+  return items.filter(i=>{const k=`${i.source}|${i.id||i.canonicalUrl||i.url||`${i.title}|${i.price}`}`;if(seen.has(k))return false;seen.add(k);return true});
 }
 
 async function fetchJson(url,opts={}){
@@ -67,13 +68,13 @@ export function mapYahooHit(h,i=0,now=new Date().toISOString()){
     id:`yshop-${h?.code||i}`,
     source:'Yahoo!ショッピング',
     title:h?.name||'商品名不明',
-    price:Number.isFinite(Number(h?.price))?Number(h.price):null,
+    price:knownAmount(h?.price),
     shipping:shippingCode===2?0:null,
     shippingLabel:h?.shipping?.name||null,
     fee:0,
-    status:h?.inStock===false?'在庫なし':'販売中',
+    status:h?.inStock===true?'販売中':h?.inStock===false?'在庫なし':'要確認',
     condition:yahooCondition(h?.condition),
-    url:h?.url||'#',
+    ...yahooLinkInfo(h?.url),
     image,
     type:'通販',
     shop:h?.seller?.name||'',
@@ -90,7 +91,7 @@ export function mapYahooHit(h,i=0,now=new Date().toISOString()){
 async function yahooRequest(q){
   const appid=process.env.YAHOO_CLIENT_ID;
   if(!appid||!q)return[];
-  const params=new URLSearchParams({appid,query:q,results:'30',image_size:'300',in_stock:'true'});
+  const params=yahooSearchParams(q);
   const data=await fetchJson(`https://shopping.yahooapis.jp/ShoppingWebService/V3/itemSearch?${params}`);
   const now=new Date().toISOString();
   return (data.hits||[]).map((h,i)=>mapYahooHit(h,i,now)).filter(x=>x.url&&x.url!=='#');
@@ -118,17 +119,17 @@ function firstRakutenImage(h){
 export function mapRakutenItem(row,i=0,now=new Date().toISOString()){
   const h=row?.Item||row||{};
   const image=firstRakutenImage(h);
-  const available=Number(h?.availability)!==0;
-  const postage=Number(h?.postageFlag);
+  const available=knownAmount(h?.availability);
+  const postage=knownAmount(h?.postageFlag);
   return{
     id:`rakuten-${h?.itemCode||i}`,
     source:'楽天市場',
     title:[h?.catchcopy,h?.itemName].filter(Boolean).join(' ').trim()||'商品名不明',
-    price:Number.isFinite(Number(h?.itemPrice))?Number(h.itemPrice):null,
+    price:knownAmount(h?.itemPrice),
     shipping:postage===0?0:null,
     shippingLabel:postage===0?'送料込み/送料無料':'送料は商品ページで確認',
     fee:0,
-    status:available?'販売中':'在庫なし',
+    status:available===1?'販売中':available===0?'在庫なし':'要確認',
     condition:'新品',
     url:h?.affiliateUrl||h?.itemUrl||'#',
     canonicalUrl:h?.itemUrl||null,
@@ -218,4 +219,4 @@ export async function vision(imageData){
   const r=await fetch('https://api.openai.com/v1/responses',{method:'POST',headers:{'content-type':'application/json','authorization':`Bearer ${process.env.OPENAI_API_KEY}`},body:JSON.stringify({model,input:[{role:'user',content:[{type:'input_text',text:'この推し活グッズ画像から検索に使える短い日本語検索語を推定してください。推測は避け、JSONだけで {"query":"...","confidence":0,"notes":[]} を返してください。'},{type:'input_image',image_url:imageData}]}]})});
   if(!r.ok)throw new Error(`vision_${r.status}`);const d=await r.json();const text=(d.output||[]).flatMap(x=>x.content||[]).map(x=>x.text||'').join('').replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/,'');return JSON.parse(text);
 }
-export function status(){return{snapshot:verified.length,publicAdapters,vision:Boolean(process.env.OPENAI_API_KEY),yahooShopping:Boolean(process.env.YAHOO_CLIENT_ID),rakuten:Boolean(process.env.RAKUTEN_APP_ID&&process.env.RAKUTEN_ACCESS_KEY),rakutenAffiliate:Boolean(process.env.RAKUTEN_AFFILIATE_ID),x:Boolean(process.env.X_BEARER_TOKEN),anilist:true,jikan:true,contact:Boolean(process.env.PUBLIC_CONTACT_EMAIL)}}
+export function status(){return{integrationVersion:INTEGRATION_VERSION,providers:providerCapabilities(),healthChecked:false,snapshot:verified.length,publicAdapters,vision:Boolean(process.env.OPENAI_API_KEY),yahooShopping:Boolean(process.env.YAHOO_CLIENT_ID),rakuten:Boolean(process.env.RAKUTEN_APP_ID&&process.env.RAKUTEN_ACCESS_KEY),rakutenAffiliate:Boolean(process.env.RAKUTEN_AFFILIATE_ID),x:Boolean(process.env.X_BEARER_TOKEN),anilist:true,jikan:true,contact:Boolean(process.env.PUBLIC_CONTACT_EMAIL)}}

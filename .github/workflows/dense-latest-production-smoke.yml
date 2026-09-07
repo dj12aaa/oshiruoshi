@@ -34,10 +34,10 @@ jobs:
           ready=0
           for attempt in $(seq 1 45); do
             if curl --fail --silent --show-error --location "$base/?ready=$attempt-${GITHUB_SHA}" -o "$tmp/index.html" \
-              && grep -Fq 'oshiru-search-ui-version" content="2026-09-07.20' "$tmp/index.html" \
-              && grep -Fq '/app.js?v=20260907-20' "$tmp/index.html" \
-              && curl --fail --silent --show-error --location "$base/app.js?v=20260907-20-$attempt" -o "$tmp/app.js" \
-              && grep -Fq "SEARCH_UI_VERSION='2026-09-07.20'" "$tmp/app.js" \
+              && grep -Fq 'oshiru-search-ui-version" content="2026-09-07.21' "$tmp/index.html" \
+              && grep -Fq '/app.js?v=20260907-21' "$tmp/index.html" \
+              && curl --fail --silent --show-error --location "$base/app.js?v=20260907-21-$attempt" -o "$tmp/app.js" \
+              && grep -Fq "SEARCH_UI_VERSION='2026-09-07.21'" "$tmp/app.js" \
               && grep -Fq 'oshiru-home-version" content="2026-08-23.14' "$tmp/index.html" \
               && grep -Fq '/home-experience-v8.js?v=20260823-14' "$tmp/index.html" \
               && curl --fail --silent --show-error --location "$base/gallery-v8.css?v=$(date +%s)" -o "$tmp/gallery.css" \
@@ -57,7 +57,7 @@ jobs:
 
           curl --fail --silent --show-error --location "$base/?v=$(date +%s)" -o "$tmp/index.html"
           grep -Fq 'OSHIRU' "$tmp/index.html"
-          grep -Fq '/gallery-v8.css?v=20260906-19' "$tmp/index.html"
+          grep -Fq '/gallery-v8.css?v=20260907-21' "$tmp/index.html"
           grep -Fq '/home-experience-v8.js?v=20260823-14' "$tmp/index.html"
           grep -Fq '/affiliate-widget.js?v=20260823-16' "$tmp/index.html"
           grep -Fq '/navigation-extra-v7.js?v=20260822-9' "$tmp/index.html"
@@ -81,6 +81,9 @@ jobs:
 
           curl --fail --silent --show-error --location "$base/api/search?q=" -o "$tmp/idle.json"
           node -e "const d=require(process.argv[1]);if(!d.idle||!Array.isArray(d.items)||d.items.length!==0)throw new Error('idle search regression')" "$tmp/idle.json"
+
+          curl --max-time 12 --fail --silent --show-error --location "$base/api/status" -o "$tmp/integrations.json"
+          node -e "const d=require(process.argv[1]);if(d.integrationVersion!=='2026-09-07.21'||d.healthChecked!==false||d.providers.length!==7)throw new Error('integration capability contract regression')" "$tmp/integrations.json"
 
           curl --max-time 12 --fail --silent --show-error --location "$base/api/search?initial=1&q=%E4%BA%94%E6%9D%A1%E6%82%9F%20%E3%82%B5%E3%83%B3%E3%83%AA%E3%82%AA" -o "$tmp/initial.json"
           node -e "const d=require(process.argv[1]);if(!d.initial||d.precisionVersion!=='2026-09-06.19'||!Array.isArray(d.items))throw new Error('initial snapshot regression')" "$tmp/initial.json"
@@ -159,6 +162,7 @@ jobs:
                 sortVisible:visible(document.getElementById('sort')),
                 summary:document.getElementById('resultMeta')?.textContent,
                 detailVisible:visible(card.querySelector('.card-detail')),
+                freshnessVisible:visible(card.querySelector('.card-freshness')),
                 structuredDataValid:[...document.querySelectorAll('script[data-oshiru-structured]')].some(node=>JSON.parse(node.textContent)['@graph']?.length>=2),
                 columns:gridStyle?.gridTemplateColumns?.split(/\s+/).filter(Boolean).length||0,
                 sourceVisible:visible(source),priceVisible:visible(price),heartVisible:visible(heart),compareVisible:visible(compare),
@@ -175,9 +179,10 @@ jobs:
             });
             console.log(name,JSON.stringify(metrics));
             await page.screenshot({path:`verification/screenshots/${name}-search.png`,fullPage:false});
-            if(metrics.uiVersion!=='2026-09-07.20'||metrics.homeVersion!=='2026-08-23.14'||metrics.affiliateVersion!=='2026-08-23.16'||metrics.diagnostics?.version!=='2026-09-07.20')throw new Error(`${name}: stale search UI loaded: ${JSON.stringify({uiVersion:metrics.uiVersion,homeVersion:metrics.homeVersion,affiliateVersion:metrics.affiliateVersion,diagnostics:metrics.diagnostics})}`);
+            if(metrics.uiVersion!=='2026-09-07.21'||metrics.homeVersion!=='2026-08-23.14'||metrics.affiliateVersion!=='2026-08-23.16'||metrics.diagnostics?.version!=='2026-09-07.21')throw new Error(`${name}: stale search UI loaded: ${JSON.stringify({uiVersion:metrics.uiVersion,homeVersion:metrics.homeVersion,affiliateVersion:metrics.affiliateVersion,diagnostics:metrics.diagnostics})}`);
             if(metrics.columns!==expectedColumns)throw new Error(`${name}: expected ${expectedColumns} columns, got ${metrics.columns}`);
             if(metrics.titleFont<12||!metrics.summaryVisible||!metrics.sortVisible||!metrics.detailVisible)throw new Error(`${name}: readability or search feedback missing`);
+            if(!metrics.freshnessVisible)throw new Error(`${name}: item confirmation timestamp missing`);
             if(!metrics.summary.includes('として検索')||!metrics.structuredDataValid)throw new Error(`${name}: correction or structured data missing`);
             if(metrics.cards<2||!metrics.sourceVisible||!metrics.priceVisible||!metrics.heartVisible||!metrics.compareVisible)throw new Error(`${name}: card controls/source/price missing`);
             if(!metrics.controlsInsideVisual)throw new Error(`${name}: card overlays escaped the image area`);
@@ -189,8 +194,16 @@ jobs:
             if(viewport.width<600&&Number(metrics.searchToGridGap)>140)throw new Error(`${name}: merchandise grid is too far below search (${metrics.searchToGridGap}px)`);
 
             const searchStarted=Date.now();
-            await page.locator('#q').fill('なると');
-            await page.locator('#searchBtn').click();
+            if(viewport.width<=900){
+              await page.locator('#q').click();
+              await page.locator('#mobilePredictiveSearch').waitFor({state:'visible'});
+              await page.locator('#mobilePredictiveInput').fill('なると');
+              await page.getByRole('button',{name:'この言葉で検索',exact:true}).click();
+              await page.locator('#mobilePredictiveSearch').waitFor({state:'hidden'});
+            }else{
+              await page.locator('#q').fill('なると');
+              await page.locator('#searchBtn').click();
+            }
             await page.waitForFunction(expectedQuery=>{
               const button=document.getElementById('searchBtn');
               const diagnostics=window.__OSHIRU_SEARCH_DIAGNOSTICS__;
@@ -210,6 +223,18 @@ jobs:
             if(searchSettlement.cards<6||searchSettlement.diagnostics?.query!=='なると'||searchSettlement.diagnostics?.liveQuery!=='なると'||searchSettlement.diagnostics?.live!=='complete')throw new Error(`${name}: search did not return live merchandise: ${JSON.stringify(searchSettlement)}`);
             if(searchSettlement.titles.some(title=>/(ヘアピン|ヘアクリップ|髪留め|コミック|単行本|電子書籍)/i.test(title)))throw new Error(`${name}: NARUTO search returned retail noise: ${JSON.stringify(searchSettlement.titles)}`);
             console.log(`${name}-search-settlement`,JSON.stringify(searchSettlement));
+
+            await page.locator('#providerDetailsBtn').click();
+            await page.getByRole('heading',{name:'データ接続状況',exact:true}).waitFor({state:'visible'});
+            await page.waitForFunction(()=>document.querySelectorAll('#modalContent .setting-row').length>=7,null,{timeout:6000});
+            const integrations=await page.locator('#modalContent').innerText();
+            if(!integrations.includes('Amazon')||!integrations.includes('外部検索のみ')||!integrations.includes('接続成功と判定しません'))throw new Error(`${name}: integration state is misleading`);
+            await page.locator('#modalClose').click();
+            await page.locator('.external-search summary').click();
+            const external=await page.locator('#externalSearchLinks a').evaluateAll(nodes=>nodes.map(node=>({label:node.textContent,url:node.href})));
+            if(external.length!==7||!external.some(link=>link.label.includes('Amazon'))||external.some(link=>!decodeURIComponent(link.url).includes('NARUTO')))throw new Error(`${name}: direct searches lost the corrected query`);
+            await page.locator('.external-search summary').click();
+            console.log(`${name}-integrations`,JSON.stringify({externalLinks:external.length,confirmationTimesVisible:metrics.freshnessVisible,dialog:true}));
 
             const responsive=[];
             for(const [width,columns] of (viewport.width<600?[[320,2]]:[[768,5],[1920,8]])){
