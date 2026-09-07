@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-09-06T17:34:21.952Z",
+  "checkedAt": "2026-09-07T16:12:27.426Z",
   "url": "https://oshiruoshi.vercel.app/",
   "homeHttp": 200,
   "homeHasOshiru": true,
@@ -40,10 +40,10 @@
     {
       "query": "五条悟 アクスタ",
       "http": 200,
-      "totalItems": 52,
+      "totalItems": 51,
       "yahooShopping": {
         "ok": true,
-        "count": 52,
+        "count": 51,
         "error": null
       },
       "rakuten": {
@@ -54,15 +54,15 @@
       "sources": [
         "Yahoo!ショッピング"
       ],
-      "withImage": 52
+      "withImage": 51
     },
     {
       "query": "初音ミク アクスタ",
       "http": 200,
-      "totalItems": 53,
+      "totalItems": 54,
       "yahooShopping": {
         "ok": true,
-        "count": 53,
+        "count": 54,
         "error": null
       },
       "rakuten": {
@@ -73,7 +73,7 @@
       "sources": [
         "Yahoo!ショッピング"
       ],
-      "withImage": 53
+      "withImage": 54
     },
     {
       "query": "ちいかわ モモンガ",
