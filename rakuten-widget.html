@@ -23,16 +23,6 @@
     <img id="rakutenPictImage" src="https://hbb.afl.rakuten.co.jp/hsb/56a9a834.c6453a62.56a9a835.92ad2e3e/?me_id=1&me_adv_id=2794858&t=pict" alt="楽天市場のおすすめ商品（PR）" loading="eager" decoding="async">
     <span class="fallback" aria-hidden="true"><span><b>楽天市場のおすすめ商品</b><span>広告画像を読み込めないため、楽天市場へのPRリンクを表示しています。</span><strong>楽天市場で見る ↗</strong></span></span>
   </a>
-  <script>
-    (()=>{
-      const ad=document.getElementById('rakutenPictAd');
-      const img=document.getElementById('rakutenPictImage');
-      if(!ad||!img)return;
-      const fail=()=>{ad.classList.add('failed');ad.querySelector('.fallback')?.setAttribute('aria-hidden','false')};
-      img.addEventListener('error',fail,{once:true});
-      img.addEventListener('load',()=>{if(img.naturalWidth<20||img.naturalHeight<10)fail()},{once:true});
-      setTimeout(()=>{if(!img.complete||img.naturalWidth===0)fail()},6000);
-    })();
-  </script>
+  <script src="/rakuten-widget-fallback.js?v=20260907-21" defer></script>
 </body>
 </html>

@@ -102,6 +102,15 @@ body .result-top>div:first-child{min-width:0}
 body .result-meta{overflow-wrap:anywhere}
 .discovery-links{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;margin-top:12px;font-size:12px;line-height:1.6}
 .discovery-links span{color:#475569}
+.card-freshness{font-size:10px;line-height:1.5;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
+.provider-details{display:inline-block;margin:0 0 8px;padding:4px 0;border:0;background:none;font-size:11px;color:#475569;text-decoration:underline;text-underline-offset:3px;text-align:left}
+.external-search{margin:18px 0 8px;font-size:12px;line-height:1.7}
+.external-search summary{cursor:pointer;font-weight:700}
+.external-search nav{display:flex;flex-wrap:wrap;gap:8px 14px}
+.external-search a{color:#9f1239}
+.affiliate-disclosure,.integration-note{font-size:11px;line-height:1.7;color:#64748b;overflow-wrap:anywhere}
+.setting-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;font-size:12px;overflow-wrap:anywhere}
+.setting-row small{display:block;font-size:10px;line-height:1.6;font-weight:400;color:#64748b}
 .discovery-links a{color:#9f1239;font-weight:700;text-underline-offset:3px;padding:4px 0}
 .search-faq{max-width:900px;margin-top:30px}
 .search-faq h2{font-size:20px!important}

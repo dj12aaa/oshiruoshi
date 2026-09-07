@@ -2,6 +2,30 @@
 
 APIキー/Client IDの発行は、利用者本人のログイン・規約同意・場合によっては申請や支払いが必要なため、完全自動化しない。発行後のOSHIRUへの接続、テスト、秘密情報管理、再デプロイは自動化対象とする。
 
+## 2026-09-07 時点の対応範囲
+
+| 提供元 | OSHIRUの実装 | 稼働・有効化に必要なこと |
+| --- | --- | --- |
+| Yahoo!ショッピング | 公式API、60秒キャッシュ、承認済みIDによる広告URL取得 | Client ID。広告化にはValueCommerceの登録・Yahoo提携・自身の広告ID |
+| 楽天市場 | 公式API、60秒キャッシュ、affiliateUrl自動利用 | Application ID・Access Keyの認可確認。現行本番の403は未解消 |
+| Amazon | 外部検索リンクのみ。Creators API adapterは未接続 | Associatesの利用資格・API登録・認証情報・当サイト用途の条件確認 |
+| メルカリ | 過去確認情報＋外部検索。全出品APIは未接続 | 正式な提携・許諾済みデータ。Mercari Shopsの自店舗APIと混同しない |
+| Google | 外部Web検索リンクのみ。商品在庫APIとしては不使用 | Custom Search JSON APIは新規顧客受付終了。Google Search ConsoleはSEO計測用で、商品APIではない |
+| Yahoo!フリマ・オークション | 過去確認情報＋外部検索 | 一般出品APIの提供権限・契約が必要 |
+
+`/api/status` の `providers[].configured` は環境変数の存在確認であり、認証成功ではない。`connection: not-checked` / `healthChecked: false`を返し、実際の成功・失敗は当該検索の `providers` で判定する。公開診断にキーやIDの値を返さない。サイトの「取得元の内訳・連携状況」からも区別して確認できる。
+
+アフィリエイトは検索条件・一致度・順位を変更しない。商品ID/正規URLで重複を除き、同一リダイレクト先の異なる広告商品が1件へ潰れないようにする。各商品にはAPI確認日または過去確認日を表示し、キャッシュを返す際に商品確認時刻を現在へ書き換えない。新規アカウント登録・審査申請・決済・秘密鍵発行は未実施。
+
+公式資料（2026-09-07確認）:
+
+- Yahoo v3: https://developer.yahoo.co.jp/webapi/shopping/v3/itemsearch.html
+- Yahoo広告IDの生成・商品URL変換: https://developer.yahoo.co.jp/webapi/shopping/affiliate.html
+- 楽天商品検索: https://webservice.rakuten.co.jp/documentation/ichiba-item-search
+- Amazon利用前提・Creators API: https://affiliate.amazon.co.jp/creatorsapi/docs/en-us/introduction
+- Google新規受付終了: https://developers.google.com/custom-search/v1/overview
+- Mercari Shopsの自店舗API: https://api.mercari-shops.com/docs/index.html
+
 ## 1. Yahoo!ショッピング 商品検索API — 実装済み / 優先度: 高
 
 用途:
@@ -35,12 +59,14 @@ OSHIRU側は `YAHOO_CLIENT_ID` を読み、Yahoo!ショッピング商品検索A
 - Environment Variable名: `YAHOO_CLIENT_ID`
 - 値: Yahoo!デベロッパーネットワークで発行したClient ID
 - Client Secretは登録不要
+- `YAHOO_AFFILIATE_ID`（任意）: 自身が承認されたValueCommerceの `http(s)://ck.jp.ap.valuecommerce.com/servlet/referral?sid=自身の数値&pid=自身の数値&vc_url=`。生URLまたは1回URLエンコードした値を受け付ける。数字だけのID・他社URL・不正な形式は広告化せず、通常検索を継続する。未設定でも検索は動く。
 
 設定後の確認:
-1. `/api/status` で `yahooShopping: true`
+1. `/api/status` で `yahooShopping: true`（設定あり。接続成功ではない）
 2. `/api/live-search?q=五条悟%20アクスタ` を実行
 3. `items` に `source: "Yahoo!ショッピング"` が含まれることを確認
 4. 画面の横断検索結果へYahoo!ショッピング商品が追加されることを確認
+5. 広告ID設定時は公式レスポンスのURLがValueCommerceになり、`affiliate: true`になることを確認する。実クリックによる自己成果確認は行わない。成果計測の認可・結果は事業者の管理画面で別途確認する。
 
 ## 2. 楽天市場 商品検索API — 実装済み / 優先度: 高
 
@@ -83,7 +109,7 @@ OSHIRU側は `YAHOO_CLIENT_ID` を読み、Yahoo!ショッピング商品検索A
 - `RAKUTEN_ICHIBA_ENDPOINT=https://openapi.rakuten.co.jp/ichibams/api/IchibaItem/Search/20260701`
 
 設定後の確認:
-1. `/api/status` で `rakuten: true`
+1. `/api/status` で `rakuten: true`（設定あり。接続成功ではない）
 2. Affiliate IDも設定した場合は `rakutenAffiliate: true`
 3. `/api/live-search?q=五条悟%20アクスタ` を実行
 4. `items` に `source: "楽天市場"` が含まれることを確認
