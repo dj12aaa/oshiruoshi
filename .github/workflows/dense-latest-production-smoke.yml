@@ -34,10 +34,10 @@ jobs:
           ready=0
           for attempt in $(seq 1 45); do
             if curl --fail --silent --show-error --location "$base/?ready=$attempt-${GITHUB_SHA}" -o "$tmp/index.html" \
-              && grep -Fq 'oshiru-search-ui-version" content="2026-09-06.19' "$tmp/index.html" \
-              && grep -Fq '/app.js?v=20260906-19' "$tmp/index.html" \
-              && curl --fail --silent --show-error --location "$base/app.js?v=20260906-19-$attempt" -o "$tmp/app.js" \
-              && grep -Fq "SEARCH_UI_VERSION='2026-09-06.19'" "$tmp/app.js" \
+              && grep -Fq 'oshiru-search-ui-version" content="2026-09-07.20' "$tmp/index.html" \
+              && grep -Fq '/app.js?v=20260907-20' "$tmp/index.html" \
+              && curl --fail --silent --show-error --location "$base/app.js?v=20260907-20-$attempt" -o "$tmp/app.js" \
+              && grep -Fq "SEARCH_UI_VERSION='2026-09-07.20'" "$tmp/app.js" \
               && grep -Fq 'oshiru-home-version" content="2026-08-23.14' "$tmp/index.html" \
               && grep -Fq '/home-experience-v8.js?v=20260823-14' "$tmp/index.html" \
               && curl --fail --silent --show-error --location "$base/gallery-v8.css?v=$(date +%s)" -o "$tmp/gallery.css" \
@@ -114,7 +114,7 @@ jobs:
 
           async function inspect(browser,name,viewport,expectedColumns){
             const context=await browser.newContext({viewport,locale:'ja-JP',isMobile:viewport.width<600,hasTouch:viewport.width<600});
-            await context.addInitScript(()=>{localStorage.setItem('oshiru-v5-favs','{broken');localStorage.setItem('oshiru-v5-watch','null')});
+            await context.addInitScript(()=>{if(window.top!==window||location.origin!=='https://oshiruoshi.vercel.app')return;localStorage.setItem('oshiru-v5-favs','{broken');localStorage.setItem('oshiru-v5-watch','null')});
             const page=await context.newPage();
             const network=[],pageErrors=[];
             page.on('pageerror',error=>{pageErrors.push(String(error));console.error(`${name}-pageerror`,error)});
@@ -175,7 +175,7 @@ jobs:
             });
             console.log(name,JSON.stringify(metrics));
             await page.screenshot({path:`verification/screenshots/${name}-search.png`,fullPage:false});
-            if(metrics.uiVersion!=='2026-09-06.19'||metrics.homeVersion!=='2026-08-23.14'||metrics.affiliateVersion!=='2026-08-23.16'||metrics.diagnostics?.version!=='2026-09-06.19')throw new Error(`${name}: stale search UI loaded: ${JSON.stringify({uiVersion:metrics.uiVersion,homeVersion:metrics.homeVersion,affiliateVersion:metrics.affiliateVersion,diagnostics:metrics.diagnostics})}`);
+            if(metrics.uiVersion!=='2026-09-07.20'||metrics.homeVersion!=='2026-08-23.14'||metrics.affiliateVersion!=='2026-08-23.16'||metrics.diagnostics?.version!=='2026-09-07.20')throw new Error(`${name}: stale search UI loaded: ${JSON.stringify({uiVersion:metrics.uiVersion,homeVersion:metrics.homeVersion,affiliateVersion:metrics.affiliateVersion,diagnostics:metrics.diagnostics})}`);
             if(metrics.columns!==expectedColumns)throw new Error(`${name}: expected ${expectedColumns} columns, got ${metrics.columns}`);
             if(metrics.titleFont<12||!metrics.summaryVisible||!metrics.sortVisible||!metrics.detailVisible)throw new Error(`${name}: readability or search feedback missing`);
             if(!metrics.summary.includes('として検索')||!metrics.structuredDataValid)throw new Error(`${name}: correction or structured data missing`);

@@ -6,6 +6,21 @@ const read=path=>fs.readFileSync(new URL('../'+path,import.meta.url),'utf8');
 const app=read('app.js');
 const helper=name=>app.split('\n').find(line=>line.startsWith('function '+name+'('));
 
+test('the entire browser app registers handlers and starts search without runtime exceptions',async()=>{
+  const nodes=new Map(),errors=[];
+  const element=()=>({value:'',checked:false,hidden:false,dataset:{},textContent:'',innerHTML:'',style:{},classList:{add(){},remove(){},toggle(){},contains(){return false}},addEventListener(){},setAttribute(){},focus(){}});
+  const document={querySelector(selector){if(!nodes.has(selector))nodes.set(selector,element());return nodes.get(selector)},querySelectorAll(){return[]}};
+  document.querySelector('#maxPrice').value='15000';
+  const context={document,window:{addEventListener(){}},localStorage:{getItem(){return'[]'},setItem(){}},console:{error:error=>errors.push(error)},AbortController,
+    setTimeout:()=>0,clearTimeout(){},fetch:async()=>({ok:true,text:async()=>JSON.stringify({items:[],providers:{},idle:true})})};
+  vm.createContext(context);
+  assert.doesNotThrow(()=>vm.runInContext(app,context,{timeout:1000}));
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(errors.length,0,errors.map(String).join('\n'));
+  for(const selector of ['#searchBtn','#sort','#resetBtn','#saveWatchBtn','#imageSearchBtn'])assert.equal(typeof nodes.get(selector)?.onclick==='function'||typeof nodes.get(selector)?.onchange==='function',true,selector);
+  assert.equal(context.window.__OSHIRU_SEARCH_DIAGNOSTICS__.initial,'complete');
+});
+
 test('damaged or wrong-shaped saved data cannot stop search startup',()=>{
   for(const raw of ['{broken','null','{}','42','"text"']){
     const context={storage:{get:()=>raw}};
