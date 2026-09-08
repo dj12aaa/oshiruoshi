@@ -1,0 +1,103 @@
+{
+  "version": "2026-09-08.22",
+  "checkedAt": "2026-09-08T03:25:40.408Z",
+  "fixtureOnly": true,
+  "results": [
+    {
+      "width": 390,
+      "mode": "success",
+      "prematureEmptyFrames": 0,
+      "cards": 1,
+      "skeletons": 0,
+      "emptyVisible": false,
+      "message": "",
+      "button": "横断検索",
+      "fallbackVisible": false,
+      "links": [
+        "https://search.yahoo.co.jp/search?p=%E6%98%9F%E8%A1%97%E3%81%99%E3%81%84%E3%81%9B%E3%81%84%20%E3%82%A2%E3%82%AF%E3%82%B9%E3%82%BF",
+        "https://www.google.com/search?q=%E6%98%9F%E8%A1%97%E3%81%99%E3%81%84%E3%81%9B%E3%81%84%20%E3%82%A2%E3%82%AF%E3%82%B9%E3%82%BF"
+      ],
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "mode": "failure",
+      "prematureEmptyFrames": 0,
+      "cards": 0,
+      "skeletons": 0,
+      "emptyVisible": true,
+      "message": "検索を完了できませんでした通信失敗・取得制限または時間切れです。商品が存在しないという意味ではありません。検索中表示は終了しました。Yahoo!検索・Google検索でも同じ言葉を確認できます。メルカリで同じ語を検索 ↗Yahoo!フリマで同じ語を検索 ↗Yahoo!オークションで同じ語を検索 ↗Yahoo!ショッピングで同じ語を検索 ↗楽天市場で同じ語を検索 ↗Amazonで同じ語を検索 ↗Yahoo!検索で同じ語を検索 ↗Googleで同じ語を検索 ↗",
+      "button": "横断検索",
+      "fallbackVisible": true,
+      "links": [
+        "https://search.yahoo.co.jp/search?p=%E6%98%9F%E8%A1%97%E3%81%99%E3%81%84%E3%81%9B%E3%81%84%20%E3%82%A2%E3%82%AF%E3%82%B9%E3%82%BF",
+        "https://www.google.com/search?q=%E6%98%9F%E8%A1%97%E3%81%99%E3%81%84%E3%81%9B%E3%81%84%20%E3%82%A2%E3%82%AF%E3%82%B9%E3%82%BF"
+      ],
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "mode": "zero",
+      "prematureEmptyFrames": 0,
+      "cards": 0,
+      "skeletons": 0,
+      "emptyVisible": true,
+      "message": "条件に合う商品がありません絞り込み条件を見直すか、各販売サイトを同じ検索語で直接確認してください。メルカリで同じ語を検索 ↗Yahoo!フリマで同じ語を検索 ↗Yahoo!オークションで同じ語を検索 ↗Yahoo!ショッピングで同じ語を検索 ↗楽天市場で同じ語を検索 ↗Amazonで同じ語を検索 ↗Yahoo!検索で同じ語を検索 ↗Googleで同じ語を検索 ↗",
+      "button": "横断検索",
+      "fallbackVisible": true,
+      "links": [
+        "https://search.yahoo.co.jp/search?p=%E6%98%9F%E8%A1%97%E3%81%99%E3%81%84%E3%81%9B%E3%81%84%20%E3%82%A2%E3%82%AF%E3%82%B9%E3%82%BF",
+        "https://www.google.com/search?q=%E6%98%9F%E8%A1%97%E3%81%99%E3%81%84%E3%81%9B%E3%81%84%20%E3%82%A2%E3%82%AF%E3%82%B9%E3%82%BF"
+      ],
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "mode": "success",
+      "prematureEmptyFrames": 0,
+      "cards": 1,
+      "skeletons": 0,
+      "emptyVisible": false,
+      "message": "",
+      "button": "横断検索",
+      "fallbackVisible": false,
+      "links": [
+        "https://search.yahoo.co.jp/search?p=%E6%98%9F%E8%A1%97%E3%81%99%E3%81%84%E3%81%9B%E3%81%84%20%E3%82%A2%E3%82%AF%E3%82%B9%E3%82%BF",
+        "https://www.google.com/search?q=%E6%98%9F%E8%A1%97%E3%81%99%E3%81%84%E3%81%9B%E3%81%84%20%E3%82%A2%E3%82%AF%E3%82%B9%E3%82%BF"
+      ],
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "mode": "failure",
+      "prematureEmptyFrames": 0,
+      "cards": 0,
+      "skeletons": 0,
+      "emptyVisible": true,
+      "message": "検索を完了できませんでした通信失敗・取得制限または時間切れです。商品が存在しないという意味ではありません。検索中表示は終了しました。Yahoo!検索・Google検索でも同じ言葉を確認できます。メルカリで同じ語を検索 ↗Yahoo!フリマで同じ語を検索 ↗Yahoo!オークションで同じ語を検索 ↗Yahoo!ショッピングで同じ語を検索 ↗楽天市場で同じ語を検索 ↗Amazonで同じ語を検索 ↗Yahoo!検索で同じ語を検索 ↗Googleで同じ語を検索 ↗",
+      "button": "横断検索",
+      "fallbackVisible": true,
+      "links": [
+        "https://search.yahoo.co.jp/search?p=%E6%98%9F%E8%A1%97%E3%81%99%E3%81%84%E3%81%9B%E3%81%84%20%E3%82%A2%E3%82%AF%E3%82%B9%E3%82%BF",
+        "https://www.google.com/search?q=%E6%98%9F%E8%A1%97%E3%81%99%E3%81%84%E3%81%9B%E3%81%84%20%E3%82%A2%E3%82%AF%E3%82%B9%E3%82%BF"
+      ],
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "mode": "zero",
+      "prematureEmptyFrames": 0,
+      "cards": 0,
+      "skeletons": 0,
+      "emptyVisible": true,
+      "message": "条件に合う商品がありません絞り込み条件を見直すか、各販売サイトを同じ検索語で直接確認してください。メルカリで同じ語を検索 ↗Yahoo!フリマで同じ語を検索 ↗Yahoo!オークションで同じ語を検索 ↗Yahoo!ショッピングで同じ語を検索 ↗楽天市場で同じ語を検索 ↗Amazonで同じ語を検索 ↗Yahoo!検索で同じ語を検索 ↗Googleで同じ語を検索 ↗",
+      "button": "横断検索",
+      "fallbackVisible": true,
+      "links": [
+        "https://search.yahoo.co.jp/search?p=%E6%98%9F%E8%A1%97%E3%81%99%E3%81%84%E3%81%9B%E3%81%84%20%E3%82%A2%E3%82%AF%E3%82%B9%E3%82%BF",
+        "https://www.google.com/search?q=%E6%98%9F%E8%A1%97%E3%81%99%E3%81%84%E3%81%9B%E3%81%84%20%E3%82%A2%E3%82%AF%E3%82%B9%E3%82%BF"
+      ],
+      "overflow": false
+    }
+  ]
+}
