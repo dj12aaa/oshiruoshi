@@ -12,8 +12,9 @@ function isIndexable(){
   return process.env.VERCEL_ENV==='production';
 }
 export const SITEMAP_ENTRIES=[
-  {path:'/',lastmod:'2026-09-06'},
-  {path:'/latest-goods',lastmod:'2026-08-23'},
+  {path:'/',lastmod:'2026-09-08'},
+  {path:'/latest-goods',lastmod:'2026-09-08'},
+  {path:'/how-to-use',lastmod:'2026-09-08'},
   ...[
     '/guide/oshi-goods',
     '/guide/how-oshiru-compares',

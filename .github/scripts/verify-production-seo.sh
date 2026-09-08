@@ -7,11 +7,13 @@ attempts="${3:-36}"
 ready=0
 
 valid_sitemap(){
-  node - "$1" <<'NODE'
-const fs=require('fs');
+  node --input-type=module - "$1" <<'NODE'
+import fs from 'node:fs';
+import {SITEMAP_ENTRIES} from './api/sitemap.js';
 const xml=fs.readFileSync(process.argv[2],'utf8');
 const urls=[...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match=>match[1]);
-if(urls.length!==21||new Set(urls).size!==21)process.exit(1);
+const expected=SITEMAP_ENTRIES.map(entry=>'https://oshiruoshi.vercel.app'+entry.path);
+if(urls.length!==expected.length||new Set(urls).size!==expected.length||expected.some(url=>!urls.includes(url)))process.exit(1);
 if(!urls.every(url=>url.startsWith('https://oshiruoshi.vercel.app/')))process.exit(1);
 NODE
 }

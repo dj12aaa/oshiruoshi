@@ -1,9 +1,11 @@
 import precisionSearch from './_live-search-v8.js';
 import { json } from './_core.mjs';
+import latestFeed from './_latest-feed.mjs';
 // Empty queries are an idle UI state. They must never seed default merchandise.
 export default async function handler(req,res){
   try{
     const u=new URL(req.url,'http://local');
+    if(u.searchParams.get('feed')==='latest')return await latestFeed(req,res);
     const q=(u.searchParams.get('q')||'').trim();
     if(!q)return json(res,200,{query:'',items:[],providers:{},idle:true});
     return await precisionSearch(req,res);

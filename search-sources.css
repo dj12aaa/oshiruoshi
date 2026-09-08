@@ -1,0 +1,7 @@
+.search-help-actions{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+#externalSitesBtn{color:#9f1239;font-weight:700}
+.help-guide-link{margin-left:auto;color:#9f1239;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;padding:8px 0}
+.external-sites-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:16px 0}
+.external-sites-grid a{min-width:0;padding:14px 10px;border:1px solid #d8dde6;border-radius:10px;text-decoration:none;color:#293548;overflow-wrap:anywhere;font-size:13px;background:#fff}
+.external-sites-grid a:hover{border-color:#bf2447;background:#fff7f9}.external-sites-grid span{display:block;font-size:11px;margin-top:4px;color:#64748b}
+@media(max-width:420px){.search-help-actions{gap:8px}.search-help-actions .provider-details{font-size:10px}.help-guide-link{font-size:11px}}

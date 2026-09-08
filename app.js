@@ -1,4 +1,4 @@
-const SEARCH_UI_VERSION='2026-09-08.22';
+const SEARCH_UI_VERSION='2026-09-08.24';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const storage={get(k,f='[]'){try{return localStorage.getItem(k)||f}catch{return f}},set(k,v){try{localStorage.setItem(k,v)}catch{}}};
 function readStoredArray(key){try{const value=JSON.parse(storage.get(key));return Array.isArray(value)?value:[]}catch{return[]}}
@@ -11,15 +11,21 @@ const fmt=n=>n==null?'不明':'¥'+Number(n).toLocaleString('ja-JP');
 const total=i=>(i.price==null||i.shipping==null)?null:Number(i.price)+Number(i.shipping||0)+Number(i.fee||0);
 const esc=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const dt=s=>{if(!s)return'不明';const d=new Date(s);return Number.isNaN(+d)?'不明':d.toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})};
-const originLabel=o=>({'verified-snapshot':'検証済み実出品','web-index-snapshot':'Web確認済み','public-page-live':'現在取得','openai-web-search':'Web検索','official-api':'公式API'}[o]||'取得元確認');
+const originLabel=o=>({'verified-snapshot':'過去の確認情報','web-index-snapshot':'過去の確認情報','public-page-live':'現在取得','openai-web-search':'Web検索','official-api':'公式API'}[o]||'取得元確認');
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1500)}
 async function json(url,opts={}){const {timeoutMs=10000,...init}=opts||{},controller=new AbortController(),upstream=init.signal,abort=()=>controller.abort();if(upstream?.aborted)controller.abort();else upstream?.addEventListener?.('abort',abort,{once:true});const timer=setTimeout(abort,timeoutMs);try{const r=await fetch(url,{...init,signal:controller.signal});const text=await r.text();if(!r.ok)throw new Error(text||`${r.status}`);return JSON.parse(text)}finally{clearTimeout(timer);upstream?.removeEventListener?.('abort',abort)}}
 function debounce(fn,ms=300){let id;return(...a)=>{clearTimeout(id);id=setTimeout(()=>fn(...a),ms)}}
 function sourceClass(s){if(s==='メルカリ')return'mercari';if(s==='Yahoo!フリマ')return'yflea';if(s==='Yahoo!オークション')return'yauc';return'shop'}
-function sourceMode(s){return(s==='Yahoo!ショッピング'||s==='楽天市場')?'公式API':'サイト内検索'}
+function sourceMode(s){return(s==='Yahoo!ショッピング'||s==='楽天市場')?'公式API':'過去情報・外部検索'}
 function sourceSearchUrl(source,q){const e=encodeURIComponent(q||'推し活 グッズ');if(source==='メルカリ')return`https://jp.mercari.com/search?keyword=${e}`;if(source==='Yahoo!フリマ')return`https://paypayfleamarket.yahoo.co.jp/search/${e}`;if(source==='Yahoo!オークション')return`https://auctions.yahoo.co.jp/search/search/${e}/0/`;if(source==='Yahoo!ショッピング')return`https://shopping.yahoo.co.jp/search?p=${e}`;if(source==='楽天市場')return`https://search.rakuten.co.jp/search/mall/${e}/`;if(source==='Amazon')return`https://www.amazon.co.jp/s?k=${e}`;if(source==='Google')return`https://www.google.com/search?q=${e}`;if(source==='Yahoo!検索')return`https://search.yahoo.co.jp/search?p=${e}`;if(source==='X')return`https://x.com/search?f=live&q=${e}`;return'#'}
 function directLinks(q){return [...retailSources,'Amazon','Yahoo!検索','Google'].map(source=>({source,url:sourceSearchUrl(source,q)}))}
 function renderExternalLinks(){const box=$('#externalSearchLinks');if(box)box.innerHTML=state.direct.map(link=>`<a href="${esc(link.url)}" target="_blank" rel="noopener noreferrer">${esc(link.source)}で検索 ↗</a>`).join('')}
+function openExternalSearch(){
+  const query=state.resolvedQuery||state.query||$('#q').value.trim();
+  $('#modalContent').innerHTML=`<h2>各サイトで同じ言葉を検索</h2><p class="lead">${esc(query||'推し活 グッズ')}</p><nav class="external-sites-grid" aria-label="販売サイト・Web検索">${directLinks(query).map(link=>`<a href="${esc(link.url)}" target="_blank" rel="noopener noreferrer"><b>${esc(link.source)} ↗</b><span>同じ検索語で開く</span></a>`).join('')}</nav><p class="integration-note">メルカリ・Yahoo!フリマなどは現在API未接続です。OSHIRUにある一部の過去情報とは別に、どの商品名でも各サイトで検索できます。外部検索の結果はOSHIRUの表示件数に含めません。</p><a href="/how-to-use#sources">取得元の違い・使い方を見る →</a>`;
+  openModal();
+}
+$('#externalSitesBtn')?.addEventListener('click',openExternalSearch);
 function providerStateLabel(provider,actual){if(provider.mode==='external-search')return'外部検索のみ';if(actual?.ok===true)return`今回取得成功・関連${actual.count||0}件`;if(actual?.ok===false)return`今回取得失敗${/upstream_40[13]/.test(actual.error||'')?'（認証・許可を確認）':/429/.test(actual.error||'')?'（利用制限）':''}`;return provider.configured?'設定あり・接続未検証':'API設定なし'}
 function freshnessLabel(item){return `${item.origin==='official-api'?'API確認':'過去確認'} ${dt(item.verifiedAt)}`}
 function productRel(item){return item.affiliate?'sponsored nofollow noopener noreferrer':'noopener noreferrer'}
@@ -128,6 +134,8 @@ function renderSearchStatus(){
   if(loading)parts.push('追加の商品を確認中');
   else if(failed)parts.push('一部の販売元を取得できませんでした');
   else parts.push('取得が完了しました');
+  const past=state.shown.filter(item=>String(item.origin||'').includes('snapshot')).length;
+  if(past>0)parts.push(`過去情報${past}件を含む`);
   if(hidden>0)parts.push(`絞り込みで${hidden}件非表示`);
   box.textContent=parts.join(' ・ ');
   box.dataset.state=loading?'loading':failed?'partial':'complete';

@@ -34,10 +34,10 @@ jobs:
           ready=0
           for attempt in $(seq 1 45); do
             if curl --fail --silent --show-error --location "$base/?ready=$attempt-${GITHUB_SHA}" -o "$tmp/index.html" \
-              && grep -Fq 'oshiru-search-ui-version" content="2026-09-08.22' "$tmp/index.html" \
-              && grep -Fq '/app.js?v=20260908-22' "$tmp/index.html" \
-              && curl --fail --silent --show-error --location "$base/app.js?v=20260908-22-$attempt" -o "$tmp/app.js" \
-              && grep -Fq "SEARCH_UI_VERSION='2026-09-08.22'" "$tmp/app.js" \
+              && grep -Fq 'oshiru-search-ui-version" content="2026-09-08.24' "$tmp/index.html" \
+              && grep -Fq '/app.js?v=20260908-24' "$tmp/index.html" \
+              && curl --fail --silent --show-error --location "$base/app.js?v=20260908-24-$attempt" -o "$tmp/app.js" \
+              && grep -Fq "SEARCH_UI_VERSION='2026-09-08.24'" "$tmp/app.js" \
               && grep -Fq 'oshiru-home-version" content="2026-08-23.14' "$tmp/index.html" \
               && grep -Fq '/home-experience-v8.js?v=20260823-14' "$tmp/index.html" \
               && curl --fail --silent --show-error --location "$base/gallery-v8.css?v=$(date +%s)" -o "$tmp/gallery.css" \
@@ -47,7 +47,11 @@ jobs:
               && grep -Fq 'oshiru-affiliate-ui-version" content="2026-08-23.16' "$tmp/index.html" \
               && grep -Fq '/affiliate-widget.js?v=20260823-16' "$tmp/index.html" \
               && curl --fail --silent --show-error --location "$base/affiliate-widget.js?v=20260823-16-$attempt" -o "$tmp/affiliate.js" \
-              && grep -Fq "AFFILIATE_UI_VERSION='2026-08-23.16'" "$tmp/affiliate.js"; then
+              && grep -Fq "AFFILIATE_UI_VERSION='2026-08-23.16'" "$tmp/affiliate.js" \
+              && curl --max-time 12 --fail --silent --show-error --location "$base/latest-goods?v=23-$attempt" -o "$tmp/latest.html" \
+              && grep -Fq 'oshiru-feed-version" content="2026-09-08.23' "$tmp/latest.html" \
+              && curl --max-time 12 --fail --silent --show-error --location "$base/latest-feed.js?v=23-$attempt" -o "$tmp/feed.js" \
+              && grep -Fq "VERSION='2026-09-08.23'" "$tmp/feed.js"; then
               ready=1; break
             fi
             sleep 5
@@ -107,6 +111,12 @@ jobs:
 
       - name: Verify delayed, empty and failed search lifecycle
         run: node scripts/verify-search-lifecycle.cjs
+
+      - name: Verify live multi-merchant image feed
+        run: OSHIRU_FEED_LIVE=1 node scripts/verify-latest-feed.cjs
+
+      - name: Verify visual guide and search navigation
+        run: node scripts/verify-guide.cjs
 
       - name: Verify mobile and desktop layouts in real browser
         shell: bash
@@ -182,7 +192,7 @@ jobs:
             });
             console.log(name,JSON.stringify(metrics));
             await page.screenshot({path:`verification/screenshots/${name}-search.png`,fullPage:false});
-            if(metrics.uiVersion!=='2026-09-08.22'||metrics.homeVersion!=='2026-08-23.14'||metrics.affiliateVersion!=='2026-08-23.16'||metrics.diagnostics?.version!=='2026-09-08.22')throw new Error(`${name}: stale search UI loaded: ${JSON.stringify({uiVersion:metrics.uiVersion,homeVersion:metrics.homeVersion,affiliateVersion:metrics.affiliateVersion,diagnostics:metrics.diagnostics})}`);
+            if(metrics.uiVersion!=='2026-09-08.24'||metrics.homeVersion!=='2026-08-23.14'||metrics.affiliateVersion!=='2026-08-23.16'||metrics.diagnostics?.version!=='2026-09-08.24')throw new Error(`${name}: stale search UI loaded: ${JSON.stringify({uiVersion:metrics.uiVersion,homeVersion:metrics.homeVersion,affiliateVersion:metrics.affiliateVersion,diagnostics:metrics.diagnostics})}`);
             if(metrics.columns!==expectedColumns)throw new Error(`${name}: expected ${expectedColumns} columns, got ${metrics.columns}`);
             if(metrics.titleFont<12||!metrics.summaryVisible||!metrics.sortVisible||!metrics.detailVisible)throw new Error(`${name}: readability or search feedback missing`);
             if(!metrics.freshnessVisible)throw new Error(`${name}: item confirmation timestamp missing`);
@@ -232,6 +242,11 @@ jobs:
             await page.waitForFunction(()=>document.querySelectorAll('#modalContent .setting-row').length>=7,null,{timeout:6000});
             const integrations=await page.locator('#modalContent').innerText();
             if(!integrations.includes('Amazon')||!integrations.includes('外部検索のみ')||!integrations.includes('接続成功と判定しません'))throw new Error(`${name}: integration state is misleading`);
+            await page.locator('#modalClose').click();
+            await page.locator('#externalSitesBtn').click();
+            const quickLinks=await page.locator('#modalContent .external-sites-grid a').evaluateAll(nodes=>nodes.map(node=>node.href));
+            if(quickLinks.length!==8||quickLinks.some(url=>!decodeURIComponent(url).includes('NARUTO')))throw new Error(`${name}: quick site search lost the current query`);
+            if(!(await page.locator('#modalContent').innerText()).includes('API未接続'))throw new Error(`${name}: unsupported API implied to be live`);
             await page.locator('#modalClose').click();
             await page.locator('.external-search summary').click();
             const external=await page.locator('#externalSearchLinks a').evaluateAll(nodes=>nodes.map(node=>({label:node.textContent,url:node.href})));
@@ -316,5 +331,5 @@ jobs:
             checks:['v9-assets-live','precision-search-v10','initial-search-fast','search-loading-always-settles','naruto-noise-filter','mobile-three-columns','desktop-seven-columns','price-and-source-visible','favorite-and-compare-stable','source-panels-removed','image-search-close-no-overlap','latest-goods-visual-rail','latest-goods-auto-rotation','no-horizontal-overflow'],ui
           },null,2)+'\n');
           NODE
-          git add verification/v9-production.json verification/v9-ui-metrics.json verification/v22-search-lifecycle.json
+          git add verification/v9-production.json verification/v9-ui-metrics.json verification/v22-search-lifecycle.json verification/v23-feed-live.json verification/v24-guide.json
           bash .github/scripts/push-verification.sh 'Record v9 production browser verification'
