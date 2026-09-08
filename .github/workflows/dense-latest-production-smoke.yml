@@ -34,10 +34,10 @@ jobs:
           ready=0
           for attempt in $(seq 1 45); do
             if curl --fail --silent --show-error --location "$base/?ready=$attempt-${GITHUB_SHA}" -o "$tmp/index.html" \
-              && grep -Fq 'oshiru-search-ui-version" content="2026-09-07.21' "$tmp/index.html" \
-              && grep -Fq '/app.js?v=20260907-21' "$tmp/index.html" \
-              && curl --fail --silent --show-error --location "$base/app.js?v=20260907-21-$attempt" -o "$tmp/app.js" \
-              && grep -Fq "SEARCH_UI_VERSION='2026-09-07.21'" "$tmp/app.js" \
+              && grep -Fq 'oshiru-search-ui-version" content="2026-09-08.22' "$tmp/index.html" \
+              && grep -Fq '/app.js?v=20260908-22' "$tmp/index.html" \
+              && curl --fail --silent --show-error --location "$base/app.js?v=20260908-22-$attempt" -o "$tmp/app.js" \
+              && grep -Fq "SEARCH_UI_VERSION='2026-09-08.22'" "$tmp/app.js" \
               && grep -Fq 'oshiru-home-version" content="2026-08-23.14' "$tmp/index.html" \
               && grep -Fq '/home-experience-v8.js?v=20260823-14' "$tmp/index.html" \
               && curl --fail --silent --show-error --location "$base/gallery-v8.css?v=$(date +%s)" -o "$tmp/gallery.css" \
@@ -57,7 +57,7 @@ jobs:
 
           curl --fail --silent --show-error --location "$base/?v=$(date +%s)" -o "$tmp/index.html"
           grep -Fq 'OSHIRU' "$tmp/index.html"
-          grep -Fq '/gallery-v8.css?v=20260907-21' "$tmp/index.html"
+          grep -Fq '/gallery-v8.css?v=20260908-22' "$tmp/index.html"
           grep -Fq '/home-experience-v8.js?v=20260823-14' "$tmp/index.html"
           grep -Fq '/affiliate-widget.js?v=20260823-16' "$tmp/index.html"
           grep -Fq '/navigation-extra-v7.js?v=20260822-9' "$tmp/index.html"
@@ -104,6 +104,9 @@ jobs:
         run: |
           npm install --no-save --package-lock=false playwright@1.55.0
           npx playwright install --with-deps chromium
+
+      - name: Verify delayed, empty and failed search lifecycle
+        run: node scripts/verify-search-lifecycle.cjs
 
       - name: Verify mobile and desktop layouts in real browser
         shell: bash
@@ -179,7 +182,7 @@ jobs:
             });
             console.log(name,JSON.stringify(metrics));
             await page.screenshot({path:`verification/screenshots/${name}-search.png`,fullPage:false});
-            if(metrics.uiVersion!=='2026-09-07.21'||metrics.homeVersion!=='2026-08-23.14'||metrics.affiliateVersion!=='2026-08-23.16'||metrics.diagnostics?.version!=='2026-09-07.21')throw new Error(`${name}: stale search UI loaded: ${JSON.stringify({uiVersion:metrics.uiVersion,homeVersion:metrics.homeVersion,affiliateVersion:metrics.affiliateVersion,diagnostics:metrics.diagnostics})}`);
+            if(metrics.uiVersion!=='2026-09-08.22'||metrics.homeVersion!=='2026-08-23.14'||metrics.affiliateVersion!=='2026-08-23.16'||metrics.diagnostics?.version!=='2026-09-08.22')throw new Error(`${name}: stale search UI loaded: ${JSON.stringify({uiVersion:metrics.uiVersion,homeVersion:metrics.homeVersion,affiliateVersion:metrics.affiliateVersion,diagnostics:metrics.diagnostics})}`);
             if(metrics.columns!==expectedColumns)throw new Error(`${name}: expected ${expectedColumns} columns, got ${metrics.columns}`);
             if(metrics.titleFont<12||!metrics.summaryVisible||!metrics.sortVisible||!metrics.detailVisible)throw new Error(`${name}: readability or search feedback missing`);
             if(!metrics.freshnessVisible)throw new Error(`${name}: item confirmation timestamp missing`);
@@ -232,7 +235,7 @@ jobs:
             await page.locator('#modalClose').click();
             await page.locator('.external-search summary').click();
             const external=await page.locator('#externalSearchLinks a').evaluateAll(nodes=>nodes.map(node=>({label:node.textContent,url:node.href})));
-            if(external.length!==7||!external.some(link=>link.label.includes('Amazon'))||external.some(link=>!decodeURIComponent(link.url).includes('NARUTO')))throw new Error(`${name}: direct searches lost the corrected query`);
+            if(external.length!==8||!external.some(link=>link.url.includes('search.yahoo.co.jp'))||!external.some(link=>link.label.includes('Amazon'))||external.some(link=>!decodeURIComponent(link.url).includes('NARUTO')))throw new Error(`${name}: direct searches lost the corrected query`);
             await page.locator('.external-search summary').click();
             console.log(`${name}-integrations`,JSON.stringify({externalLinks:external.length,confirmationTimesVisible:metrics.freshnessVisible,dialog:true}));
 
@@ -271,11 +274,12 @@ jobs:
               sourceLabels:document.querySelectorAll('.official-preview-source').length,
               railToggleVisible:document.getElementById('railToggle')?.getBoundingClientRect().width>0,
               autoMoved:document.querySelector('[data-official-rail]')?.scrollLeft>initialRailLeft+2,
+              visibleExpired:[...document.querySelectorAll('[data-live-until]')].filter(el=>Date.parse(el.dataset.liveUntil)<Date.now()&&el.getClientRects().length>0).length,
               overflow:document.documentElement.scrollWidth>innerWidth+2
             }),initialRailLeft);
             console.log(`${name}-latest`,JSON.stringify(latest));
             await page.screenshot({path:`verification/screenshots/${name}-latest.png`,fullPage:false});
-            if(latest.previewCards<3||latest.sourceCards<10||latest.sourceLabels<3||!latest.railToggleVisible||!latest.autoMoved||latest.overflow)throw new Error(`${name}: latest-goods layout/source/rotation regression`);
+            if(latest.previewCards<3||latest.sourceCards<10||latest.sourceLabels<3||!latest.railToggleVisible||!latest.autoMoved||latest.overflow||latest.visibleExpired)throw new Error(`${name}: latest-goods layout/source/rotation regression`);
             await context.close();
             if(pageErrors.length)throw new Error(`${name}: browser runtime errors ${JSON.stringify(pageErrors)}`);
             return{...metrics,searchSettlement,responsive,imageSearch:modal,latest};
@@ -312,5 +316,5 @@ jobs:
             checks:['v9-assets-live','precision-search-v10','initial-search-fast','search-loading-always-settles','naruto-noise-filter','mobile-three-columns','desktop-seven-columns','price-and-source-visible','favorite-and-compare-stable','source-panels-removed','image-search-close-no-overlap','latest-goods-visual-rail','latest-goods-auto-rotation','no-horizontal-overflow'],ui
           },null,2)+'\n');
           NODE
-          git add verification/v9-production.json verification/v9-ui-metrics.json
+          git add verification/v9-production.json verification/v9-ui-metrics.json verification/v22-search-lifecycle.json
           bash .github/scripts/push-verification.sh 'Record v9 production browser verification'

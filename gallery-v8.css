@@ -103,6 +103,10 @@ body .result-meta{overflow-wrap:anywhere}
 .discovery-links{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;margin-top:12px;font-size:12px;line-height:1.6}
 .discovery-links span{color:#475569}
 .card-freshness{font-size:10px;line-height:1.5;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
+.search-help{display:flex;align-items:baseline;justify-content:space-between;gap:4px;flex-wrap:wrap}
+.web-search-fallback{display:flex;gap:10px;font-size:11px;line-height:1.6;margin-bottom:8px}
+.web-search-fallback[hidden]{display:none!important}
+.web-search-fallback a{color:#9f1239;font-weight:700;white-space:nowrap;text-underline-offset:3px}
 .provider-details{display:inline-block;margin:0 0 8px;padding:4px 0;border:0;background:none;font-size:11px;color:#475569;text-decoration:underline;text-underline-offset:3px;text-align:left}
 .external-search{margin:18px 0 8px;font-size:12px;line-height:1.7}
 .external-search summary{cursor:pointer;font-weight:700}
