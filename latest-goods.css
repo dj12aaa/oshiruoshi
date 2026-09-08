@@ -1,5 +1,6 @@
 /* Latest goods v7 — fixed geometry first; external images may fail without shifting layout. */
 body.latest-goods-page{margin:0;background:#f5f6f8;color:#0b1220;overflow-x:hidden}
+body.latest-goods-page [hidden]{display:none!important}
 .latest-main{width:min(1240px,100%);margin:0 auto;padding:28px 20px 72px;min-width:0}
 .latest-breadcrumb{margin:0 0 14px;font-size:11px;color:#64748b}.latest-breadcrumb a{text-decoration:none}
 .latest-hero{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);gap:14px;align-items:stretch}

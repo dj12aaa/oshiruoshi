@@ -1,4 +1,4 @@
-const SEARCH_UI_VERSION='2026-09-07.21';
+const SEARCH_UI_VERSION='2026-09-08.22';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const storage={get(k,f='[]'){try{return localStorage.getItem(k)||f}catch{return f}},set(k,v){try{localStorage.setItem(k,v)}catch{}}};
 function readStoredArray(key){try{const value=JSON.parse(storage.get(key));return Array.isArray(value)?value:[]}catch{return[]}}
@@ -17,8 +17,8 @@ async function json(url,opts={}){const {timeoutMs=10000,...init}=opts||{},contro
 function debounce(fn,ms=300){let id;return(...a)=>{clearTimeout(id);id=setTimeout(()=>fn(...a),ms)}}
 function sourceClass(s){if(s==='メルカリ')return'mercari';if(s==='Yahoo!フリマ')return'yflea';if(s==='Yahoo!オークション')return'yauc';return'shop'}
 function sourceMode(s){return(s==='Yahoo!ショッピング'||s==='楽天市場')?'公式API':'サイト内検索'}
-function sourceSearchUrl(source,q){const e=encodeURIComponent(q||'推し活 グッズ');if(source==='メルカリ')return`https://jp.mercari.com/search?keyword=${e}`;if(source==='Yahoo!フリマ')return`https://paypayfleamarket.yahoo.co.jp/search/${e}`;if(source==='Yahoo!オークション')return`https://auctions.yahoo.co.jp/search/search/${e}/0/`;if(source==='Yahoo!ショッピング')return`https://shopping.yahoo.co.jp/search?p=${e}`;if(source==='楽天市場')return`https://search.rakuten.co.jp/search/mall/${e}/`;if(source==='Amazon')return`https://www.amazon.co.jp/s?k=${e}`;if(source==='Google')return`https://www.google.com/search?q=${e}`;if(source==='X')return`https://x.com/search?f=live&q=${e}`;return'#'}
-function directLinks(q){return [...retailSources,'Amazon','Google'].map(source=>({source,url:sourceSearchUrl(source,q)}))}
+function sourceSearchUrl(source,q){const e=encodeURIComponent(q||'推し活 グッズ');if(source==='メルカリ')return`https://jp.mercari.com/search?keyword=${e}`;if(source==='Yahoo!フリマ')return`https://paypayfleamarket.yahoo.co.jp/search/${e}`;if(source==='Yahoo!オークション')return`https://auctions.yahoo.co.jp/search/search/${e}/0/`;if(source==='Yahoo!ショッピング')return`https://shopping.yahoo.co.jp/search?p=${e}`;if(source==='楽天市場')return`https://search.rakuten.co.jp/search/mall/${e}/`;if(source==='Amazon')return`https://www.amazon.co.jp/s?k=${e}`;if(source==='Google')return`https://www.google.com/search?q=${e}`;if(source==='Yahoo!検索')return`https://search.yahoo.co.jp/search?p=${e}`;if(source==='X')return`https://x.com/search?f=live&q=${e}`;return'#'}
+function directLinks(q){return [...retailSources,'Amazon','Yahoo!検索','Google'].map(source=>({source,url:sourceSearchUrl(source,q)}))}
 function renderExternalLinks(){const box=$('#externalSearchLinks');if(box)box.innerHTML=state.direct.map(link=>`<a href="${esc(link.url)}" target="_blank" rel="noopener noreferrer">${esc(link.source)}で検索 ↗</a>`).join('')}
 function providerStateLabel(provider,actual){if(provider.mode==='external-search')return'外部検索のみ';if(actual?.ok===true)return`今回取得成功・関連${actual.count||0}件`;if(actual?.ok===false)return`今回取得失敗${/upstream_40[13]/.test(actual.error||'')?'（認証・許可を確認）':/429/.test(actual.error||'')?'（利用制限）':''}`;return provider.configured?'設定あり・接続未検証':'API設定なし'}
 function freshnessLabel(item){return `${item.origin==='official-api'?'API確認':'過去確認'} ${dt(item.verifiedAt)}`}
@@ -34,31 +34,49 @@ function markSearch(patch={}){Object.assign(searchDiagnostics,patch,{updatedAt:n
 function mergeItems(...groups){const seen=new Set(),urls=new Set(),merged=[];for(const item of groups.flat()){const key=`${item?.source}|${item?.id||item?.canonicalUrl||item?.url||`${item?.title}|${item?.price}`}`,url=item?.canonicalUrl||item?.url,urlKey=url?`${item?.source}|${url}`:'';if(seen.has(key)||(urlKey&&urls.has(urlKey)))continue;seen.add(key);if(urlKey)urls.add(urlKey);merged.push(item)}return merged}
 function queryKey(value=''){return String(value).normalize('NFKC').toLowerCase().replace(/\s+/g,' ').trim()}
 function adoptSearchInterpretation(data,original){const resolved=String(data?.resolvedQuery||data?.effectiveQuery||'').trim();if(!resolved||queryKey(resolved)===queryKey(original))return;state.resolvedQuery=resolved;state.direct=directLinks(resolved);renderExternalLinks();markSearch({resolvedQuery:resolved})}
-function finishSearchUi(seq,phase='settled'){if(seq!==state.searchSeq)return;const btn=$('#searchBtn');btn.classList.remove('loading');btn.textContent='横断検索';markSearch({phase})}
+function searchPending(){return searchDiagnostics.initial==='loading'||searchDiagnostics.live==='loading'}
+function searchFailed(){return ['error','timeout'].includes(searchDiagnostics.initial)||['error','timeout'].includes(searchDiagnostics.live)||Boolean(state.providers.liveError)||['yahooShopping','rakuten'].some(key=>state.providers[key]?.ok===false)}
+function renderWebFallback(){const box=$('#webSearchFallback');if(!box)return;box.hidden=!state.query||(!searchFailed()&&(searchPending()||state.shown.length>0));const q=state.resolvedQuery||state.query;box.innerHTML=['Yahoo!検索','Google'].map(source=>`<a href="${esc(sourceSearchUrl(source,q))}" target="_blank" rel="noopener noreferrer">${source==='Yahoo!検索'?'Yahoo!で検索':'Googleで検索'} ↗</a>`).join('')}
+function finishSearchUi(seq,phase='settled'){if(seq!==state.searchSeq)return;const pending=searchPending(),waiting=pending&&!state.shown.length,btn=$('#searchBtn');btn.classList.toggle('loading',waiting);btn.textContent=waiting?'検索中…':'横断検索';markSearch({phase:pending?(state.shown.length?'partial-results':'loading'):phase})}
 async function runSearch(){
   const q=$('#q').value.trim(); const seq=++state.searchSeq; state.query=q; state.resolvedQuery=''; state.all=[]; state.shown=[]; state.providers={}; state.broken.clear(); state.loaded.clear();state.direct=directLinks(q);renderExternalLinks();
   primarySearchController?.abort();liveSearchController?.abort();const controller=new AbortController();primarySearchController=controller;
   markSearch({phase:'loading',query:q,resolvedQuery:'',initial:'loading',live:q?'loading':'idle',initialQuery:'',liveQuery:'',initialItems:0,liveItems:0});
   $('#queryBadge').textContent=q?`「${q}」`:'すべて'; $('#resultMeta').textContent='個別出品を検索しています…'; $('#productGrid').innerHTML=loadingCards(); $('#emptyState').classList.add('hidden'); $('#providerNotice').classList.add('hidden');
   const btn=$('#searchBtn');btn.classList.add('loading');btn.textContent='検索中…';
-  const watchdog=setTimeout(()=>{if(seq!==state.searchSeq)return;finishSearchUi(seq,'watchdog-settled');if($('#productGrid .skeleton')){if(state.all.length)applyFilters();else renderEmpty('検索に時間がかかっています','検索中表示は終了しました。追加の商品はバックグラウンドで取得し、届き次第表示します。販売サイトへの直接検索も利用できます。')}},7500);
+  // This deadline spans BOTH requests. Completing the snapshot must not clear it.
+  const watchdog=setTimeout(()=>{
+    if(seq!==state.searchSeq||!searchPending())return;
+    controller.abort();liveSearchController?.abort();
+    markSearch({initial:searchDiagnostics.initial==='loading'?'timeout':searchDiagnostics.initial,live:searchDiagnostics.live==='loading'?'timeout':searchDiagnostics.live,initialQuery:q,liveQuery:q});
+    state.providers.liveError='timeout';hydrateFilters();applyFilters();finishSearchUi(seq,'timeout');
+    ++state.searchSeq; // Ignore responses from transports that resolve even after abort.
+  },12000);
   const livePromise=refreshLive(q,seq);
-  try{
-    const data=await json(`/api/search?initial=1&q=${encodeURIComponent(q)}`,{signal:controller.signal,timeoutMs:6000});if(seq!==state.searchSeq)return;
-    adoptSearchInterpretation(data,q);state.all=mergeItems(state.all,data.items||[]);state.direct=directLinks(state.resolvedQuery||q);state.providers={...(data.providers||{}),...state.providers};markSearch({initial:'complete',initialQuery:q,initialItems:(data.items||[]).length});
-    hydrateFilters();applyFilters();renderProviderNotice(Boolean(q)&&searchDiagnostics.live==='loading');
-  }catch(e){
-    if(seq!==state.searchSeq)return;state.direct=directLinks(q);markSearch({initial:e?.name==='AbortError'?'timeout':'error',initialQuery:q});if(!state.all.length){hydrateFilters();renderEmpty(e?.name==='AbortError'?'検索の応答が時間内に返りませんでした':'検索サーバーに接続できませんでした','検索中表示は終了しました。追加の商品はバックグラウンドで取得中です。販売サイトへの直接検索リンクも利用できます。')}console.error(e);
-  }finally{clearTimeout(watchdog);if(primarySearchController===controller)primarySearchController=null;if(seq===state.searchSeq)finishSearchUi(seq,state.all.length?'results':'settled')}
-  void livePromise;
+  const initialPromise=(async()=>{
+    try{
+      const data=await json(`/api/search?initial=1&q=${encodeURIComponent(q)}`,{signal:controller.signal,timeoutMs:6000});if(seq!==state.searchSeq)return;
+      adoptSearchInterpretation(data,q);state.all=mergeItems(state.all,data.items||[]);state.direct=directLinks(state.resolvedQuery||q);state.providers={...(data.providers||{}),...state.providers};markSearch({initial:'complete',initialQuery:q,initialItems:(data.items||[]).length});
+    }catch(e){
+      if(seq!==state.searchSeq)return;markSearch({initial:e?.name==='AbortError'?'timeout':'error',initialQuery:q});console.error(e);
+    }finally{
+      if(primarySearchController===controller)primarySearchController=null;
+      if(seq===state.searchSeq){hydrateFilters();applyFilters();renderProviderNotice(Boolean(q)&&searchDiagnostics.live==='loading');finishSearchUi(seq,state.all.length?'results':'settled')}
+    }
+  })();
+  try{await Promise.all([initialPromise,livePromise])}finally{clearTimeout(watchdog)}
 }
 async function refreshLive(q,seq){
   if(!q){markSearch({live:'idle'});return}
   liveSearchController?.abort();const controller=new AbortController();liveSearchController=controller;
   try{
     const live=await json(`/api/live-search-v8?q=${encodeURIComponent(q)}`,{signal:controller.signal,timeoutMs:12000});if(seq!==state.searchSeq)return;
-    adoptSearchInterpretation(live,q);state.all=mergeItems(live.items||[],state.all);state.providers={...state.providers,...(live.providers||{})};markSearch({live:'complete',liveQuery:q,liveItems:(live.items||[]).length});hydrateFilters();applyFilters();renderProviderNotice(false);finishSearchUi(seq,state.all.length?'results':'settled');
-  }catch(e){if(seq===state.searchSeq){state.providers.liveError=e?.name==='AbortError'?'timeout':String(e.message||e);markSearch({live:e?.name==='AbortError'?'timeout':'error',liveQuery:q});renderProviderNotice(false)}}finally{if(liveSearchController===controller)liveSearchController=null}
+    adoptSearchInterpretation(live,q);state.all=mergeItems(live.items||[],state.all);state.providers={...state.providers,...(live.providers||{})};markSearch({live:'complete',liveQuery:q,liveItems:(live.items||[]).length});
+  }catch(e){if(seq===state.searchSeq){state.providers.liveError=e?.name==='AbortError'?'timeout':String(e.message||e);markSearch({live:e?.name==='AbortError'?'timeout':'error',liveQuery:q})}}
+  finally{
+    if(liveSearchController===controller)liveSearchController=null;
+    if(seq===state.searchSeq){hydrateFilters();applyFilters();renderProviderNotice(false);finishSearchUi(seq,state.all.length?'results':'settled')}
+  }
 }
 function loadingCards(){return Array.from({length:8},()=>`<div class="product-card"><div class="visual skeleton"></div><div class="card-body"><div class="skeleton line"></div><div class="skeleton line short"></div><div class="skeleton price-sk"></div></div></div>`).join('')}
 function hydrateFilters(){
@@ -74,7 +92,18 @@ function applyFilters(){
   const sort=$('#sort').value;if(sort==='price')arr.sort((a,b)=>(total(a)??a.price??Infinity)-(total(b)??b.price??Infinity));else if(sort==='source')arr.sort((a,b)=>sourceOrder.indexOf(a.source)-sourceOrder.indexOf(b.source));else if(sort==='new')arr.sort((a,b)=>new Date(b.verifiedAt||0)-new Date(a.verifiedAt||0));else arr.sort((a,b)=>(b._score||0)-(a._score||0)||(a.price??Infinity)-(b.price??Infinity));state.shown=arr;render();
 }
 function render(){
-  $('#favCount').textContent=state.favorites.size;const arr=state.shown;const interpreted=state.resolvedQuery?` ・ 「${state.resolvedQuery}」として検索`:'';$('#resultMeta').textContent=`${arr.length}件表示 / 取得候補 ${state.all.length}件${interpreted}`;renderStats(arr);renderSearchStatus();if(!arr.length){$('#productGrid').innerHTML='';renderEmpty();return}else $('#emptyState').classList.add('hidden');$('#productGrid').innerHTML=arr.map(card).join('');bindCards();
+  $('#favCount').textContent=state.favorites.size;const arr=state.shown,pending=searchPending(),grid=$('#productGrid'),interpreted=state.resolvedQuery?` ・ 「${state.resolvedQuery}」として検索`:'';
+  $('#resultMeta').textContent=!arr.length&&pending?'販売元の商品を検索しています…':!arr.length&&!state.all.length&&searchFailed()?'商品情報の取得を完了できませんでした':`${arr.length}件表示 / 取得候補 ${state.all.length}件${interpreted}`;
+  grid.setAttribute('aria-busy',String(pending));renderStats(arr);renderSearchStatus();
+  if(!arr.length){
+    if(pending){$('#emptyState').classList.add('hidden');if(!$('#productGrid .skeleton'))grid.innerHTML=loadingCards();return}
+    grid.innerHTML='';
+    if(!state.query)renderEmpty('推し・作品名で検索してください','キャラクター・作品名とグッズの種類を入力すると、関連する商品を探せます。');
+    else if(searchFailed()&&!state.all.length)renderEmpty('検索を完了できませんでした','通信失敗・取得制限または時間切れです。商品が存在しないという意味ではありません。検索中表示は終了しました。Yahoo!検索・Google検索でも同じ言葉を確認できます。');
+    else renderEmpty();
+    return;
+  }
+  $('#emptyState').classList.add('hidden');grid.innerHTML=arr.map(card).join('');bindCards();
 }
 function renderStats(arr){const costs=arr.map(total).filter(Number.isFinite);const prices=arr.map(x=>x.price).filter(Number.isFinite);const sources=new Set(arr.map(x=>x.source));const withImage=arr.filter(x=>x.image&&x.imageVerified===true&&!state.broken.has(String(x.id))).length;const min=costs.length?Math.min(...costs):(prices.length?Math.min(...prices):null);$('#stats').innerHTML=`<div class="stat"><span>表示件数</span><b>${arr.length}件</b></div><div class="stat"><span>最安候補</span><b>${fmt(min)}</b></div><div class="stat"><span>商品取得元</span><b>${sources.size}サイト</b></div><div class="stat"><span>画像あり</span><b>${withImage}件</b></div>`}
 function card(i){
@@ -89,11 +118,11 @@ function bindCards(){
 }
 function renderEmpty(title='条件に合う商品がありません',body='絞り込み条件を見直すか、各販売サイトを同じ検索語で直接確認してください。'){const box=$('#emptyState');box.classList.remove('hidden');box.innerHTML=`<h3>${esc(title)}</h3><p>${esc(body)}</p><div class="direct-links">${state.direct.map(x=>`<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.source)}で同じ語を検索 ↗</a>`).join('')}</div>`}
 function renderSearchStatus(){
-  const box=$('#searchStatus');if(!box)return;
+  renderWebFallback();const box=$('#searchStatus');if(!box)return;
   if(!state.query){box.textContent='';box.hidden=true;return}
   box.hidden=false;
-  const loading=searchDiagnostics.live==='loading'||searchDiagnostics.initial==='loading';
-  const failed=Boolean(state.providers.liveError)||['yahooShopping','rakuten'].some(key=>state.providers[key]?.ok===false);
+  const loading=searchPending();
+  const failed=searchFailed();
   const hidden=state.all.length-state.shown.length;
   const parts=[];
   if(loading)parts.push('追加の商品を確認中');

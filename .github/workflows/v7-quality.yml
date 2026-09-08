@@ -13,6 +13,40 @@ permissions:
   contents: read
 
 jobs:
+  browser-lifecycle:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test runtime
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Test delayed and failed responses before release
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 &
+          test_server_pid=$!
+          trap 'kill "$test_server_pid"' EXIT
+          for attempt in $(seq 1 20); do
+            if curl --max-time 2 --silent --fail http://127.0.0.1:4173/ > /dev/null; then break; fi
+            sleep 0.25
+          done
+          OSHIRU_TEST_BASE_URL=http://127.0.0.1:4173 node scripts/verify-search-lifecycle.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v22-pr-search-lifecycle
+          path: |
+            verification/v22-search-lifecycle.json
+            verification/screenshots/lifecycle-*.png
+          if-no-files-found: warn
+          retention-days: 7
+
   quality:
     runs-on: ubuntu-latest
     timeout-minutes: 7
@@ -113,7 +147,7 @@ jobs:
           const nav=fs.readFileSync('navigation-extra-v7.js','utf8');
           for(const token of ['画像検索','最新グッズ','data-open-image-search','/latest-goods'])if(!nav.includes(token))throw new Error(`dock extension missing: ${token}`);
           const html=fs.readFileSync('index.html','utf8'),seo=fs.readFileSync('seo-structured-data.js','utf8'),home=fs.readFileSync('home-experience-v8.js','utf8'),affiliate=fs.readFileSync('affiliate-widget.js','utf8');
-          for(const token of ['/gallery-v8.css?v=20260907-21','/home-experience-v8.js?v=20260823-14','/affiliate-widget.js?v=20260823-16','/navigation-extra-v7.js?v=20260822-9'])if(!html.includes(token))throw new Error(`critical home asset missing: ${token}`);
+          for(const token of ['/gallery-v8.css?v=20260908-22','/home-experience-v8.js?v=20260823-14','/affiliate-widget.js?v=20260823-16','/navigation-extra-v7.js?v=20260822-9'])if(!html.includes(token))throw new Error(`critical home asset missing: ${token}`);
           if(!home.includes("HOME_EXPERIENCE_VERSION='2026-08-23.14'")||home.includes('observe(grid,{childList:true,subtree:true,characterData:true})'))throw new Error('self-triggering gallery observer remains');
           for(const token of ["AFFILIATE_UI_VERSION='2026-08-23.16'","const compact=btn.classList.contains('gallery-compare')","if(btn.textContent!==glyph)btn.textContent=glyph"])if(!affiliate.includes(token))throw new Error(`compact compare invariant missing: ${token}`);
           if(/loadScript|data-gallery-v8|home-experience-v8/.test(seo))throw new Error('critical assets must not be dynamically bootstrapped');

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="oshiru-search-ui-version" content="2026-09-07.21">
+  <meta name="oshiru-search-ui-version" content="2026-09-08.22">
   <meta name="oshiru-home-version" content="2026-08-23.14">
   <meta name="oshiru-affiliate-ui-version" content="2026-08-23.16">
   <meta name="theme-color" content="#ffffff">
@@ -30,7 +30,7 @@
   <link rel="stylesheet" href="/affiliate-widget.css?v=20260819-pcfix1">
   <link rel="stylesheet" href="/predictive-mobile.css?v=20260819-searchmode1">
   <!-- Critical gallery geometry is loaded directly and last so legacy card CSS can never win. -->
-  <link rel="stylesheet" href="/gallery-v8.css?v=20260907-21">
+  <link rel="stylesheet" href="/gallery-v8.css?v=20260908-22">
   <link rel="manifest" href="/manifest.webmanifest">
   <script src="/seo-structured-data.js?v=20260905-seo4" defer></script>
 </head>
@@ -110,7 +110,7 @@
         <div class="result-controls"><button id="mobileFilterBtn" class="mobile-filter">絞り込み</button><select id="sort" aria-label="検索結果の並び順"><option value="relevance">一致度順</option><option value="price">価格が安い順（送料判明分は込）</option><option value="source">販売サイト順</option></select></div>
       </div>
       <p id="searchStatus" class="search-status" role="status" hidden></p>
-      <button type="button" id="providerDetailsBtn" class="provider-details">取得元の内訳・連携状況</button>
+      <div class="search-help"><button type="button" id="providerDetailsBtn" class="provider-details">取得元の内訳・連携状況</button><nav id="webSearchFallback" class="web-search-fallback" aria-label="API取得失敗時のWeb検索" hidden></nav></div>
       <div id="stats" class="stats-row"></div>
       <div id="providerNotice" class="provider-notice hidden" aria-hidden="true"></div>
       <div id="productGrid" class="product-grid" aria-live="polite"></div>
@@ -168,7 +168,7 @@
 <div id="toast" class="toast"></div>
 <script src="/performance-v3.js?v=20260823-12"></script>
 <script src="/seo-query-bridge.js?v=20260819-seo1"></script>
-<script src="/app.js?v=20260907-21"></script>
+<script src="/app.js?v=20260908-22"></script>
 <script src="/ui-v2.js?v=20260819-pcfix1"></script>
 <script src="/predictive-mobile.js?v=20260819-searchmode1"></script>
 <script src="/enhancements.js?v=20260819-pcfix1"></script>
