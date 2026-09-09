@@ -1,0 +1,137 @@
+{
+  "version": "2026-09-08.23",
+  "checkedAt": "2026-09-09T06:20:44.583Z",
+  "live": true,
+  "results": [
+    {
+      "width": 390,
+      "live": true,
+      "fail": false,
+      "state": "ready",
+      "cards": 40,
+      "shops": [
+        "らしんばん通販 Yahoo!店",
+        "あみあみ Yahoo!店",
+        "Action!",
+        "スター セレクション",
+        "マックス・ホビー",
+        "でじたみん Yahoo!店",
+        "富成ストア",
+        "アウトレットカラコン&コスメのmira",
+        "駿河屋Yahoo!店",
+        "ハピネット・オンラインYahoo!ショッピング店",
+        "World Free Store",
+        "TWAST",
+        "B-button",
+        "ほびすと",
+        "HDCトータルプロショップ ヤフー店",
+        "新星堂WonderGOO Yahoo!店",
+        "バニティスタジオ キャラクター",
+        "エムココ",
+        "サプライズshop",
+        "フロンティアバルーン Yahoo!店",
+        "メディアワールドプラス",
+        "A-style Yahoo!Shop",
+        "SPW(適格請求書発行事業者)Yahoo!店",
+        "BENEBOX Yahoo!店"
+      ],
+      "sources": [
+        "Yahoo!ショッピング"
+      ],
+      "status": "40件を表示 · 一部の取得元は利用できません",
+      "refreshDisabled": false,
+      "overflow": false,
+      "autoMoved": 242,
+      "pauseWorked": true,
+      "loadedImages": 21,
+      "errors": [],
+      "responses": [
+        {
+          "url": "https://oshiruoshi.vercel.app/api/search?feed=latest&category=character",
+          "status": 200
+        },
+        {
+          "url": "https://oshiruoshi.vercel.app/api/search?feed=latest&category=vtuber",
+          "status": 200
+        },
+        {
+          "url": "https://oshiruoshi.vercel.app/api/search?feed=latest&category=games",
+          "status": 200
+        },
+        {
+          "url": "https://oshiruoshi.vercel.app/api/search?feed=latest&category=anime",
+          "status": 200
+        },
+        {
+          "url": "https://oshiruoshi.vercel.app/api/search?feed=latest&category=music",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "live": true,
+      "fail": false,
+      "state": "ready",
+      "cards": 40,
+      "shops": [
+        "らしんばん通販 Yahoo!店",
+        "あみあみ Yahoo!店",
+        "Action!",
+        "スター セレクション",
+        "マックス・ホビー",
+        "でじたみん Yahoo!店",
+        "富成ストア",
+        "アウトレットカラコン&コスメのmira",
+        "駿河屋Yahoo!店",
+        "ハピネット・オンラインYahoo!ショッピング店",
+        "World Free Store",
+        "TWAST",
+        "B-button",
+        "ほびすと",
+        "HDCトータルプロショップ ヤフー店",
+        "新星堂WonderGOO Yahoo!店",
+        "バニティスタジオ キャラクター",
+        "エムココ",
+        "サプライズshop",
+        "フロンティアバルーン Yahoo!店",
+        "メディアワールドプラス",
+        "A-style Yahoo!Shop",
+        "SPW(適格請求書発行事業者)Yahoo!店",
+        "BENEBOX Yahoo!店"
+      ],
+      "sources": [
+        "Yahoo!ショッピング"
+      ],
+      "status": "40件を表示 · 一部の取得元は利用できません",
+      "refreshDisabled": false,
+      "overflow": false,
+      "autoMoved": 252,
+      "pauseWorked": true,
+      "loadedImages": 19,
+      "errors": [],
+      "responses": [
+        {
+          "url": "https://oshiruoshi.vercel.app/api/search?feed=latest&category=character",
+          "status": 200
+        },
+        {
+          "url": "https://oshiruoshi.vercel.app/api/search?feed=latest&category=games",
+          "status": 200
+        },
+        {
+          "url": "https://oshiruoshi.vercel.app/api/search?feed=latest&category=anime",
+          "status": 200
+        },
+        {
+          "url": "https://oshiruoshi.vercel.app/api/search?feed=latest&category=vtuber",
+          "status": 200
+        },
+        {
+          "url": "https://oshiruoshi.vercel.app/api/search?feed=latest&category=music",
+          "status": 200
+        }
+      ]
+    }
+  ]
+}
