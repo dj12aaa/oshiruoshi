@@ -1,0 +1,217 @@
+{
+  "release": "2026-09-08.24",
+  "verifiedAt": "2026-09-09T06:21:18.484Z",
+  "production": "https://oshiruoshi.vercel.app",
+  "productMainSha": "5eae6db9c7e7ccc00cb927117b9834f1d42addba",
+  "pr": "https://github.com/dj12aaa/oshiruoshi/pull/24",
+  "implementationVerified": true,
+  "rankingImprovementMeasured": false,
+  "workflows": {
+    "quality": 34318340042,
+    "http": 34318340076,
+    "public": 34318340051,
+    "ux": 34318340093,
+    "browser": 34318340055,
+    "prBrowser": 34318041828
+  },
+  "browserScreenshotArtifact": 10091006126,
+  "regressionTests": {
+    "passed": 68,
+    "failed": 0
+  },
+  "vercelFunctions": {
+    "used": 11,
+    "limit": 12
+  },
+  "releaseTreeValidation": {
+    "preservedMainFiles": 104,
+    "reviewedPaths": 31,
+    "unintendedDeletions": 0,
+    "tree": "ccab335faaedfcf53d97bfa99a077908cee85d43"
+  },
+  "searchLifecycle": [
+    {
+      "width": 390,
+      "scenario": "success",
+      "prematureEmptyFrames": 0,
+      "skeletons": 0,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "scenario": "failure",
+      "prematureEmptyFrames": 0,
+      "skeletons": 0,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "scenario": "zero",
+      "prematureEmptyFrames": 0,
+      "skeletons": 0,
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "scenario": "success",
+      "prematureEmptyFrames": 0,
+      "skeletons": 0,
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "scenario": "failure",
+      "prematureEmptyFrames": 0,
+      "skeletons": 0,
+      "overflow": false
+    },
+    {
+      "width": 1440,
+      "scenario": "zero",
+      "prematureEmptyFrames": 0,
+      "skeletons": 0,
+      "overflow": false
+    }
+  ],
+  "searchUi": [
+    {
+      "viewport": "mobile",
+      "version": "2026-09-08.24",
+      "columns": 3,
+      "titleFont": 12,
+      "overflow": false,
+      "searchToGridGap": 119.5,
+      "query": "なると",
+      "items": 26,
+      "elapsedMs": 3184,
+      "skeletons": 0
+    },
+    {
+      "viewport": "desktop",
+      "version": "2026-09-08.24",
+      "columns": 7,
+      "titleFont": 12,
+      "overflow": false,
+      "searchToGridGap": 300.96875,
+      "query": "なると",
+      "items": 26,
+      "elapsedMs": 155,
+      "skeletons": 0
+    }
+  ],
+  "liveImageFeed": [
+    {
+      "width": 390,
+      "cards": 40,
+      "merchants": 24,
+      "platforms": [
+        "Yahoo!ショッピング"
+      ],
+      "imagesLoaded": 21,
+      "autoMovedPixels": 242,
+      "pauseWorked": true,
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "width": 1440,
+      "cards": 40,
+      "merchants": 24,
+      "platforms": [
+        "Yahoo!ショッピング"
+      ],
+      "imagesLoaded": 19,
+      "autoMovedPixels": 252,
+      "pauseWorked": true,
+      "overflow": false,
+      "errors": []
+    }
+  ],
+  "feedCadence": {
+    "visiblePageRefreshSeconds": 300,
+    "slideSeconds": 4.2,
+    "topicRotationMinutes": 15,
+    "maxCards": 40
+  },
+  "guide": {
+    "url": "https://oshiruoshi.vercel.app/how-to-use",
+    "results": [
+      {
+        "width": 390,
+        "hotspot": true,
+        "example": true,
+        "faq": true,
+        "formNavigation": true,
+        "overflow": false,
+        "errors": []
+      },
+      {
+        "width": 1440,
+        "hotspot": true,
+        "example": true,
+        "faq": true,
+        "formNavigation": true,
+        "overflow": false,
+        "errors": []
+      }
+    ]
+  },
+  "seo": {
+    "robotsSitemapAndServerRenderedHtmlVerified": true,
+    "sitemapUrls": 22,
+    "guideAndLatestHaveStaticContent": true,
+    "searchConsoleAccess": false,
+    "googlePositionOrTrafficMeasured": false
+  },
+  "corrections": [
+    {
+      "id": "QL-032",
+      "cause": "初回の空結果を、本検索の完了前に最終0件として表示した",
+      "fix": "両経路の完了状態で判定し、部分結果を表示。期限とYahoo・Google検索を用意",
+      "evidence": "6 browser scenarios; prematureEmptyFrames=0"
+    },
+    {
+      "id": "QL-033",
+      "cause": "カードのdisplay指定がhidden属性を上書きした",
+      "fix": "期限切れカードを実際に非表示にするCSSを固定",
+      "evidence": "mobile and desktop visibleExpired=0"
+    },
+    {
+      "id": "QL-034",
+      "cause": "固定画像のスライドだけで、商品情報を取得し直す経路がなかった",
+      "fix": "公式商品APIによる5カテゴリの画像フィード・更新・店舗分散・スライド操作",
+      "evidence": "40 live cards from 24 Yahoo Shopping merchants at both widths"
+    },
+    {
+      "id": "QL-035",
+      "cause": "クロール対策と順位・流入の実測を区別する必要があった",
+      "fix": "静的なガイド・更新方針・内部リンク・正規sitemapを追加し、順位は未測定と明記",
+      "evidence": "production HTTP and guide checks passed; ranking impact unmeasured"
+    },
+    {
+      "id": "QL-036",
+      "cause": "五条悟などに偏った保存済み出品をAPI接続と誤解させた",
+      "fix": "過去情報の表示を明確にし、全検索語から8サイトへ同じ語で通常検索できる導線を表示",
+      "evidence": "8 direct links and integration dialog verified after Naruto search at both widths"
+    },
+    {
+      "id": "QL-037",
+      "cause": "操作案内と、実際の画面から検索へ進む手順がなかった",
+      "fix": "実画面、番号、矢印、アンカー、入力例、FAQを含む静的ガイドを追加",
+      "evidence": "images/hotspots/examples/FAQ/form navigation and responsive checks passed"
+    },
+    {
+      "id": "QL-038",
+      "cause": "反映データ作成時に基準treeを必須検証せず、対象外削除が生じた",
+      "fix": "mainの全ファイル保持とローカルhash一致をref更新前に検証",
+      "evidence": "invalid tree never merged; corrected PR limited to 31 reviewed paths"
+    }
+  ],
+  "limitations": [
+    "Mercari, Yahoo Flea Market, Yahoo Auctions and Amazon general listing APIs were not newly connected. Historical records and native external search links are explicitly distinguished.",
+    "Only Yahoo Shopping supplied images in the production observation. Rakuten remains an implemented adapter with unavailable/limited responses in this observation.",
+    "Arbitrary news-site image reuse is not enabled. Additional sources require a supported API or a confirmed image-use basis.",
+    "Retrieval timestamps do not claim release dates, stock guarantees or official merchandise certification.",
+    "Google indexing/rank/traffic improvements and affiliate program enrollment/revenue are not verified."
+  ]
+}
