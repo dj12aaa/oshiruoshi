@@ -1,0 +1,415 @@
+{
+  "checkedAt": "2026-09-08T03:27:50.771Z",
+  "ok": true,
+  "expansionOk": true,
+  "baselineOk": true,
+  "relevanceOk": true,
+  "rankOrderOk": true,
+  "uniqueTitlesOk": true,
+  "predictiveOk": true,
+  "duplicateFree": true,
+  "cleanupPresent": true,
+  "results": [
+    {
+      "query": "星街すいせい アクスタ",
+      "count": 28,
+      "effectiveQuery": "ホロライブ 星街すいせい アクリルスタンド",
+      "resolvedQuery": "ホロライブ 星街すいせい アクリルスタンド",
+      "precisionVersion": "2026-09-06.19",
+      "queryVariants": [
+        "ホロライブ 星街すいせい アクリルスタンド"
+      ],
+      "expansionOk": true,
+      "relevanceOk": true,
+      "rankOrderOk": true,
+      "uniqueTitlesOk": true,
+      "topTitles": [
+        "ホロライブ 星街すいせい カプとれ アクリルスタンド 衣装(2)【未使用】",
+        "ホロライブ C103 星街すいせい 正月衣装 hololive closet アクリルスタンド 【未開封】",
+        "ホロライブ×セブンイレブン 不知火建設 キャンペーン 星街すいせい 不知火建設 アクリルスタンド"
+      ],
+      "topScores": [
+        752,
+        697,
+        697,
+        697,
+        697
+      ],
+      "aliasVersion": "2026-09-06.19"
+    },
+    {
+      "query": "五条悟 缶バッジ",
+      "count": 24,
+      "effectiveQuery": "呪術廻戦 五条悟 缶バッジ",
+      "resolvedQuery": "呪術廻戦 五条悟 缶バッジ",
+      "precisionVersion": "2026-09-06.19",
+      "queryVariants": [
+        "呪術廻戦 五条悟 缶バッジ"
+      ],
+      "expansionOk": true,
+      "relevanceOk": true,
+      "rankOrderOk": true,
+      "uniqueTitlesOk": true,
+      "topTitles": [
+        "【五条悟】 缶バッジ 呪術廻戦 ふかふかスクイーズパン編",
+        "呪術廻戦 5周年 百面相缶バッジ 五条悟(懐玉・玉折)[ツインクル]《発売済・在庫品》",
+        "中古バッジ・ピンズ 五条悟 32mm缶バッジ 「呪術廻戦"
+      ],
+      "topScores": [
+        877,
+        697,
+        697,
+        697,
+        697
+      ],
+      "aliasVersion": "2026-09-06.19"
+    },
+    {
+      "query": "初音ミク ぬい",
+      "count": 28,
+      "effectiveQuery": "初音ミク ぬいぐるみ",
+      "resolvedQuery": "初音ミク ぬいぐるみ",
+      "precisionVersion": "2026-09-06.19",
+      "queryVariants": [
+        "初音ミク ぬいぐるみ"
+      ],
+      "expansionOk": true,
+      "relevanceOk": true,
+      "rankOrderOk": true,
+      "uniqueTitlesOk": true,
+      "topTitles": [
+        "初音ミク ぬいコロン ぬいぐるみ",
+        "ガンダム45周年×初音ミク ぬいぐるみ 初音ミク×ウイングガンダムゼロEW[バンダイナムコヌイ]【送料無料】《発売済・在庫品》",
+        "中国 キャラクター グッズ『初音ミク ぬいぐるみ風 ミニ痛バッグ イヤホンポーチ』公式グッズ（bilibili公式）"
+      ],
+      "topScores": [
+        932,
+        932,
+        932,
+        932,
+        912
+      ],
+      "aliasVersion": "2026-09-06.19"
+    },
+    {
+      "query": "ローレンイロアスアクキー",
+      "count": 6,
+      "effectiveQuery": "ローレンイロアス アクリルキーホルダー",
+      "resolvedQuery": "ローレンイロアス アクリルキーホルダー",
+      "precisionVersion": "2026-09-06.19",
+      "queryVariants": [
+        "ローレンイロアス アクリルキーホルダー"
+      ],
+      "expansionOk": true,
+      "relevanceOk": true,
+      "rankOrderOk": true,
+      "uniqueTitlesOk": true,
+      "topTitles": [
+        "中古雑貨 ローレン・イロアス アクリルキーホルダー 「バーチャルYouTuber にじさんじ エデン組ハーフアニバーサリー",
+        "中古キーホルダー ローレン・イロアス ゆらゆらアクリルキーホルダー 「バーチャルYouTuber にじさんじ A",
+        "中古雑貨 ローレン・イロアス アクリルキーホルダー 「バーチャルYouTuber にじさんじ×サンリオキャラクターズ 第3弾"
+      ],
+      "topScores": [
+        517,
+        517,
+        517,
+        517,
+        497
+      ],
+      "aliasVersion": "2026-09-06.19"
+    },
+    {
+      "query": "ボイスキーホルダーFelix",
+      "count": 0,
+      "effectiveQuery": "Stray Kids フィリックス ボイスキーホルダー",
+      "resolvedQuery": "Stray Kids フィリックス ボイスキーホルダー",
+      "precisionVersion": "2026-09-06.19",
+      "queryVariants": [
+        "Stray Kids kids フィリックス ボイスキーホルダー"
+      ],
+      "expansionOk": true,
+      "relevanceOk": true,
+      "rankOrderOk": true,
+      "uniqueTitlesOk": true,
+      "topTitles": [],
+      "topScores": [],
+      "aliasVersion": "2026-09-06.19"
+    },
+    {
+      "query": "Felix ボイスキーホルダー",
+      "count": 0,
+      "effectiveQuery": "Stray Kids フィリックス ボイスキーホルダー",
+      "resolvedQuery": "Stray Kids フィリックス ボイスキーホルダー",
+      "precisionVersion": "2026-09-06.19",
+      "queryVariants": [
+        "Stray Kids kids フィリックス ボイスキーホルダー"
+      ],
+      "expansionOk": true,
+      "relevanceOk": true,
+      "rankOrderOk": true,
+      "uniqueTitlesOk": true,
+      "topTitles": [],
+      "topScores": [],
+      "aliasVersion": "2026-09-06.19"
+    },
+    {
+      "query": "owキリコぬいぐるみ",
+      "count": 0,
+      "effectiveQuery": "オーバーウォッチ キリコ ぬいぐるみ",
+      "resolvedQuery": "オーバーウォッチ キリコ ぬいぐるみ",
+      "precisionVersion": "2026-09-06.19",
+      "queryVariants": [
+        "オーバーウォッチ キリコ ぬいぐるみ"
+      ],
+      "expansionOk": true,
+      "relevanceOk": true,
+      "rankOrderOk": true,
+      "uniqueTitlesOk": true,
+      "topTitles": [],
+      "topScores": [],
+      "aliasVersion": "2026-09-06.19"
+    },
+    {
+      "query": "OW キリコ ぬい",
+      "count": 0,
+      "effectiveQuery": "オーバーウォッチ キリコ ぬいぐるみ",
+      "resolvedQuery": "オーバーウォッチ キリコ ぬいぐるみ",
+      "precisionVersion": "2026-09-06.19",
+      "queryVariants": [
+        "オーバーウォッチ キリコ ぬいぐるみ"
+      ],
+      "expansionOk": true,
+      "relevanceOk": true,
+      "rankOrderOk": true,
+      "uniqueTitlesOk": true,
+      "topTitles": [],
+      "topScores": [],
+      "aliasVersion": "2026-09-06.19"
+    },
+    {
+      "query": "Felix キーホルダー",
+      "count": 17,
+      "effectiveQuery": "Stray Kids フィリックス キーホルダー",
+      "resolvedQuery": "Stray Kids フィリックス キーホルダー",
+      "precisionVersion": "2026-09-06.19",
+      "queryVariants": [
+        "Stray Kids kids フィリックス キーホルダー"
+      ],
+      "expansionOk": true,
+      "relevanceOk": true,
+      "rankOrderOk": true,
+      "uniqueTitlesOk": true,
+      "topTitles": [
+        "中古キーホルダー フィリックス(Stray Kids) オリジナルアクリルキーホルダー 「CD THE SOUND」 楽天ブッ",
+        "中古キーホルダー フィリックス アクリルブロックキーホルダー 「Stray Kids JAPAN 20",
+        "中古キーホルダー フィリックス(Stray Kids)/A SKZOO ランダムアクリルキーホルダー BbokAri"
+      ],
+      "topScores": [
+        757,
+        757,
+        757,
+        757,
+        757
+      ],
+      "aliasVersion": "2026-09-06.19"
+    },
+    {
+      "query": "五条悟 アクスラ",
+      "count": 36,
+      "effectiveQuery": "呪術廻戦 五条悟 アクリルスタンド",
+      "resolvedQuery": "呪術廻戦 五条悟 アクリルスタンド",
+      "precisionVersion": "2026-09-06.19",
+      "queryVariants": [
+        "呪術廻戦 五条悟 アクリルスタンド"
+      ],
+      "expansionOk": true,
+      "relevanceOk": true,
+      "rankOrderOk": true,
+      "uniqueTitlesOk": true,
+      "topTitles": [
+        "五条悟 アクリルスタンド 花火Ver. 「呪術廻戦 懐玉・玉折 マルイ POP UP SHOP」",
+        "五条悟 アクリルスタンド 「呪術廻戦 じゅじゅHONPO」",
+        "五条悟 アクリルスタンド 「セガ ラッキーくじ 呪術廻戦 SPLASH×BATTLE」 I賞"
+      ],
+      "topScores": [
+        877,
+        877,
+        877,
+        852.6,
+        704.6
+      ],
+      "aliasVersion": "2026-09-06.19"
+    },
+    {
+      "query": "星町すいせい アクスタ",
+      "count": 28,
+      "effectiveQuery": "ホロライブ 星街すいせい アクリルスタンド",
+      "resolvedQuery": "ホロライブ 星街すいせい アクリルスタンド",
+      "precisionVersion": "2026-09-06.19",
+      "queryVariants": [
+        "ホロライブ 星街すいせい アクリルスタンド"
+      ],
+      "expansionOk": true,
+      "relevanceOk": true,
+      "rankOrderOk": true,
+      "uniqueTitlesOk": true,
+      "topTitles": [
+        "ホロライブ 星街すいせい カプとれ アクリルスタンド 衣装(2)【未使用】",
+        "ホロライブ C103 星街すいせい 正月衣装 hololive closet アクリルスタンド 【未開封】",
+        "ホロライブ×セブンイレブン 不知火建設 キャンペーン 星街すいせい 不知火建設 アクリルスタンド"
+      ],
+      "topScores": [
+        752,
+        697,
+        697,
+        697,
+        697
+      ],
+      "aliasVersion": "2026-09-06.19"
+    },
+    {
+      "query": "五条悟 サンリオ",
+      "count": 18,
+      "effectiveQuery": "呪術廻戦 五条悟 サンリオ グッズ",
+      "resolvedQuery": "呪術廻戦 五条悟 サンリオ グッズ",
+      "precisionVersion": "2026-09-06.19",
+      "queryVariants": [
+        "呪術廻戦 五条悟 サンリオ グッズ"
+      ],
+      "expansionOk": true,
+      "relevanceOk": true,
+      "rankOrderOk": true,
+      "uniqueTitlesOk": true,
+      "topTitles": [
+        "中古シール・ステッカー 五条悟＆シナモロール ステッカー 「呪術廻戦 懐玉・玉折×サンリオキャラクターズPOPUP STOR",
+        "中古シール・ステッカー 五条悟×シナモロール ダイカットステッカー 「劇場版 呪術廻戦 0×サンリオキャラクタ",
+        "中古紙製品 五条悟＆シナモロール 「呪術廻戦 懐玉・玉折×サンリオキャラクターズPOPUP STORE トレーディングミニ色"
+      ],
+      "topScores": [
+        547,
+        547,
+        547,
+        547,
+        547
+      ],
+      "aliasVersion": "2026-09-06.19"
+    },
+    {
+      "query": "3DS本体",
+      "count": 0,
+      "effectiveQuery": "3ds 本体 グッズ",
+      "resolvedQuery": "3ds 本体 グッズ",
+      "precisionVersion": "2026-09-06.19",
+      "queryVariants": [
+        "3ds 本体 グッズ"
+      ],
+      "expansionOk": true,
+      "relevanceOk": true,
+      "rankOrderOk": true,
+      "uniqueTitlesOk": true,
+      "topTitles": [],
+      "topScores": [],
+      "aliasVersion": "2026-09-06.19"
+    }
+  ],
+  "suggestions": [
+    {
+      "query": "3DS",
+      "count": 2,
+      "items": [
+        {
+          "name": "3DS",
+          "kind": "exact",
+          "label": "このまま検索",
+          "detail": "入力した言葉を変更しません"
+        },
+        {
+          "name": "3ds トレーディングカード",
+          "kind": "commerce",
+          "label": "人気",
+          "detail": "現在の商品傾向から"
+        }
+      ],
+      "providerQuery": "3ds",
+      "signals": {
+        "commerce": 30,
+        "fallbackCommerce": 0,
+        "entity": 0,
+        "popularity": "Yahoo!ショッピングおすすめ順・レビュー件数",
+        "freshness": "発売日"
+      }
+    },
+    {
+      "query": "owキリコ",
+      "count": 1,
+      "items": [
+        {
+          "name": "owキリコ",
+          "kind": "exact",
+          "label": "このまま検索",
+          "detail": "入力した言葉を変更しません"
+        }
+      ],
+      "providerQuery": "ow キリコ",
+      "signals": {
+        "commerce": 30,
+        "fallbackCommerce": 0,
+        "entity": 0,
+        "popularity": "Yahoo!ショッピングおすすめ順・レビュー件数",
+        "freshness": "発売日"
+      }
+    },
+    {
+      "query": "ボイスキーホルダーFelix",
+      "count": 2,
+      "items": [
+        {
+          "name": "stray kids フィリックス ボイスキーホルダー",
+          "kind": "correction",
+          "label": "表記を整理",
+          "detail": "グッズ名の重複や断片を整理"
+        },
+        {
+          "name": "ボイスキーホルダーFelix",
+          "kind": "exact",
+          "label": "このまま検索",
+          "detail": "入力した言葉を変更しません"
+        }
+      ],
+      "providerQuery": "stray kids フィリックス ボイスキーホルダー",
+      "signals": {
+        "commerce": 0,
+        "fallbackCommerce": 30,
+        "entity": 0,
+        "popularity": "Yahoo!ショッピングおすすめ順・レビュー件数",
+        "freshness": "発売日"
+      }
+    },
+    {
+      "query": "felix ボイス キーホルダー ホルダー スキズ",
+      "count": 2,
+      "items": [
+        {
+          "name": "stray kids フィリックス ボイスキーホルダー",
+          "kind": "correction",
+          "label": "表記を整理",
+          "detail": "グッズ名の重複や断片を整理"
+        },
+        {
+          "name": "felix ボイス キーホルダー ホルダー スキズ",
+          "kind": "exact",
+          "label": "このまま検索",
+          "detail": "入力した言葉を変更しません"
+        }
+      ],
+      "providerQuery": "stray kids フィリックス ボイスキーホルダー",
+      "signals": {
+        "commerce": 0,
+        "fallbackCommerce": 30,
+        "entity": 0,
+        "popularity": "Yahoo!ショッピングおすすめ順・レビュー件数",
+        "freshness": "発売日"
+      }
+    }
+  ]
+}

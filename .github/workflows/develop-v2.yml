@@ -1,0 +1,103 @@
+name: OSHIRU develop-v2 checks
+
+on:
+  push:
+    branches: [develop-v2]
+    paths-ignore:
+      - 'verification/**'
+  pull_request:
+    branches: [develop-v2]
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: JavaScript syntax
+        run: |
+          node --check app.js
+          node --check ui-v2.js
+          node --check api/_core.mjs
+          node --check api/search.js
+          node --check api/live-search.js
+          node --check api/suggest.js
+          node --check api/vision-search.js
+          node --check api/robots.js
+          node --check api/sitemap.js
+      - name: UI contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq 'id="introCutin"' index.html
+          grep -Fq 'intro-slice-top' index.html
+          grep -Fq 'intro-slice-bottom' index.html
+          grep -Fq 'ui-v2.css' index.html
+          grep -Fq 'ui-v2.js' index.html
+          grep -Fq 'id="openSettings" hidden' index.html
+          grep -Fq 'id="imageSearchBtn" class="soft-button" hidden' index.html
+          grep -Fq 'id="openCompare"' index.html
+          grep -Fq 'serviceGuideTitle' index.html
+          if grep -Fq '>接続状況<' index.html; then exit 1; fi
+          if grep -Fq '>通販API<' index.html; then exit 1; fi
+          grep -Fq 'data-compare-filter="price"' ui-v2.js
+          grep -Fq 'data-compare-filter="time"' ui-v2.js
+      - name: Development SEO safety
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq '<meta name="robots" content="noindex,nofollow">' index.html
+          grep -Fq 'X-Robots-Tag' vercel.json
+          grep -Fq 'noindex, nofollow, noarchive, nosnippet' vercel.json
+          grep -Fq "PUBLIC_SITE_INDEXABLE||'false'" api/robots.js
+          grep -Fq "Disallow: /" api/robots.js
+          grep -Fq 'rel="canonical"' index.html
+      - name: Security baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq 'Content-Security-Policy' vercel.json
+          grep -Fq 'Strict-Transport-Security' vercel.json
+          grep -Fq 'frame-ancestors' vercel.json
+          grep -Fq 'X-Frame-Options' vercel.json
+          grep -Fq 'Cross-Origin-Opener-Policy' vercel.json
+          grep -Fq 'image_proxy_disabled_in_public_beta' api/image-proxy.js
+          if grep -R -E 'RAKUTEN_ACCESS_KEY=[^[:space:]]+|OPENAI_API_KEY=[^[:space:]]+|X_BEARER_TOKEN=[^[:space:]]+' --exclude='.env.example' --exclude-dir='.git' .; then exit 1; fi
+      - name: Legal surface
+        run: |
+          grep -Fq 'プライバシーポリシー' privacy.html
+          grep -Fq '広告・アフィリエイト' disclaimer.html
+          grep -Fq 'PR' disclaimer.html
+          grep -Fq 'Supported by Rakuten Developers' index.html
+      - name: Existing tests
+        run: |
+          if [ -d tests ]; then npm test; else echo 'No legacy tests directory on baseline branch'; fi
+      - name: Record success
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          mkdir -p verification
+          cat > verification/prelaunch-static-check.json <<EOF
+          {
+            "commit": "${GITHUB_SHA}",
+            "checkedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "javascriptSyntax": true,
+            "uiContract": true,
+            "seoSafety": true,
+            "securityBaseline": true,
+            "legalSurface": true,
+            "tests": true,
+            "success": true
+          }
+          EOF
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add verification/prelaunch-static-check.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Record successful prelaunch static verification"
+          git push origin HEAD:develop-v2

@@ -1,0 +1,323 @@
+{
+  "checkedAt": "2026-09-08T03:26:00.896Z",
+  "mobile": {
+    "uiVersion": "2026-09-08.22",
+    "homeVersion": "2026-08-23.14",
+    "affiliateVersion": "2026-08-23.16",
+    "diagnostics": {
+      "version": "2026-09-08.22",
+      "phase": "partial-results",
+      "query": "五条悟 アクスラ",
+      "resolvedQuery": "呪術廻戦 五条悟 アクリルスタンド",
+      "initial": "complete",
+      "live": "loading",
+      "initialQuery": "五条悟 アクスラ",
+      "liveQuery": "",
+      "initialItems": 7,
+      "liveItems": 0,
+      "updatedAt": "2026-09-08T03:25:41.665Z"
+    },
+    "cards": 5,
+    "titleFont": 12,
+    "summaryVisible": true,
+    "sortVisible": true,
+    "summary": "5件表示 / 取得候補 7件 ・ 「呪術廻戦 五条悟 アクリルスタンド」として検索",
+    "detailVisible": true,
+    "freshnessVisible": true,
+    "structuredDataValid": true,
+    "columns": 3,
+    "sourceVisible": true,
+    "priceVisible": true,
+    "heartVisible": true,
+    "compareVisible": true,
+    "controlsInsideVisual": true,
+    "heartText": "♡",
+    "compareText": "＋",
+    "heartRect": {
+      "left": 96.65625,
+      "right": 124.65625,
+      "top": 469.8125,
+      "bottom": 497.8125,
+      "width": 28,
+      "height": 28
+    },
+    "compareRect": {
+      "left": 96.65625,
+      "right": 124.65625,
+      "top": 558.46875,
+      "bottom": 586.46875,
+      "width": 28,
+      "height": 28
+    },
+    "sourceRect": {
+      "left": 8,
+      "right": 83.015625,
+      "top": 469.8125,
+      "bottom": 489.8125,
+      "width": 75.015625,
+      "height": 20
+    },
+    "priceRect": {
+      "left": 8,
+      "right": 48.125,
+      "top": 568.921875,
+      "bottom": 586.46875,
+      "width": 40.125,
+      "height": 17.546875
+    },
+    "sourcePanelPresent": false,
+    "sourceStripVisible": false,
+    "betaVisible": false,
+    "gridInsideViewport": true,
+    "bodyOverflow": false,
+    "searchToGridGap": 121.09375,
+    "searchSettlement": {
+      "elapsedMs": 3516,
+      "buttonText": "横断検索",
+      "skeletons": 0,
+      "cards": 27,
+      "emptyVisible": false,
+      "diagnostics": {
+        "version": "2026-09-08.22",
+        "phase": "results",
+        "query": "なると",
+        "resolvedQuery": "NARUTO ナルト グッズ",
+        "initial": "complete",
+        "live": "complete",
+        "initialQuery": "なると",
+        "liveQuery": "なると",
+        "initialItems": 0,
+        "liveItems": 27,
+        "updatedAt": "2026-09-08T03:25:46.906Z"
+      },
+      "titles": [
+        "【Naruto ナルト コスプレ グッズ】木ノ葉隠れの里 鉢金額当て コスプレ 小道具 グッズ アニメ cosplay",
+        "NARUTO -ナルト- コスプレ コスチューム グッズ 額当て 木ノ葉隠れ 砂隠れ 霧隠れ 雨隠れ 忍連合軍イタチ 我愛羅ペイン大蛇丸 暁 　アニメ周辺",
+        "NARUTO ナルト 疾風伝 モノクロ うずまきナルト うちはサスケ プリント 半袖 Tシャツ メンズ 紳士 M L LL 春 夏 アニメ キャラクター グッズ 部屋着 パジャマ",
+        "中国 グッズ『NARUTO -ナルト- 疾風伝 かえる がま口財布 なるとさいふ』公式グッズ",
+        "新品 NARUTO -ナルト- 風 暁組織 半袖 Tシャツ 大人子供気 キャラクターグッズ 周辺 通気 吸汗 速乾",
+        "2026 新品 NARUTO -ナルト- 風  半袖 Tシャツ 大人服気 キャラクターグッズ 周辺 通気 吸汗 速乾",
+        "NARUTO -ナルト- 風 コスプレ衣装  親子服 上下セット半袖 Tシャツ ズボン 春夏秋パジャマグッズグッズ 子供 成人 スウェット",
+        "送料無料◆新品 NARUTO -ナルト- 風  暁組織 半袖  Tシャツ 大人気 キャラクターグッズ  周辺 通気 吸汗 速乾",
+        "NARUTO ナルト  がま口財布 なるとさいふ 公式グッズ 原作グッズ",
+        "送料無料◆新品 NARUTO -ナルト-  リュック 夜光 USB リュックサック グッズ ヴェノム ファッション  大容量 通学 防水 遠足 旅行リュック 耐久性 学校",
+        "NARUTO ナルト Memorable Saga うずまきナルト 単品 フィギュア ナルト アニメ キャラ プライズ バンプレスト グッズ",
+        "NARUTO ナルト 疾風伝 VIBRATION STARS DEIDARA デイダラ フィギュア ナルト アニメ キャラ バンプレスト グッズ",
+        "NARUTO - ナルト - 疾風伝 暁（あかつき）グッズ 風 ジャケット 春秋 男女兼用 パーカー コート着 周辺",
+        "大人用 パーカースウェットトップスNARUTO -ナルト- グッズ ゲーム プレゼント メンズ　レディース薄め仕様、厚め仕様",
+        "S.H.Figuarts 『NARUTO -ナルト- 疾風伝』 はたけカカシ -勇名轟く写輪眼の英雄-(再販版) (塗装済み可動フィギュア)",
+        "NARUTO ナルト 疾風伝 VIBRATION STARS ROCK LEE ロック・リー フィギュア アニメ プライズ バンプレスト グッズ",
+        "NARUTO -ナルト- 疾風伝 マリンルック アクリルスタンド 我愛羅（再販）[GRANUP]《１０月予約》",
+        "NARUTO -ナルト- 疾風伝 場面写vol.3 アクリルスタンド デイダラ（再販）[GRANUP]《１０月予約》",
+        "NARUTO -ナルト- 疾風伝 場面写vol.3 アクリルスタンド サソリ（再販）[GRANUP]《１０月予約》",
+        "【送料無料】2026/08発売 [グッズ]/MEGA CAT PROJECT NARUTO-ナルト- ニャルト! 木ノ葉の愉快なニャンコたち編REBOOT BOX【メガハウス】",
+        "【送料無料】2026/11発売 [グッズ]/MEGA CAT PROJECT NARUTO -ナルト- 疾風伝 ニャルト!少しむかしむかしの 木ノ葉隠れの里だってばよ! BOX【メガハウス",
+        "【送料無料】2027/02発売 [グッズ]/MEGA CAT PROJECT NARUTO-ナルト- 疾風伝 ニャルト! 師弟・絆編 BOX【メガハウス】",
+        "【送料無料】2026/11発売 [グッズ]/G.E.M.シリーズ NARUTO-ナルト- 疾風伝 てのひらイタチ【メガハウス】",
+        "【送料無料】2027/02発売 [グッズ]/G.E.M.シリーズ NARUTO-ナルト- 疾風伝 てのひらミナト【メガハウス】",
+        "【送料無料】2026/06発売 [グッズ]/S.H.Figuarts NARUTO -ナルト- 大蛇丸 -永劫を求めし真理の探究者-【バンダイ】",
+        "【送料無料】2025/12発売 [グッズ]/MEGA CAT PROJECT NARUTO-ナルト- 疾風伝 おやすみニャルト! BOX【メガハウス】",
+        "ＮＡＲＵＴＯ 疾風伝 ナルトスマホストラップ 推し活 キッズ 子供 ミニポーチ付き ストラップ ショルダー 正規ライセンス グッズ うちはサスケ うずまきナルト"
+      ]
+    },
+    "responsive": [
+      {
+        "width": 320,
+        "columns": 2,
+        "overflow": false,
+        "summaryVisible": true
+      }
+    ],
+    "imageSearch": {
+      "heading": {
+        "left": 34,
+        "right": 328,
+        "top": 273.25,
+        "bottom": 332.125,
+        "width": 294,
+        "height": 58.875
+      },
+      "close": {
+        "left": 346,
+        "right": 386,
+        "top": 249.25,
+        "bottom": 289.25,
+        "width": 40,
+        "height": 40
+      },
+      "closeText": "×"
+    },
+    "latest": {
+      "previewCards": 4,
+      "sourceCards": 12,
+      "sourceLabels": 4,
+      "railToggleVisible": true,
+      "autoMoved": true,
+      "visibleExpired": 0,
+      "overflow": false
+    }
+  },
+  "desktop": {
+    "uiVersion": "2026-09-08.22",
+    "homeVersion": "2026-08-23.14",
+    "affiliateVersion": "2026-08-23.16",
+    "diagnostics": {
+      "version": "2026-09-08.22",
+      "phase": "partial-results",
+      "query": "五条悟 アクスラ",
+      "resolvedQuery": "呪術廻戦 五条悟 アクリルスタンド",
+      "initial": "complete",
+      "live": "loading",
+      "initialQuery": "五条悟 アクスラ",
+      "liveQuery": "",
+      "initialItems": 7,
+      "liveItems": 0,
+      "updatedAt": "2026-09-08T03:25:52.822Z"
+    },
+    "cards": 5,
+    "titleFont": 12,
+    "summaryVisible": true,
+    "sortVisible": true,
+    "summary": "5件表示 / 取得候補 7件 ・ 「呪術廻戦 五条悟 アクリルスタンド」として検索",
+    "detailVisible": true,
+    "freshnessVisible": true,
+    "structuredDataValid": true,
+    "columns": 7,
+    "sourceVisible": true,
+    "priceVisible": true,
+    "heartVisible": true,
+    "compareVisible": true,
+    "controlsInsideVisual": true,
+    "heartText": "♡",
+    "compareText": "＋",
+    "heartRect": {
+      "left": 412.28125,
+      "right": 442.28125,
+      "top": 732.875,
+      "bottom": 762.875,
+      "width": 30,
+      "height": 30
+    },
+    "compareRect": {
+      "left": 412.28125,
+      "right": 442.28125,
+      "top": 845.15625,
+      "bottom": 875.15625,
+      "width": 30,
+      "height": 30
+    },
+    "sourceRect": {
+      "left": 301,
+      "right": 380.015625,
+      "top": 732.875,
+      "bottom": 752.875,
+      "width": 79.015625,
+      "height": 20
+    },
+    "priceRect": {
+      "left": 301,
+      "right": 349.703125,
+      "top": 853.96875,
+      "bottom": 875.15625,
+      "width": 48.703125,
+      "height": 21.1875
+    },
+    "sourcePanelPresent": false,
+    "sourceStripVisible": false,
+    "betaVisible": false,
+    "gridInsideViewport": true,
+    "bodyOverflow": false,
+    "searchToGridGap": 300.96875,
+    "searchSettlement": {
+      "elapsedMs": 173,
+      "buttonText": "横断検索",
+      "skeletons": 0,
+      "cards": 27,
+      "emptyVisible": false,
+      "diagnostics": {
+        "version": "2026-09-08.22",
+        "phase": "results",
+        "query": "なると",
+        "resolvedQuery": "NARUTO ナルト グッズ",
+        "initial": "complete",
+        "live": "complete",
+        "initialQuery": "なると",
+        "liveQuery": "なると",
+        "initialItems": 0,
+        "liveItems": 27,
+        "updatedAt": "2026-09-08T03:25:55.257Z"
+      },
+      "titles": [
+        "【Naruto ナルト コスプレ グッズ】木ノ葉隠れの里 鉢金額当て コスプレ 小道具 グッズ アニメ cosplay",
+        "NARUTO -ナルト- コスプレ コスチューム グッズ 額当て 木ノ葉隠れ 砂隠れ 霧隠れ 雨隠れ 忍連合軍イタチ 我愛羅ペイン大蛇丸 暁 　アニメ周辺",
+        "NARUTO ナルト 疾風伝 モノクロ うずまきナルト うちはサスケ プリント 半袖 Tシャツ メンズ 紳士 M L LL 春 夏 アニメ キャラクター グッズ 部屋着 パジャマ",
+        "中国 グッズ『NARUTO -ナルト- 疾風伝 かえる がま口財布 なるとさいふ』公式グッズ",
+        "新品 NARUTO -ナルト- 風 暁組織 半袖 Tシャツ 大人子供気 キャラクターグッズ 周辺 通気 吸汗 速乾",
+        "2026 新品 NARUTO -ナルト- 風  半袖 Tシャツ 大人服気 キャラクターグッズ 周辺 通気 吸汗 速乾",
+        "NARUTO -ナルト- 風 コスプレ衣装  親子服 上下セット半袖 Tシャツ ズボン 春夏秋パジャマグッズグッズ 子供 成人 スウェット",
+        "送料無料◆新品 NARUTO -ナルト- 風  暁組織 半袖  Tシャツ 大人気 キャラクターグッズ  周辺 通気 吸汗 速乾",
+        "NARUTO ナルト  がま口財布 なるとさいふ 公式グッズ 原作グッズ",
+        "送料無料◆新品 NARUTO -ナルト-  リュック 夜光 USB リュックサック グッズ ヴェノム ファッション  大容量 通学 防水 遠足 旅行リュック 耐久性 学校",
+        "NARUTO ナルト Memorable Saga うずまきナルト 単品 フィギュア ナルト アニメ キャラ プライズ バンプレスト グッズ",
+        "NARUTO ナルト 疾風伝 VIBRATION STARS DEIDARA デイダラ フィギュア ナルト アニメ キャラ バンプレスト グッズ",
+        "NARUTO - ナルト - 疾風伝 暁（あかつき）グッズ 風 ジャケット 春秋 男女兼用 パーカー コート着 周辺",
+        "大人用 パーカースウェットトップスNARUTO -ナルト- グッズ ゲーム プレゼント メンズ　レディース薄め仕様、厚め仕様",
+        "S.H.Figuarts 『NARUTO -ナルト- 疾風伝』 はたけカカシ -勇名轟く写輪眼の英雄-(再販版) (塗装済み可動フィギュア)",
+        "NARUTO ナルト 疾風伝 VIBRATION STARS ROCK LEE ロック・リー フィギュア アニメ プライズ バンプレスト グッズ",
+        "NARUTO -ナルト- 疾風伝 マリンルック アクリルスタンド 我愛羅（再販）[GRANUP]《１０月予約》",
+        "NARUTO -ナルト- 疾風伝 場面写vol.3 アクリルスタンド デイダラ（再販）[GRANUP]《１０月予約》",
+        "NARUTO -ナルト- 疾風伝 場面写vol.3 アクリルスタンド サソリ（再販）[GRANUP]《１０月予約》",
+        "【送料無料】2026/08発売 [グッズ]/MEGA CAT PROJECT NARUTO-ナルト- ニャルト! 木ノ葉の愉快なニャンコたち編REBOOT BOX【メガハウス】",
+        "【送料無料】2026/11発売 [グッズ]/MEGA CAT PROJECT NARUTO -ナルト- 疾風伝 ニャルト!少しむかしむかしの 木ノ葉隠れの里だってばよ! BOX【メガハウス",
+        "【送料無料】2027/02発売 [グッズ]/MEGA CAT PROJECT NARUTO-ナルト- 疾風伝 ニャルト! 師弟・絆編 BOX【メガハウス】",
+        "【送料無料】2026/11発売 [グッズ]/G.E.M.シリーズ NARUTO-ナルト- 疾風伝 てのひらイタチ【メガハウス】",
+        "【送料無料】2027/02発売 [グッズ]/G.E.M.シリーズ NARUTO-ナルト- 疾風伝 てのひらミナト【メガハウス】",
+        "【送料無料】2026/06発売 [グッズ]/S.H.Figuarts NARUTO -ナルト- 大蛇丸 -永劫を求めし真理の探究者-【バンダイ】",
+        "【送料無料】2025/12発売 [グッズ]/MEGA CAT PROJECT NARUTO-ナルト- 疾風伝 おやすみニャルト! BOX【メガハウス】",
+        "ＮＡＲＵＴＯ 疾風伝 ナルトスマホストラップ 推し活 キッズ 子供 ミニポーチ付き ストラップ ショルダー 正規ライセンス グッズ うちはサスケ うずまきナルト"
+      ]
+    },
+    "responsive": [
+      {
+        "width": 768,
+        "columns": 5,
+        "overflow": false,
+        "summaryVisible": true
+      },
+      {
+        "width": 1920,
+        "columns": 8,
+        "overflow": false,
+        "summaryVisible": true
+      }
+    ],
+    "imageSearch": {
+      "heading": {
+        "left": 360,
+        "right": 1022,
+        "top": 313.0625,
+        "bottom": 353.0625,
+        "width": 662,
+        "height": 40
+      },
+      "close": {
+        "left": 1044,
+        "right": 1086,
+        "top": 287.0625,
+        "bottom": 329.0625,
+        "width": 42,
+        "height": 42
+      },
+      "closeText": "×"
+    },
+    "latest": {
+      "previewCards": 4,
+      "sourceCards": 12,
+      "sourceLabels": 4,
+      "railToggleVisible": true,
+      "autoMoved": true,
+      "visibleExpired": 0,
+      "overflow": false
+    }
+  }
+}

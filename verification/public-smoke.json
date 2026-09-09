@@ -1,0 +1,111 @@
+{
+  "checkedAt": "2026-09-08T03:26:36.359Z",
+  "url": "https://oshiruoshi.vercel.app/",
+  "homeHttp": 200,
+  "homeHasOshiru": true,
+  "homeIndexable": false,
+  "fixedMarketplaceFilters": {
+    "ok": true,
+    "sources": [
+      "メルカリ",
+      "Yahoo!フリマ",
+      "Yahoo!オークション",
+      "Yahoo!ショッピング",
+      "楽天市場"
+    ]
+  },
+  "contact": {
+    "http": 200,
+    "email": "a.o.work777@gmail.com",
+    "ok": true
+  },
+  "uiHttp": 200,
+  "robotsHttp": 200,
+  "robotsAllowsRoot": true,
+  "robotsText": "User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /*?q=\nSitemap: https://oshiruoshi.vercel.app/sitemap.xml",
+  "sitemapHttp": 200,
+  "sitemapHasHome": true,
+  "googleVerification": {
+    "http": 200,
+    "exact": true
+  },
+  "statusHttp": 200,
+  "status": {
+    "yahooShopping": true,
+    "rakuten": true,
+    "rakutenAffiliate": true,
+    "vision": false
+  },
+  "searches": [
+    {
+      "query": "五条悟 アクスタ",
+      "http": 200,
+      "totalItems": 51,
+      "yahooShopping": {
+        "ok": true,
+        "count": 51,
+        "error": null
+      },
+      "rakuten": {
+        "ok": false,
+        "count": 0,
+        "error": "upstream_403"
+      },
+      "sources": [
+        "Yahoo!ショッピング"
+      ],
+      "withImage": 51
+    },
+    {
+      "query": "初音ミク アクスタ",
+      "http": 200,
+      "totalItems": 54,
+      "yahooShopping": {
+        "ok": true,
+        "count": 54,
+        "error": null
+      },
+      "rakuten": {
+        "ok": false,
+        "count": 0,
+        "error": "upstream_403"
+      },
+      "sources": [
+        "Yahoo!ショッピング"
+      ],
+      "withImage": 54
+    },
+    {
+      "query": "ちいかわ モモンガ",
+      "http": 200,
+      "totalItems": 30,
+      "yahooShopping": {
+        "ok": true,
+        "count": 30,
+        "error": null
+      },
+      "rakuten": {
+        "ok": false,
+        "count": 0,
+        "error": "upstream_403"
+      },
+      "sources": [
+        "Yahoo!ショッピング"
+      ],
+      "withImage": 30
+    }
+  ],
+  "officialImageProxy": {
+    "yahoo": {
+      "http": 200,
+      "contentType": "image/jpeg",
+      "ok": true
+    },
+    "rakuten": {
+      "http": 0,
+      "contentType": null,
+      "ok": false
+    }
+  },
+  "publicReady": false
+}

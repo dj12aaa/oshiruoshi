@@ -1,0 +1,158 @@
+/* OSHIRU visual polish v3 — image-first, spacious, stable across breakpoints. */
+:root{
+  --oshiru-surface:#ffffff;
+  --oshiru-canvas:#f5f5f7;
+  --oshiru-ink:#0b0d12;
+  --oshiru-sub:#5b6472;
+  --oshiru-hair:rgba(15,23,42,.09);
+  --oshiru-shadow:0 2px 3px rgba(15,23,42,.03),0 12px 30px rgba(15,23,42,.07),0 34px 80px rgba(15,23,42,.045);
+  --oshiru-shadow-hover:0 4px 8px rgba(15,23,42,.045),0 20px 44px rgba(15,23,42,.095),0 44px 95px rgba(15,23,42,.07);
+}
+body{background:var(--oshiru-canvas)}
+.result-area{isolation:isolate}
+.product-grid{align-items:stretch}
+.product-card{
+  position:relative;
+  background:linear-gradient(180deg,rgba(255,255,255,.995),rgba(255,255,255,.97));
+  border:1px solid var(--oshiru-hair)!important;
+  box-shadow:var(--oshiru-shadow)!important;
+  content-visibility:auto;
+  contain-intrinsic-size:420px;
+  contain:layout paint style;
+  transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s ease,border-color .22s ease!important;
+}
+.product-card::after{
+  content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(15,23,42,.025);
+}
+@media(hover:hover) and (pointer:fine){
+  .product-card:hover{transform:translateY(-5px)!important;box-shadow:var(--oshiru-shadow-hover)!important;border-color:rgba(15,23,42,.13)!important}
+  .product-card:hover .market-img{transform:scale(1.025)}
+}
+.visual{background:radial-gradient(circle at 50% 44%,#fff 0,#f8f8fa 53%,#f0f1f4 100%)!important}
+.market-img{
+  object-fit:contain!important;
+  background:transparent!important;
+  transform:translateZ(0);
+  transition:transform .26s cubic-bezier(.2,.8,.2,1),opacity .2s ease;
+}
+.image-fallback{background:radial-gradient(circle at 50% 45%,#fff,#f2f3f5)!important}
+.source-pill,.heart{backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.8)}
+.card-body{background:linear-gradient(180deg,#fff,#fff 70%,#fdfdfe)}
+.product-title{color:var(--oshiru-ink);letter-spacing:-.018em}
+.meta-line{color:var(--oshiru-sub)}
+.main-price{font-variant-numeric:tabular-nums}
+.cost-row{border:1px solid rgba(15,23,42,.055);background:#f7f8fa!important}
+.card-actions a{box-shadow:0 8px 18px rgba(17,24,39,.12)}
+.card-actions a:hover{box-shadow:0 10px 24px rgba(17,24,39,.17)}
+
+/* Result hierarchy */
+.result-top{padding:3px 2px 2px}
+.result-title-row{align-items:baseline}
+.stats-row .stat{box-shadow:0 6px 20px rgba(15,23,42,.035);border-color:rgba(15,23,42,.075)}
+.source-access-panel{background:rgba(255,255,255,.82)!important;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+
+/* Comparison: more whitespace, clearer rows, sticky labels and dimensional container. */
+.modal-card:has(.compare-table){width:min(1180px,calc(100vw - 36px));padding:30px;border:1px solid rgba(255,255,255,.7);box-shadow:0 35px 100px rgba(0,0,0,.28)}
+.compare-filterbar{position:sticky;top:0;z-index:6;background:rgba(247,248,250,.94)!important;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);padding:12px 14px!important;border-radius:16px!important}
+.compare-table{
+  border-collapse:separate!important;border-spacing:0!important;width:100%;
+  border:1px solid rgba(15,23,42,.09)!important;border-radius:18px!important;
+  box-shadow:0 14px 40px rgba(15,23,42,.06);overflow:hidden;background:#fff
+}
+.compare-table tr:first-child th{position:sticky;top:58px;z-index:4;background:rgba(248,250,252,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.compare-table th,.compare-table td{padding:16px 15px!important;border-bottom:1px solid rgba(15,23,42,.065)!important;line-height:1.65!important}
+.compare-table th:first-child{min-width:112px!important;font-size:12px;letter-spacing:.02em;color:#475569!important;background:#f8fafc!important}
+.compare-table td{min-width:180px;background:#fff}
+.compare-table tr:nth-child(even) td{background:#fcfcfd}
+.compare-table td.best-value{background:linear-gradient(180deg,#fff7f8,#fff1f4)!important;box-shadow:inset 0 0 0 1px rgba(217,31,72,.2)!important}
+.compare-tip{padding:0 2px 4px;font-size:12.5px!important}
+
+/* Desktop image-first composition. */
+@media(min-width:1180px){
+  .product-card{min-height:390px!important;border-radius:28px!important}
+  .visual{min-height:390px!important}
+  .market-img{padding:30px!important}
+  .card-body{padding:30px 32px 28px!important}
+  .product-title{font-size:23px!important;line-height:1.42!important;max-width:760px}
+  .main-price{font-size:38px!important}
+  .price-block{margin-top:20px!important;padding-top:18px!important}
+  .cost-row{padding:14px 15px!important;margin-top:15px!important}
+  .verified{padding-top:18px!important}
+}
+
+/* Tablet keeps a calm two-column layout with uncropped images. */
+@media(min-width:761px) and (max-width:1179px){
+  .product-card{border-radius:22px!important;overflow:hidden}
+  .visual{aspect-ratio:1/1!important;min-height:0!important}
+  .market-img{padding:18px!important}
+  .card-body{padding:18px!important}
+  .product-title{font-size:17px!important;min-height:52px;height:auto!important;-webkit-line-clamp:3}
+  .main-price{font-size:28px!important}
+}
+
+/* Mobile: preserve one-column flow, enlarge the product itself, avoid cramped metadata. */
+@media(max-width:760px){
+  .workspace{padding-left:12px!important;padding-right:12px!important}
+  .result-area{width:100%}
+  .product-grid{gap:18px!important}
+  .product-card{border-radius:24px!important;box-shadow:0 2px 3px rgba(15,23,42,.025),0 12px 34px rgba(15,23,42,.075)!important}
+  .visual{aspect-ratio:1/1!important;min-height:0!important}
+  .market-img{padding:14px!important}
+  .card-body{padding:17px 16px 18px!important}
+  .tag-row{gap:6px!important;margin-bottom:10px!important}
+  .product-title{font-size:17.5px!important;line-height:1.5!important;-webkit-line-clamp:3!important}
+  .meta-line{line-height:1.55!important;margin-top:7px!important}
+  .main-price{font-size:30px!important}
+  .price-block{gap:12px!important}
+  .cost-row{margin-top:12px!important;padding:12px!important;line-height:1.55!important}
+  .verified{font-size:10.5px!important;gap:10px!important}
+  .card-actions{gap:9px!important}
+  .card-actions button,.card-actions a{min-height:46px!important;display:grid;place-items:center}
+  .modal-card:has(.compare-table){width:100%;padding:18px 12px!important;border-radius:20px}
+  .compare-filterbar{top:0;padding:10px!important}
+  .compare-table{min-width:720px!important;border-radius:14px!important}
+  .compare-table th,.compare-table td{padding:13px 11px!important}
+}
+
+@media(prefers-reduced-motion:reduce){.product-card,.market-img{transition:none!important}.product-card:hover{transform:none!important}}
+
+/* Dense comparison mode v6: first-paint layout for fast visual scanning. */
+.product-grid{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(168px,1fr))!important;gap:8px!important;align-items:start!important}
+.product-card{min-height:0!important;border-radius:11px!important;box-shadow:none!important;transition:border-color .12s ease!important;content-visibility:auto;contain:layout style paint;contain-intrinsic-size:286px 190px;overflow:hidden!important}
+.product-card:hover{transform:none!important;box-shadow:none!important;border-color:#aeb9c7!important}
+.product-card .visual{aspect-ratio:1/1!important;min-height:0!important;background:#eef1f4!important}
+.product-card .market-img{object-fit:contain!important;padding:5px!important;background:#eef1f4!important;transform:none!important}
+.product-card:hover .market-img{transform:none!important}
+.product-card .source-pill{left:6px!important;top:6px!important;padding:5px 7px!important;max-width:calc(100% - 42px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10.5px!important;box-shadow:0 2px 8px rgba(15,23,42,.10)!important}
+.product-card .heart{right:6px!important;top:6px!important;width:29px!important;height:29px!important;font-size:15px!important;box-shadow:0 2px 8px rgba(15,23,42,.10)!important}
+.product-card .card-body{padding:9px!important}
+.product-card .tag-row{gap:3px!important;margin-bottom:5px!important;min-height:20px;max-height:20px;overflow:hidden}
+.product-card .tag{padding:3px 5px!important;font-size:9.5px!important;white-space:nowrap}
+.product-card .tag-row .tag:nth-child(n+3){display:none!important}
+.product-card .product-title{min-height:0!important;height:38px!important;font-size:13px!important;line-height:1.42!important;font-weight:830!important;-webkit-line-clamp:2!important}
+.product-card .meta-line{height:16px!important;margin-top:3px!important;font-size:10.5px!important;line-height:16px!important}
+.product-card .price-block{margin-top:6px!important;padding-top:0!important;display:block!important}
+.product-card .main-price{font-size:20px!important;line-height:1.15!important;letter-spacing:-.03em!important}
+.product-card .ship{margin-top:3px;text-align:left!important;font-size:10.5px!important;line-height:1.35!important;min-height:28px}
+.product-card .cost-row,.product-card .verified{display:none!important}
+.product-card .card-actions{grid-template-columns:32px 1fr!important;gap:4px!important;margin-top:6px}
+.product-card .card-actions button,.product-card .card-actions a{min-height:32px!important;height:32px!important;border-radius:7px!important;display:grid!important;place-items:center!important}
+.product-card .card-actions button{padding:0!important}
+.product-card .card-actions a{padding:0 4px!important;font-size:11px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:none!important}
+.product-card .image-fallback{padding:10px!important;font-size:10.5px!important}.product-card .image-fallback small{font-size:9px}
+.result-area{min-width:0}.stats-row{margin-bottom:9px!important}.provider-notice{margin-bottom:9px!important}.market-img{image-rendering:auto}
+@media(min-width:1280px){.product-grid{grid-template-columns:repeat(6,minmax(0,1fr))!important}}
+@media(min-width:1040px) and (max-width:1279px){.product-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important}}
+@media(min-width:760px) and (max-width:1039px){.product-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
+@media(max-width:759px){
+  .workspace{padding-left:10px!important;padding-right:10px!important}.result-top{margin-bottom:8px!important}
+  .stats-row{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important}.stat{padding:8px 9px!important;border-radius:9px!important}.stat span{font-size:10px!important}.stat b{font-size:14px!important}
+  .product-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
+  .product-card{min-height:0!important;border-radius:9px!important;contain-intrinsic-size:248px 160px}.product-card .visual{min-height:0!important}.product-card .market-img{padding:3px!important}.product-card .card-body{padding:7px!important}
+  .product-card .source-pill{font-size:9.5px!important;padding:4px 6px!important}.product-card .heart{width:27px!important;height:27px!important;font-size:14px!important}
+  .product-card .product-title{font-size:12px!important;height:35px!important;min-height:0!important}.product-card .meta-line{display:none!important}.product-card .main-price{font-size:18px!important}.product-card .ship{font-size:9.5px!important;min-height:25px}.product-card .tag{font-size:8.5px!important;padding:3px 4px!important}
+  .product-card .card-actions{grid-template-columns:29px 1fr!important}.product-card .card-actions button,.product-card .card-actions a{min-height:29px!important;height:29px!important}.product-card .card-actions a{padding:0 3px!important;font-size:10px!important}
+}
+@media(min-width:560px) and (max-width:759px){.product-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(prefers-reduced-motion:reduce){.product-card{transition:none!important}}
