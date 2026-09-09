@@ -4,10 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <title>最新グッズ情報 | VTuber・ゲーム・アニメ・アイドル公式情報 | OSHIRU</title>
-  <meta name="description" content="にじさんじ、ホロライブ、Apex Legends、プロセカ、呪術廻戦、サンリオ、BTS、Stray Kidsなどの公式サイト・公式ショップ・公式Xから推し活グッズやイベントの最新情報を探せるOSHIRUの公式情報ハブです。">
+  <title>推し活グッズ・公式ニュース｜画像で探す自動更新ページ | OSHIRU</title>
+  <meta name="description" content="VTuber・アニメ・ゲーム・キャラクター・K-POPグッズを、連携中のYahoo!ショッピング・楽天市場の商品画像からチェック。取得時刻・販売元付き自動スライドと、公式ショップの発表・受注情報へのリンクをまとめています。">
   <meta name="robots" content="index,follow,max-image-preview:large">
-  <meta name="last-modified" content="2026-08-22">
+  <meta name="last-modified" content="2026-09-08">
+  <meta name="oshiru-feed-version" content="2026-09-08.23">
   <link rel="canonical" href="https://oshiruoshi.vercel.app/latest-goods">
   <link rel="sitemap" type="application/xml" href="/sitemap.xml">
   <meta property="og:type" content="website">
@@ -21,6 +22,8 @@
   <link rel="stylesheet" href="/styles.css?v=20260819-pcfix1">
   <link rel="stylesheet" href="/navigation-v4.css?v=20260819-pcfix1">
   <link rel="stylesheet" href="/latest-goods.css?v=20260908-22">
+  <link rel="stylesheet" href="/latest-feed.css?v=20260908-23">
+  <script defer src="/latest-feed.js?v=20260908-23"></script>
   <link rel="manifest" href="/manifest.webmanifest">
   <script type="application/ld+json">{
     "@context":"https://schema.org",
@@ -28,7 +31,7 @@
     "name":"最新グッズ情報",
     "url":"https://oshiruoshi.vercel.app/latest-goods",
     "description":"VTuber、ゲーム、アニメ、キャラクター、アイドルの公式グッズ・コラボ・イベント情報を公式サイトや公式SNSから確認する情報ハブ。",
-    "dateModified":"2026-08-22",
+    "dateModified":"2026-09-08",
     "isPartOf":{"@type":"WebSite","name":"OSHIRU","url":"https://oshiruoshi.vercel.app/"},
     "breadcrumb":{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"OSHIRU","item":"https://oshiruoshi.vercel.app/"},{"@type":"ListItem","position":2,"name":"最新グッズ情報","item":"https://oshiruoshi.vercel.app/latest-goods"}]},
     "mainEntity":{"@type":"ItemList","name":"公式グッズ情報ソース","itemListElement":[
@@ -52,6 +55,7 @@
   <div class="header-inner">
     <a class="brand" href="/" aria-label="OSHIRU ホーム"><span class="brand-mark">O</span><span>OSHIRU</span></a>
     <nav class="header-nav" aria-label="メインナビゲーション"><a href="/">商品検索</a><a href="/latest-goods" aria-current="page">最新グッズ</a><a href="/guide/oshi-goods">比較ガイド</a></nav>
+    <a href="/how-to-use" style="margin-left:auto;white-space:nowrap;font-size:12px">使い方ガイド →</a>
   </div>
 </header>
 
@@ -62,7 +66,7 @@
     <div class="latest-hero-copy">
       <span class="latest-eyebrow">OFFICIAL GOODS & NEWS</span>
       <h1>推しの最新グッズを、<br>公式情報からすばやく確認。</h1>
-      <p>公式ショップ・公式サイト・公式Xをカテゴリ別に整理し、グッズ、受注、コラボ、ポップアップ、イベントの入口を一つにまとめています。気になる情報を見つけたら、そのままOSHIRUの商品検索で価格候補を比較できます。</p>
+      <p>販売元の商品画像を自動で取得する一覧と、公式発表へのリンクをまとめています。販売サイト・確認時刻を見ながら探して、そのままOSHIRUで価格候補を比較できます。</p>
       <a class="latest-search-link" href="/">推しグッズを横断検索する →</a>
     </div>
     <aside class="personal-box" aria-labelledby="personalTitle">
@@ -80,9 +84,23 @@
     </aside>
   </section>
 
+  <section id="liveGoods" class="latest-section live-goods" aria-labelledby="liveGoodsTitle" aria-busy="true" data-feed-state="loading">
+    <div class="section-head"><div><span class="latest-eyebrow">LIVE GOODS DISCOVERY</span><h2 id="liveGoodsTitle">いま取得したグッズを、画像でチェック</h2><p>接続中の商品APIから画像付き候補を自動取得。表示中は約5分ごとに更新し、約4秒ごとにスライドします。</p></div><a href="#feedPolicy">取得元・更新方針</a></div>
+    <div class="feed-tabs" aria-label="画像スライドのカテゴリ">
+      <button type="button" data-feed-category="all" aria-pressed="true">すべて</button><button type="button" data-feed-category="vtuber" aria-pressed="false">VTuber</button><button type="button" data-feed-category="anime" aria-pressed="false">アニメ・漫画</button><button type="button" data-feed-category="games" aria-pressed="false">ゲーム</button><button type="button" data-feed-category="character" aria-pressed="false">キャラクター</button><button type="button" data-feed-category="music" aria-pressed="false">アイドル・K-POP</button>
+    </div>
+    <p id="liveGoodsStatus" class="feed-status" role="status">販売元の画像付き商品を取得しています…</p>
+    <div id="liveGoodsRail" class="feed-rail" tabindex="0" aria-label="販売元の画像付き商品一覧"></div>
+    <div class="feed-controls"><button id="liveGoodsPrev" type="button" aria-label="前の商品">←</button><span id="liveGoodsCounter">0 / 0</span><button id="liveGoodsNext" type="button" aria-label="次の商品">→</button><button id="liveGoodsToggle" type="button" aria-pressed="false">停止</button><button id="liveGoodsRefresh" type="button">情報を更新</button></div>
+    <p id="liveGoodsSources" class="feed-source-status"></p>
+    <p class="feed-note">取得日時は発売日・発表日ではありません。APIからの取得は公式グッズ認定を意味しません。価格・送料・正規販売元は購入前に確認してください。</p>
+    <nav class="feed-web-links" aria-label="外部で最新情報を探す"><a href="https://search.yahoo.co.jp/search?p=%E6%8E%A8%E3%81%97%E6%B4%BB%20%E3%82%B0%E3%83%83%E3%82%BA%20%E6%96%B0%E4%BD%9C" target="_blank" rel="noopener noreferrer">Yahoo!検索で新作を探す ↗</a><a href="https://www.google.com/search?q=%E6%8E%A8%E3%81%97%E6%B4%BB%20%E3%82%B0%E3%83%83%E3%82%BA%20%E6%96%B0%E4%BD%9C" target="_blank" rel="noopener noreferrer">Googleで新作を探す ↗</a></nav>
+    <noscript><p>画像の自動更新にはJavaScriptを使います。下の公式情報・比較ガイド・外部検索リンクはそのまま利用できます。</p></noscript>
+  </section>
+
   <section class="latest-section" aria-labelledby="visualLatestTitle">
     <div class="section-head">
-      <div><h2 id="visualLatestTitle">公式最新ピックアップ</h2><p>確認日：2026年8月23日。画像・商品名・公式サイト・受付状況を一画面で確認できます。</p></div>
+      <div><h2 id="visualLatestTitle">公式発表・開催情報（確認日付き）</h2><p>確認日：2026年8月23日。こちらは編集確認した情報です。現在の受付状況は公式サイトで再確認してください。</p></div>
       <p class="rail-note">約4秒ごとに次の情報へ移動します。操作中は停止し、停止ボタンでも切り替えられます。</p>
     </div>
     <div class="official-rail-wrap">
@@ -163,7 +181,18 @@
     <article><h3>2. 欲しいグッズを検索</h3><p>公式情報で商品名や推し名を確認したら、OSHIRUの商品検索へ移動します。</p></article>
     <article><h3>3. 販売元と価格を比較</h3><p>複数販売元から取得できた候補を画像中心に一覧化し、購入前に販売元で最新状態を確認します。</p></article>
   </section>
-  <p class="latest-footer-note">OSHIRUは各作品・企業の公式サービスではありません。掲載する名称・画像等の権利は各権利者に帰属します。外部画像は公式ページへの案内用プレビューとして表示し、取得できない場合は固定サイズの代替表示へ切り替えます。</p>
+  <section id="feedPolicy" class="latest-section feed-policy" aria-labelledby="feedPolicyTitle">
+    <h2 id="feedPolicyTitle">最新情報の探し方と、このページの更新方針</h2>
+    <h3>発売日と「取得した時刻」は別の情報です</h3>
+    <p>自動更新枠は、その時点で商品APIから取得できた候補です。新発売順やニュース発表順ではありません。VTuber・アニメ・ゲーム・キャラクター・音楽のテーマを15分ごとに切り替え、異なる店舗の候補を交互に並べます。全サイト・全出品の網羅は保証していません。</p>
+    <h3>画像はどこから取得していますか？</h3>
+    <p>自動取得は連携済みのYahoo!ショッピング・楽天市場の商品APIが提供する画像URLを使い、商品名・販売元・リンク・取得時刻を併記します。無関係な検索結果、画像のない商品、取得から10分を超えた情報、在庫なしと返された商品はこの枠に採用しません。通常検索と同じ関連性判定を通します。</p>
+    <p>ニュースサイトの画像は、公開URLやRSSがあるだけでは自動転載しません。利用許諾・商用利用条件を確認し、対応する配信元を追加した場合に対象を広げます。未接続・取得制限のあるサイトはリンクから確認できます。</p>
+    <h3>公式の新作・受注期間はどう確認しますか？</h3>
+    <p>画像の自動更新枠とは別に、公式サイト一覧と確認日付きの発表情報を掲載しています。商品APIで見つかることは、公式商品の認定を意味しません。予約受付日、締切、再販、送料、販売事業者を公式ページで確認してください。</p>
+    <nav aria-label="グッズの探し方を詳しく読む"><a href="/guide/how-oshiru-compares">検索・比較の仕組み</a><a href="/discover/vtuber">VTuberグッズ</a><a href="/discover/anime">アニメグッズ</a><a href="/discover/characters">キャラクターから探す</a><a href="/compare/acrylic-stand">アクスタ比較</a><a href="/compare/plush">ぬいぐるみ比較</a></nav>
+  </section>
+  <p class="latest-footer-note">OSHIRUは各作品・企業の公式サービスではありません。掲載する名称・画像等の権利は各権利者に帰属します。画像を取得できない場合も商品名と販売元へのリンクは維持します。PR表示のあるリンクは広告です。ページ構成更新：2026年9月8日。個々の発表の確認日は各欄に記載しています。</p>
 </main>
 
 <footer class="site-footer"><div class="footer-inner"><div><div class="footer-brand">OSHIRU</div><div class="footer-note">推し活グッズの検索・比較を補助する非公式サービスです。</div></div><nav class="footer-links"><a href="/">商品検索</a><a href="/latest-goods">最新グッズ</a><a href="/privacy.html">プライバシー</a><a href="/disclaimer.html">免責</a></nav></div></footer>

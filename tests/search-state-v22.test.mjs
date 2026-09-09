@@ -26,6 +26,18 @@ const assertWaiting=env=>{
   assert.doesNotMatch(env.node('#resultMeta').textContent,/0件|ありません/);
 };
 
+test('every query gets the same eight direct-search destinations and snapshots remain identified',async()=>{
+  const env=boot();env.initial.resolve(empty);env.live.resolve(empty);await flush();
+  for(const query of ['初音ミク アクスタ','東雲絵名 6c','五条悟 サンリオ','見知らぬ作品 キーホルダー']){
+    const links=vm.runInContext(`directLinks(${JSON.stringify(query)})`,env.context);
+    assert.equal(links.length,8);
+    for(const source of ['メルカリ','Yahoo!フリマ','Yahoo!オークション','Amazon','Yahoo!検索','Google'])assert.ok(links.some(link=>link.source===source&&decodeURIComponent(link.url).includes(query)),source+' '+query);
+  }
+  assert.equal(vm.runInContext("originLabel('web-index-snapshot')",env.context),'過去の確認情報');
+  assert.equal(vm.runInContext("sourceMode('メルカリ')",env.context),'過去情報・外部検索');
+  assert.equal(vm.runInContext("sourceMode('Yahoo!フリマ')",env.context),'過去情報・外部検索');
+});
+
 test('empty snapshot does not flash not-found before a delayed live success',async()=>{
   const env=boot();env.initial.resolve(empty);await flush();assertWaiting(env);
   assert.equal([...env.timers.values()].some(t=>t.ms===12000),true,'snapshot completion must retain the overall deadline');

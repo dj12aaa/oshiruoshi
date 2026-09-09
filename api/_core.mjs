@@ -195,12 +195,12 @@ export async function snapshotSearch(q){
   const direct=['メルカリ','Yahoo!フリマ','Yahoo!オークション'].map(source=>({source,url:outbound(source,q)}));
   return{query:q,items,direct,providers:{snapshot:{ok:true,count:items.length}},snapshotCount:items.length,generatedAt:new Date().toISOString()};
 }
-export async function liveSearch(q){
+export async function liveSearch(q,{marketplacesOnly=false}={}){
   q=cleanQuery(q);if(!q)return{query:q,items:[],providers:{},generatedAt:new Date().toISOString()};
   const jobs=[];
   if(process.env.YAHOO_CLIENT_ID)jobs.push(['yahooShopping',yahooShopping(q)]);
   if(process.env.RAKUTEN_APP_ID&&process.env.RAKUTEN_ACCESS_KEY)jobs.push(['rakuten',rakuten(q)]);
-  if(process.env.X_BEARER_TOKEN)jobs.push(['x',xSearch(q)]);
+  if(process.env.X_BEARER_TOKEN&&!marketplacesOnly)jobs.push(['x',xSearch(q)]);
   const settled=await Promise.all(jobs.map(async([name,p])=>{try{const value=await p;return{name,ok:true,value}}catch(e){return{name,ok:false,value:[],error:String(e.message||e)}}}));
   let items=[];const providers={};
   for(const r of settled){items.push(...r.value);providers[r.name]={ok:r.ok,count:r.value.length,error:r.error||null}}
