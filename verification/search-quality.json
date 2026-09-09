@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-09-08T03:27:50.771Z",
+  "checkedAt": "2026-09-09T06:18:12.903Z",
   "ok": true,
   "expansionOk": true,
   "baselineOk": true,
@@ -12,7 +12,7 @@
   "results": [
     {
       "query": "星街すいせい アクスタ",
-      "count": 28,
+      "count": 29,
       "effectiveQuery": "ホロライブ 星街すいせい アクリルスタンド",
       "resolvedQuery": "ホロライブ 星街すいせい アクリルスタンド",
       "precisionVersion": "2026-09-06.19",
@@ -53,7 +53,7 @@
       "topTitles": [
         "【五条悟】 缶バッジ 呪術廻戦 ふかふかスクイーズパン編",
         "呪術廻戦 5周年 百面相缶バッジ 五条悟(懐玉・玉折)[ツインクル]《発売済・在庫品》",
-        "中古バッジ・ピンズ 五条悟 32mm缶バッジ 「呪術廻戦"
+        "10個セット 五条悟(箔押し) 「呪術廻戦PLAZA in ロフト トレーディング缶バッジ〜rest 懐玉・玉折〜」"
       ],
       "topScores": [
         877,
@@ -66,7 +66,7 @@
     },
     {
       "query": "初音ミク ぬい",
-      "count": 28,
+      "count": 29,
       "effectiveQuery": "初音ミク ぬいぐるみ",
       "resolvedQuery": "初音ミク ぬいぐるみ",
       "precisionVersion": "2026-09-06.19",
@@ -227,9 +227,9 @@
       "rankOrderOk": true,
       "uniqueTitlesOk": true,
       "topTitles": [
-        "五条悟 アクリルスタンド 花火Ver. 「呪術廻戦 懐玉・玉折 マルイ POP UP SHOP」",
         "五条悟 アクリルスタンド 「呪術廻戦 じゅじゅHONPO」",
-        "五条悟 アクリルスタンド 「セガ ラッキーくじ 呪術廻戦 SPLASH×BATTLE」 I賞"
+        "五条悟 アクリルスタンド 花火Ver. 「呪術廻戦 懐玉・玉折 マルイ POP UP SHOP」",
+        "呪術廻戦 アクリルMEGAフィギュア 夏油傑 ＆ 五条悟 アクリルスタンド　ジャンプショップ アクリルフィギュア 祓ったれ本舗"
       ],
       "topScores": [
         877,
@@ -242,7 +242,7 @@
     },
     {
       "query": "星町すいせい アクスタ",
-      "count": 28,
+      "count": 29,
       "effectiveQuery": "ホロライブ 星街すいせい アクリルスタンド",
       "resolvedQuery": "ホロライブ 星街すいせい アクリルスタンド",
       "precisionVersion": "2026-09-06.19",
@@ -269,7 +269,7 @@
     },
     {
       "query": "五条悟 サンリオ",
-      "count": 18,
+      "count": 19,
       "effectiveQuery": "呪術廻戦 五条悟 サンリオ グッズ",
       "resolvedQuery": "呪術廻戦 五条悟 サンリオ グッズ",
       "precisionVersion": "2026-09-06.19",
